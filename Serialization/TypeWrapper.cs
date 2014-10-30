@@ -1,5 +1,5 @@
 ﻿//
-// VSUtilsTypeWrapper.cs
+// TypeWrapper.cs
 //
 // Author:
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -33,14 +33,7 @@ namespace Utils
 	#region TypeWrapper
 
 	/// <summary>
-	/// This class is a simple wrapping adaptator
-	/// of .NET's System.Type to string.
-	/// In this way the type will be serialized
-	/// as a basic string. 
-	/// In order to allow custom drawer for Unity and
-	/// restriction on the possible type value it can
-	/// get, the wrapper can not be a simple extension 
-	/// of System.string
+	/// Wraps System.Reflection.FieldInfo to enable Unity serialization.
 	/// </summary>
 	[System.Serializable]
 	public class TypeWrapper
@@ -155,7 +148,7 @@ namespace Utils
 		/// and an Error will be logged with the handled Exception message.
 		/// </summary>
 		/// <value>The name of the type.</value>
-		public string typeName
+		public string TypeName
 		{ 
 			get
 			{ 
@@ -176,7 +169,7 @@ namespace Utils
 		/// value provided doesn't match any existing type.
 		/// </summary>
 		/// <value>Type value</value>
-		public System.Type type
+		public System.Type Type
 		{
 			get
 			{
@@ -211,13 +204,13 @@ namespace Utils
 		public TypeWrapper(System.Type pType)
 		{
 			// Using property
-			type = pType;
+			Type = pType;
 		}
 
 		public TypeWrapper(string pTypeName)
 		{
 			// Using property
-			typeName = pTypeName;
+			TypeName = pTypeName;
 		}
 	
 		#endregion
@@ -258,7 +251,7 @@ namespace Utils
 
 		public static implicit operator string(TypeWrapper wrap)
 		{
-			return wrap.typeName;
+			return wrap.TypeName;
 		}
 
 		public static implicit operator TypeWrapper(string strName)
@@ -270,7 +263,7 @@ namespace Utils
 
 		public static implicit operator System.Type(TypeWrapper wrap)
 		{
-			return wrap.type;
+			return wrap.Type;
 		}
 
 		public static implicit operator TypeWrapper(System.Type sType)
