@@ -124,7 +124,7 @@ namespace Utils
 		/// <summary>
 		/// Raises the after serialization event.
 		/// </summary>
-		public void OnAfterSerialize()
+		public void OnAfterDeserialize()
 		{
 			if(m_methodName == "")
 				m_info = null;
