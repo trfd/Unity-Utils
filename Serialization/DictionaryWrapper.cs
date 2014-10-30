@@ -41,7 +41,7 @@ namespace Utils
 		/// List of all keys. Only used for serialization / deserialization.
 		/// </summary>
 		[UnityEngine.SerializeField]
-		private List<Keys> m_keys;
+		private List<Key> m_keys;
 			
 		/// <summary>
 		/// List of all values. Only used for serialization / deserialization.
@@ -78,7 +78,7 @@ namespace Utils
 			m_values = new List<Value>();
 		}
 
-		public DictionaryWrapper(Dictionary<KeyCode,Value> dict)
+		public DictionaryWrapper(Dictionary<Key,Value> dict)
 		{
 			m_dict = dict;
 			m_keys = new List<Key>();
