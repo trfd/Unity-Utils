@@ -190,6 +190,11 @@ namespace Utils
 			}
 		}
 
+		public bool IsValid
+		{
+			get{ return (m_type != typeof(InvalidType)); }
+		}
+
 		#endregion
 
 		#region Constructors
