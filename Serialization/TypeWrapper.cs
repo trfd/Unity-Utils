@@ -169,6 +169,7 @@ namespace Utils
 		/// value provided doesn't match any existing type.
 		/// </summary>
 		/// <value>Type value</value>
+		[System.Xml.Serialization.XmlIgnore]
 		public System.Type Type
 		{
 			get

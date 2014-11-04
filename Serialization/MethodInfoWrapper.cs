@@ -74,6 +74,7 @@ namespace Utils
 
 		#region Properties
 
+		[System.Xml.Serialization.XmlIgnore]
 		public MethodInfo MethodInfo
 		{
 			get{ return m_info;  }

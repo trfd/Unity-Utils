@@ -61,6 +61,7 @@ namespace Utils
 
 		#region Properties
 
+		[System.Xml.Serialization.XmlIgnore]
 		public FieldInfo FieldInfo
 		{
 			get{ return m_info;  }
