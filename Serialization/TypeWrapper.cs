@@ -148,6 +148,7 @@ namespace Utils
 		/// and an Error will be logged with the handled Exception message.
 		/// </summary>
 		/// <value>The name of the type.</value>
+		[System.Xml.Serialization.XmlIgnore]
 		public string TypeName
 		{ 
 			get
