@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace Utils
+namespace Utils.Event
 {   
     public class EventTrigger : MonoBehaviour
     {
@@ -16,9 +16,10 @@ namespace Utils
 
         #region Trigger Interface
 
+        [InspectorButton("Trigger")]
         public void Trigger()
         {
-            if (_eventName == "" || _eventName == null)
+            if(string.IsNullOrEmpty(_eventName))
                 throw new System.NullReferenceException("Null event name");
 
             EventManager.Instance.PlayEvent(_eventName);

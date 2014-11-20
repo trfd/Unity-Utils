@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-namespace Utils
+namespace Utils.Event
 {
     public class EventManager : MonoBehaviour
     {

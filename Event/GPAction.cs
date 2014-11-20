@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace Utils
+namespace Utils.Event
 {
-    public abstract class GPAction
+    [System.Serializable]
+    public abstract class GPAction : UnityEngine.Object
     {
         public enum ActionState
         {
@@ -87,10 +88,6 @@ namespace Utils
         protected virtual void OnDestroy()
         {
         }
-
-        #endregion
-
-        #region Public Interface
 
         protected void End()
         {

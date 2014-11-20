@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Utils
+namespace Utils.Event
 {
     public class EventHandler : MonoBehaviour
     {
@@ -48,7 +48,12 @@ namespace Utils
         /// <summary>
         /// Current state of the handler
         /// </summary>
-        private HandlerState m_currState = HandlerState.NONE; 
+        private HandlerState m_currState = HandlerState.NONE;
+
+        /// <summary>
+        /// Action to trigger
+        /// </summary>
+        private GPAction m_action;
 
         #endregion
 
@@ -63,11 +68,6 @@ namespace Utils
         /// Maximum number of time the event can be triggered
         /// </summary>
         public int _maxTriggerCount;
-
-        /// <summary>
-        /// Action to trigger
-        /// </summary>
-        public GPAction _action;
 
         #endregion
 
@@ -91,6 +91,15 @@ namespace Utils
             set;
         }
 
+        /// <summary>
+        /// Action to trigger
+        /// </summary>
+        [UnityEngine.SerializeField]
+        public GPAction Action
+        {
+            get { return m_action; }
+            set { m_action = value; Debug.Log("Set to: "+m_action); }
+        }
         #endregion
 
         #region MonoBehaviour
@@ -102,7 +111,10 @@ namespace Utils
 
         void Update()
         {
-            if(_action.HasEnded)
+            if(Action == null)
+                return;
+
+            if(Action.HasEnded)
             {
               if(HasReachedMaxTriggerCount())
                   m_currState = HandlerState.TERMINATED;
@@ -117,6 +129,8 @@ namespace Utils
 
         public void Init()
         {
+            Debug.Log("Event Name: "+_eventName);
+
             if(string.IsNullOrEmpty(_eventName))
                 throw new System.Exception("Null event name");
 
@@ -125,7 +139,7 @@ namespace Utils
 
         public void EventTrigger(string evtName)
         {
-            if (evtName != _eventName || _action == null)
+            if (evtName != _eventName || Action == null)
                 return;
 
            if(CanTriggerAction())
@@ -143,7 +157,7 @@ namespace Utils
            
             bool lockTrigger = (((int)this.Kind) & s_kindLockMask) == 1;
 
-            if (lockTrigger && _action.IsRunning)
+            if (lockTrigger && Action.IsRunning)
                 return false;
 
             return true;
@@ -163,7 +177,7 @@ namespace Utils
             m_currState = HandlerState.RUNNING;
        
             m_triggerCount++;
-            _action.Trigger();
+            Action.Trigger();
         }
 
         #endregion
