@@ -1,18 +1,29 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class EventTrigger : MonoBehaviour {
-
-    public string _eventName;
-
-    public void Trigger()
+namespace Utils
+{   
+    public class EventTrigger : MonoBehaviour
     {
-        if(_eventName == "" ||_eventName == null)
+        #region Public Member
+
+        /// <summary>
+        /// Name of event to trigger
+        /// </summary>
+        public string _eventName;
+
+        #endregion
+
+        #region Trigger Interface
+
+        public void Trigger()
         {
-            Debug.LogError("EVent name can't be null, an error must have occured!");
-            return;
+            if (_eventName == "" || _eventName == null)
+                throw new System.NullReferenceException("Null event name");
+
+            EventManager.Instance.PlayEvent(_eventName);
         }
 
-        EventManager.Instance.PlayEvent(_eventName);
+        #endregion
     }
 }

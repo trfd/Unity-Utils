@@ -2,100 +2,105 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class EventManager : MonoBehaviour
+
+namespace Utils
 {
-
-    #region Singleton
-
-    private static EventManager m_instance;
-
-    public static EventManager Instance
+    public class EventManager : MonoBehaviour
     {
-        get
+        #region Singleton
+
+        private static EventManager m_instance;
+
+        public static EventManager Instance
+        {
+            get
+            {
+                if (m_instance == null)
+                {
+                    m_instance = GameObject.FindObjectOfType<EventManager>();
+                    //DontDestroyOnLoad(m_instance.gameObject);
+                }
+
+                return m_instance;
+            }
+        }
+
+        void Awake()
         {
             if (m_instance == null)
             {
-                m_instance = GameObject.FindObjectOfType<EventManager>();
-                //DontDestroyOnLoad(m_instance.gameObject);
+                m_instance = this;
+                m_instance.Init();
+                //DontDestroyOnLoad(this);
             }
-
-            return m_instance;
+            else
+            {
+                if (this != m_instance)
+                    Destroy(this.gameObject);
+            }
         }
-    }
 
-    void Awake()
-    {
-        if (m_instance == null)
+        #endregion
+
+        #region Delegates
+
+        public delegate void EventDelegate(string evtName);
+
+        #endregion
+
+        #region Private Members
+
+        private Dictionary<string, EventDelegate> m_eventMap;
+
+        #endregion
+
+        private void Init()
         {
-            m_instance = this;
-            m_instance.Init();
-            //DontDestroyOnLoad(this);
+            m_eventMap = new Dictionary<string, EventDelegate>();
         }
-        else
+
+        #region Registration
+
+        public void Register(string evtName, EventDelegate del)
         {
-            if (this != m_instance)
-                Destroy(this.gameObject);
+            try
+            {
+                m_eventMap[evtName] += del;
+            }
+            catch (KeyNotFoundException)
+            {
+                m_eventMap.Add(evtName, del);
+            }
         }
-    }
 
-    #endregion
-
-    #region Delegates
-
-    public delegate void EventDelegate(string evtName);
-
-    #endregion
-
-    #region Private Members
-
-    private Dictionary<string, EventDelegate> m_eventMap;
-
-    #endregion
-
-    private void Init()
-    {
-        m_eventMap = new Dictionary<string, EventDelegate>();
-    }
-
-    #region Registration
-
-    public void Register(string evtName, EventDelegate del)
-    {
-        try
+        public void Unregister(string evtName, EventDelegate del)
         {
-            m_eventMap[evtName] += del;
+            try
+            {
+                m_eventMap[evtName] -= del;
+            }
+            catch (KeyNotFoundException)
+            { }
         }
-        catch (KeyNotFoundException)
+
+        #endregion
+
+        #region Post Events
+
+        public void PlayEvent(string name)
         {
-            m_eventMap.Add(evtName, del);
+            EventDelegate value;
+
+            if (m_eventMap.TryGetValue(name, out value))
+            {
+                value(name);
+            }
+            else
+            {
+                Debug.LogError("Event manager does not contain the event name : " + name);
+            }
         }
+
+        #endregion
     }
-
-    public void Unregister(string evtName, EventDelegate del)
-    {
-        try
-        {
-            m_eventMap[evtName] -= del;
-        }
-        catch (KeyNotFoundException)
-        { }
-    }
-
-    #endregion
-
-    #region Post Events
-
-    public void PlayEvent(string name)
-    {
-        EventDelegate value;
-
-        if (m_eventMap.TryGetValue(name, out value))
-        {
-            value(name);
-        }else{
-            Debug.LogError("Event manager does not contain the event name : " + name);
-        }
-    }
-
-    #endregion
 }

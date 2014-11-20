@@ -1,25 +1,103 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract class GPAction
+namespace Utils
 {
-    private bool _hasEnded;
-
-    public bool HasEnded
+    public abstract class GPAction
     {
-        get { return _hasEnded; }
-        set { _hasEnded = value; }
-    }
+        public enum ActionState
+        {
+            NONE,
+            RUNNNING,
+            TERMINATED
+        }
 
-    public virtual void OnTrigger()
-    {
-    }
+        #region Private Members
 
-    public virtual void OnUpdate()
-    {
-    }
+        /// <summary>
+        /// Current state of action
+        /// </summary>
+        private ActionState m_currState = ActionState.NONE;
 
-    public virtual void OnDestroy()
-    {
+        #endregion 
+
+        #region Properties
+
+        /// <summary>
+        /// Returns whether or not the action is currently running
+        /// </summary>
+        public bool IsRunning
+        {
+            get { return m_currState == ActionState.RUNNNING; }
+        }
+
+
+        /// <summary>
+        /// Returns whether or not the action has ended
+        /// </summary>
+        public bool HasEnded
+        {
+            get { return m_currState == ActionState.TERMINATED; }
+        }
+
+        /// <summary>
+        /// Returns whether or not the action has ended.
+        /// </summary>
+        public bool HasStarted
+        {
+            get 
+            { return (m_currState == ActionState.RUNNNING || 
+                      m_currState == ActionState.TERMINATED) ; 
+            }
+        }
+
+        #endregion
+
+        #region Public Interface
+
+        public void Trigger()
+        {
+            m_currState = ActionState.RUNNNING;
+            OnTrigger();
+        }
+
+        public void Update(float dt)
+        {
+            if(HasEnded)
+            {
+                OnDestroy();
+                return;
+            }
+                
+            OnUpdate(dt);
+        }
+
+        #endregion
+
+        #region Override Interface
+
+        protected virtual void OnTrigger()
+        {
+        }
+
+        protected virtual void OnUpdate(float dt)
+        {
+        }
+
+        protected virtual void OnDestroy()
+        {
+        }
+
+        #endregion
+
+        #region Public Interface
+
+        protected void End()
+        {
+            m_currState = ActionState.TERMINATED;
+        }
+         
+        #endregion
     }
 }
+
