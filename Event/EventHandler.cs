@@ -50,14 +50,14 @@ namespace Utils.Event
         /// </summary>
         private HandlerState m_currState = HandlerState.NONE;
 
-        /// <summary>
-        /// Action to trigger
-        /// </summary>
-        private GPAction m_action;
-
         #endregion
 
         #region Public Members
+		
+		/// <summary>
+		/// Action to trigger
+		/// </summary>
+		public GPAction _action;
 
         /// <summary>
         /// Name of the event the handler is listening
@@ -89,17 +89,8 @@ namespace Utils.Event
         {
             get;
             set;
-        }
+		}
 
-        /// <summary>
-        /// Action to trigger
-        /// </summary>
-        [UnityEngine.SerializeField]
-        public GPAction Action
-        {
-            get { return m_action; }
-            set { m_action = value;}
-        }
         #endregion
 
         #region MonoBehaviour
@@ -111,10 +102,10 @@ namespace Utils.Event
 
         void Update()
         {
-            if(Action == null)
+            if(_action == null)
                 return;
 
-            if(Action.HasEnded)
+            if(_action.HasEnded)
             {
               if(HasReachedMaxTriggerCount())
                   m_currState = HandlerState.TERMINATED;
@@ -134,14 +125,12 @@ namespace Utils.Event
 
             EventManager.Instance.Register(_eventName, EventTrigger);
 
-            Action = Resources.Load<GPAction>("ActionDatabase");
-
-            //Action = (GPAction) ScriptableObject.Instantiate(test);
+			//_action = (GPAction) Resources.Load("New Action");
         }
 
         public void EventTrigger(string evtName)
         {
-            if (evtName != _eventName || Action == null)
+            if (evtName != _eventName || _action == null)
                 return;
 
            if(CanTriggerAction())
@@ -159,7 +148,7 @@ namespace Utils.Event
            
             bool lockTrigger = (((int)this.Kind) & s_kindLockMask) == 1;
 
-            if (lockTrigger && Action.IsRunning)
+            if (lockTrigger && _action.IsRunning)
                 return false;
 
             return true;
@@ -179,7 +168,7 @@ namespace Utils.Event
             m_currState = HandlerState.RUNNING;
        
             m_triggerCount++;
-            Action.Trigger();
+            _action.Trigger();
         }
 
         #endregion

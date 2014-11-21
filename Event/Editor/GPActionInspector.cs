@@ -71,11 +71,9 @@ public class GPActionDefaultInspector
 
         while (property.NextVisible(true))
         {
-            if (EditorGUILayout.PropertyField(property))
-                hasChanged = true;
+			EditorGUILayout.PropertyField(property);
         }
 
-        if (hasChanged)
-            m_serialObject.ApplyModifiedProperties();
+       	m_serialObject.ApplyModifiedProperties();
     }
 }

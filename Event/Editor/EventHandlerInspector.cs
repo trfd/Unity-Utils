@@ -54,17 +54,15 @@ public class EventHandlerInspector : Editor
 
         EditorGUILayout.Space();
 
-        EditorGUILayout.ObjectField("Action", handler.Action, typeof(GPAction));
-
-        if (m_actionInspector == null && handler.Action != null)
+        if (m_actionInspector == null && handler._action != null)
         {
-            m_actionInspector = new GPActionDefaultInspector(handler.Action);
-            m_actionInspector._targetAction = handler.Action;
+            m_actionInspector = new GPActionDefaultInspector(handler._action);
+            m_actionInspector._targetAction = handler._action;
         }
-        else if (m_actionInspector != null && handler.Action == null)
+        else if (m_actionInspector != null && handler._action == null)
             m_actionInspector = null;
 
-        if(handler.Action != null)
+        if(handler._action != null)
             m_actionInspector.DrawInspector();
 
         DisplayActionDelete();
@@ -76,7 +74,8 @@ public class EventHandlerInspector : Editor
         {
             EditorGUILayout.BeginHorizontal();
 
-            m_actionTypeSelectedIndex = EditorGUILayout.Popup("Action", m_actionTypeSelectedIndex, GPActionManager.s_gpactionTypeNames);
+            m_actionTypeSelectedIndex = EditorGUILayout.Popup("Action", m_actionTypeSelectedIndex, 
+			                                                  GPActionManager.s_gpactionTypeNames);
 
             if (GUILayout.Button("Create"))
             {
@@ -111,9 +110,9 @@ public class EventHandlerInspector : Editor
 
         System.Type type = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
-        handler.Action = (GPAction)ScriptableObject.CreateInstance(type);
+        handler._action = (GPAction)ScriptableObject.CreateInstance(type);
 
-        AssetDatabase.CreateAsset(handler.Action, relativePath);
+        AssetDatabase.CreateAsset(handler._action, relativePath);
         AssetDatabase.SaveAssets();
     }
 
@@ -129,7 +128,7 @@ public class EventHandlerInspector : Editor
                 "action asset in the field 'Action' above." +
                 "THIS CAN'T BE UNDONE !!!!!!!!!!!!!!!!!!!!!!!!!!", "Confirm", "Cancel"))
             {
-                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(handler.Action));
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(handler._action));
             }
         }
     }
