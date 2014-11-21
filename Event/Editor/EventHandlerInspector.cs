@@ -18,6 +18,11 @@ public class EventHandlerInspector : Editor
     /// </summary>
     private int m_actionTypeSelectedIndex = 0;
 
+    /// <summary>
+    /// Holds whether the button "Create Action" button has been pushed
+    /// </summary>
+    private bool m_createNewAction = false;
+
     private GPActionDefaultInspector m_actionInspector;
 
     #endregion
@@ -44,29 +49,12 @@ public class EventHandlerInspector : Editor
 
         // Display Change Action 
 
-        EditorGUILayout.BeginHorizontal();
+        DisplayActionManagement();
 
-        m_actionTypeSelectedIndex = EditorGUILayout.Popup("Action", m_actionTypeSelectedIndex, GPActionManager.s_gpactionTypeNames);
-
-        if (GUILayout.Button("Set"))
-        {
-            if (EditorUtility.DisplayDialog("Confirm change","Setting the action will erase previous action. This can not be undone", "Confirm", "Cancel"))
-            {
-                ChangeSelectedAction();
-            }
-        }
-
-        EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space();
 
-        string actionTypeName;
-        if (handler.Action == null)
-            actionTypeName = "NULL";
-        else
-            actionTypeName = handler.Action.GetType().Name;
-
-        EditorGUILayout.LabelField("Action: "+actionTypeName);
+        EditorGUILayout.ObjectField("Action", handler.Action, typeof(GPAction));
 
         if (m_actionInspector == null && handler.Action != null)
         {
@@ -78,10 +66,44 @@ public class EventHandlerInspector : Editor
 
         if(handler.Action != null)
             m_actionInspector.DrawInspector();
+
+        DisplayActionDelete();
     }
 
-    private void ChangeSelectedAction()
+    private void DisplayActionManagement()
     {
+        if(m_createNewAction)
+        {
+            EditorGUILayout.BeginHorizontal();
+
+            m_actionTypeSelectedIndex = EditorGUILayout.Popup("Action", m_actionTypeSelectedIndex, GPActionManager.s_gpactionTypeNames);
+
+            if (GUILayout.Button("Create"))
+            {
+               CreateAction();
+                m_createNewAction = false;
+            }
+            
+            if (GUILayout.Button("Cancel"))
+                m_createNewAction = false;
+            
+            EditorGUILayout.EndHorizontal();
+
+           
+        }
+        else if (GUILayout.Button("Create Action Asset"))
+            m_createNewAction = true;
+    }
+
+    private void CreateAction()
+    {
+        string path = EditorUtility.SaveFilePanel("Create Action", "Assets/", "New Action", "asset");
+
+        if (path == null && path.Length != 0)
+            return;
+
+        string relativePath = path.Substring(path.IndexOf("Assets/"));
+
         EventHandler handler = (EventHandler)target;
 
         if (m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
@@ -89,9 +111,27 @@ public class EventHandlerInspector : Editor
 
         System.Type type = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
-        handler.Action = (GPAction) Activator.CreateInstance(type);
+        handler.Action = (GPAction)ScriptableObject.CreateInstance(type);
 
-        EditorUtility.SetDirty(handler);
+        AssetDatabase.CreateAsset(handler.Action, relativePath);
+        AssetDatabase.SaveAssets();
+    }
+
+    private void DisplayActionDelete()
+    {
+        if(GUILayout.Button("Delete Action Asset"))
+        {
+             EventHandler handler = (EventHandler)target;
+
+            if (EditorUtility.DisplayDialog("Delete Action Asset",
+                "Are you sure you want to delete this action asset." +
+                " If you need to change the action for this handler drag another " +
+                "action asset in the field 'Action' above." +
+                "THIS CAN'T BE UNDONE !!!!!!!!!!!!!!!!!!!!!!!!!!", "Confirm", "Cancel"))
+            {
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(handler.Action));
+            }
+        }
     }
 
     #endregion

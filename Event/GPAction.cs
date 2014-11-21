@@ -62,7 +62,7 @@ namespace Utils.Event
             OnTrigger();
         }
 
-        public void Update(float dt)
+        public void Update()
         {
             if(HasEnded)
             {
@@ -70,7 +70,7 @@ namespace Utils.Event
                 return;
             }
                 
-            OnUpdate(dt);
+            OnUpdate(Time.deltaTime);
         }
 
         #endregion

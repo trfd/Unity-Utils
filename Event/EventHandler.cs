@@ -129,12 +129,14 @@ namespace Utils.Event
 
         public void Init()
         {
-            Debug.Log("Event Name: "+_eventName);
-
             if(string.IsNullOrEmpty(_eventName))
                 throw new System.Exception("Null event name");
 
             EventManager.Instance.Register(_eventName, EventTrigger);
+
+            Action = Resources.Load<GPAction>("ActionDatabase");
+
+            //Action = (GPAction) ScriptableObject.Instantiate(test);
         }
 
         public void EventTrigger(string evtName)
