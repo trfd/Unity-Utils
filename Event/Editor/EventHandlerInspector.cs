@@ -98,7 +98,7 @@ public class EventHandlerInspector : Editor
     {
         string path = EditorUtility.SaveFilePanel("Create Action", "Assets/", "New Action", "asset");
 
-        if (path == null && path.Length != 0)
+        if (path == null || path.Length == 0)
             return;
 
         string relativePath = path.Substring(path.IndexOf("Assets/"));
@@ -118,9 +118,14 @@ public class EventHandlerInspector : Editor
 
     private void DisplayActionDelete()
     {
+		EventHandler handler = (EventHandler)target;
+
+		if(handler._action == null)
+			return;
+
         if(GUILayout.Button("Delete Action Asset"))
         {
-             EventHandler handler = (EventHandler)target;
+             
 
             if (EditorUtility.DisplayDialog("Delete Action Asset",
                 "Are you sure you want to delete this action asset." +
@@ -129,6 +134,7 @@ public class EventHandlerInspector : Editor
                 "THIS CAN'T BE UNDONE !!!!!!!!!!!!!!!!!!!!!!!!!!", "Confirm", "Cancel"))
             {
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(handler._action));
+				handler._action = null;
             }
         }
     }
