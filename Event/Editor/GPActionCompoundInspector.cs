@@ -113,7 +113,7 @@ namespace Utils.Event
 				
 				EditorGUILayout.EndHorizontal();
 			}
-			else if (GUILayout.Button("Create Action Asset"))
+			else if (GUILayout.Button("Add New Action"))
 				m_createNewAction = true;
 		}
 
@@ -151,6 +151,8 @@ namespace Utils.Event
 				throw new System.NullReferenceException();
 			
 			m_childrenInspectors.Add(insp);
+
+			insp.TargetAction = action;
 		}
 
 		private void RemoveActionAt(int idx)
