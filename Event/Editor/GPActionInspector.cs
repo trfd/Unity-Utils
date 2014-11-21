@@ -62,14 +62,12 @@ public class GPActionInspector
 	#endregion
 	
 	#region Public Members
-	
 
-	
 	#endregion
 
 	#region Accessors
 
-	public void SetAction(GPAction action)
+	public virtual void SetAction(GPAction action)
 	{
 		m_targetAction = action;
 		m_serialObject = new SerializedObject(m_targetAction);
@@ -81,7 +79,11 @@ public class GPActionInspector
 	{
 		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, TargetAction.GetType().Name)))
 		{
+			EditorGUI.indentLevel++;
+
 			OnInspectorGUI();
+
+			EditorGUI.indentLevel--;
 		}
 	}
 

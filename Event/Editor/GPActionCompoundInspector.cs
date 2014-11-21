@@ -27,32 +27,140 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Utils.Event
 {
 	[GPActionInspectorAttribute(typeof(GPActionCompound))]
 	public class GPActionCompoundInspector : GPActionDefaultInspector
 	{
-		protected override void OnInspectorGUI()
+		#region Private Members
+
+		/// <summary>
+		/// The m_create new action.
+		/// </summary>
+		private bool m_createNewAction;
+
+		/// <summary>
+		/// The index of the m_action type selected.
+		/// </summary>
+		private int m_actionTypeSelectedIndex;
+
+		private List<GPActionInspector> m_childrenInspectors;
+
+		#endregion
+
+		public override void SetAction(GPAction action)
 		{
-			base.OnInspectorGUI();
+			base.SetAction (action);
 
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
 
-			if(GUILayout.Button("Create Action"))
+			m_childrenInspectors = new List<GPActionInspector>();
+
+			foreach(GPAction act in compoundAction._actions)
 			{
-				GPAction action = (GPAction)ScriptableObject.CreateInstance<MockAction>();
-
-				compoundAction._actions.Add(action);
-
-				Debug.Log("Create new action:"+compoundAction._actions[compoundAction._actions.Count-1]);
-
-				AssetDatabase.AddObjectToAsset(action,compoundAction);
-
-				AssetDatabase.SaveAssets();
-
-				EditorUtility.SetDirty(compoundAction);
+				AddInspectorFor(act);
 			}
+		}
+
+
+		protected override void OnInspectorGUI()
+		{
+			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
+
+			if(compoundAction._actions.Count != m_childrenInspectors.Count)
+				Debug.LogError("Wrong size of inspector array");
+
+			for(int i=0 ; i< m_childrenInspectors.Count ;)
+			{
+				m_childrenInspectors[i].DrawInspector();
+
+				EditorGUILayout.Space();
+
+				// Remove Button
+
+				if(GUILayout.Button("Remove Action"))
+				{
+					RemoveActionAt(i);
+				}
+				else
+					++i;
+			}
+
+			EditorGUILayout.Space();
+
+			DisplayActionManagement();
+		}
+
+		private void DisplayActionManagement()
+		{
+			if(m_createNewAction)
+			{
+				EditorGUILayout.BeginHorizontal();
+				
+				m_actionTypeSelectedIndex = EditorGUILayout.Popup("Action", m_actionTypeSelectedIndex, 
+				                                                  GPActionManager.s_gpactionTypeNames);
+				
+				if (GUILayout.Button("Create"))
+				{
+					CreateAction();
+					m_createNewAction = false;
+				}
+				
+				if (GUILayout.Button("Cancel"))
+					m_createNewAction = false;
+				
+				EditorGUILayout.EndHorizontal();
+			}
+			else if (GUILayout.Button("Create Action Asset"))
+				m_createNewAction = true;
+		}
+
+		private void CreateAction()
+		{
+			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
+
+			if(m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
+				throw new System.Exception("Out of bound selected index");
+
+			System.Type selectedType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
+
+			GPAction action = (GPAction)ScriptableObject.CreateInstance(selectedType);
+			
+			compoundAction._actions.Add(action);
+			
+			AssetDatabase.AddObjectToAsset(action,compoundAction);
+			
+			AssetDatabase.SaveAssets();
+			
+			EditorUtility.SetDirty(compoundAction);
+
+			// Add Inspector
+
+			AddInspectorFor(action);
+		}
+
+		private void AddInspectorFor(GPAction action)
+		{
+			System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(action);
+			
+			GPActionInspector insp = (GPActionInspector) System.Activator.CreateInstance(inspectorType);
+			
+			if(insp == null)
+				throw new System.NullReferenceException();
+			
+			m_childrenInspectors.Add(insp);
+		}
+
+		private void RemoveActionAt(int idx)
+		{
+			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
+
+			Object.DestroyImmediate(compoundAction._actions[idx],true);
+
+			compoundAction._actions.RemoveAt(idx);
+			m_childrenInspectors.RemoveAt(idx);
 		}
 	}
 }

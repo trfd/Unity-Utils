@@ -30,18 +30,9 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
+	[GPActionHide]
 	public class GPActionCompound : GPAction
 	{
-		#region Private Members
-
-		/// <summary>
-		/// List of all GPAction IDs used for serialization/deserialization
-		/// </summary>
-		//private List<string> m_actionIDs;
-
-
-		#endregion
-
 		#region Public Members
 
 		/// <summary>
