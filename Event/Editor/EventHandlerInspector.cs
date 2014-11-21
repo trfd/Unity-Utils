@@ -23,7 +23,7 @@ public class EventHandlerInspector : Editor
     /// </summary>
     private bool m_createNewAction = false;
 
-    private GPActionDefaultInspector m_actionInspector;
+	private GPActionInspector m_actionInspector;
 
     #endregion
 
@@ -56,8 +56,7 @@ public class EventHandlerInspector : Editor
 
         if (m_actionInspector == null && handler._action != null)
         {
-            m_actionInspector = new GPActionDefaultInspector(handler._action);
-            m_actionInspector._targetAction = handler._action;
+			CreateActionInspector(handler);
         }
         else if (m_actionInspector != null && handler._action == null)
             m_actionInspector = null;
@@ -138,6 +137,17 @@ public class EventHandlerInspector : Editor
             }
         }
     }
+
+	private void CreateActionInspector(EventHandler handler)
+	{
+		System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(handler._action);
+
+		if(inspectorType == null)
+			return;
+
+		m_actionInspector = (GPActionInspector) Activator.CreateInstance(inspectorType);
+		m_actionInspector.TargetAction = handler._action;
+	}
 
     #endregion
 }

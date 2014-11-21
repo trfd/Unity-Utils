@@ -73,6 +73,13 @@ namespace Utils.Event
 
         #region Properties
 
+		[System.Obsolete("Use EventHandler._action instead",true)]
+		public GPAction Action
+		{
+			get{ return _action;  }
+			set{ _action = value; }
+		}
+
         /// <summary>
         /// Readonly access to the handler state.
         /// </summary>
@@ -124,8 +131,6 @@ namespace Utils.Event
                 throw new System.Exception("Null event name");
 
             EventManager.Instance.Register(_eventName, EventTrigger);
-
-			//_action = (GPAction) Resources.Load("New Action");
         }
 
         public void EventTrigger(string evtName)

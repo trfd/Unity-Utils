@@ -30,40 +30,67 @@ using System.Collections;
 using System.Collections.Generic;
 using Utils.Event;
 
-public class GPActionDefaultInspector
+
+public class GPActionInspector
 {
-    #region Private Members
+	#region Private Members
 
-    private SerializedObject m_serialObject;
+	private GPAction m_targetAction;
 
-    private bool m_inspectorFoldout;
+	protected SerializedObject m_serialObject;
+	
+	private bool m_inspectorFoldout;
+	
+	#endregion
 
-    #endregion
+	#region Property
 
-    #region Public Members
+	public GPAction TargetAction
+	{
+		get{ return m_targetAction; }
+		set
+		{
+			SetAction(value);
+		}
+	}
 
-    public GPAction _targetAction;
+	public SerializedObject SerialObject
+	{
+		get{ return m_serialObject; }
+	}
 
-    #endregion
+	#endregion
+	
+	#region Public Members
+	
 
-    #region Constructor
+	
+	#endregion
 
-    public GPActionDefaultInspector(GPAction action)
-    {
-        m_serialObject = new SerializedObject(action);
-    }
+	#region Accessors
 
-    #endregion
+	public void SetAction(GPAction action)
+	{
+		m_targetAction = action;
+		m_serialObject = new SerializedObject(m_targetAction);
+	}
 
-    public void DrawInspector()
-    {
-        if((m_inspectorFoldout=EditorGUILayout.Foldout(m_inspectorFoldout, _targetAction.GetType().Name)))
-        {
-            OnInspectorGUI();
-        }
-    }
+	#endregion
+	
+	public void DrawInspector()
+	{
+		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, TargetAction.GetType().Name)))
+		{
+			OnInspectorGUI();
+		}
+	}
 
-    protected virtual void OnInspectorGUI()
+	protected virtual void OnInspectorGUI(){}
+}
+
+public class GPActionDefaultInspector : GPActionInspector
+{
+    protected override void OnInspectorGUI()
     {
         SerializedProperty property = m_serialObject.GetIterator();
 
