@@ -57,7 +57,7 @@ public class GPActionDefaultInspector
 
     public void DrawInspector()
     {
-        if(EditorGUILayout.Foldout(m_inspectorFoldout, _targetAction.GetType().Name))
+        if((m_inspectorFoldout=EditorGUILayout.Foldout(m_inspectorFoldout, _targetAction.GetType().Name)))
         {
             OnInspectorGUI();
         }
@@ -68,14 +68,14 @@ public class GPActionDefaultInspector
         SerializedProperty property = m_serialObject.GetIterator();
 
         bool hasChanged = false;
-        
-        while(property == null)
-        {
-            if (EditorGUILayout.PropertyField(property, true))
-                hasChanged = true;
+    
 
-            property.Next(true);
-        }
+        do
+        {
+             if (EditorGUILayout.PropertyField(property, true))
+                hasChanged = true;
+        } while (property.NextVisible(true));
+
 
         if (hasChanged)
             m_serialObject.ApplyModifiedProperties();

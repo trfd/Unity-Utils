@@ -4,7 +4,7 @@ using System.Collections;
 namespace Utils.Event
 {
     [System.Serializable]
-    public abstract class GPAction : UnityEngine.Object
+    public abstract class GPAction : UnityEngine.ScriptableObject
     {
         public enum ActionState
         {

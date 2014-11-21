@@ -60,8 +60,6 @@ public class EventHandlerInspector : Editor
 
         EditorGUILayout.Space();
 
-        Debug.Log("Action:"+handler.Action);
-
         string actionTypeName;
         if (handler.Action == null)
             actionTypeName = "NULL";
@@ -70,8 +68,11 @@ public class EventHandlerInspector : Editor
 
         EditorGUILayout.LabelField("Action: "+actionTypeName);
 
-        if(m_actionInspector == null && handler.Action != null)
+        if (m_actionInspector == null && handler.Action != null)
+        {
             m_actionInspector = new GPActionDefaultInspector(handler.Action);
+            m_actionInspector._targetAction = handler.Action;
+        }
         else if (m_actionInspector != null && handler.Action == null)
             m_actionInspector = null;
 
@@ -87,8 +88,6 @@ public class EventHandlerInspector : Editor
             throw new Exception("Out of bound index");
 
         System.Type type = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
-
-        Debug.Log("Type of action: "+type);
 
         handler.Action = (GPAction) Activator.CreateInstance(type);
     }
