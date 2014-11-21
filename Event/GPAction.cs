@@ -89,7 +89,7 @@ namespace Utils.Event
         {
         }
 
-        protected void End()
+        protected virtual void End()
         {
             m_currState = ActionState.TERMINATED;
         }

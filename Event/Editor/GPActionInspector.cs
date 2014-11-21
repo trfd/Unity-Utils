@@ -50,7 +50,7 @@ public class GPActionDefaultInspector
 
     public GPActionDefaultInspector(GPAction action)
     {
-        m_serialObject = new SerializedObject(new Object[]{action});
+        m_serialObject = new SerializedObject(action);
     }
 
     #endregion
@@ -68,14 +68,12 @@ public class GPActionDefaultInspector
         SerializedProperty property = m_serialObject.GetIterator();
 
         bool hasChanged = false;
-    
 
-        do
+        while (property.NextVisible(true))
         {
-             if (EditorGUILayout.PropertyField(property, true))
+            if (EditorGUILayout.PropertyField(property))
                 hasChanged = true;
-        } while (property.NextVisible(true));
-
+        }
 
         if (hasChanged)
             m_serialObject.ApplyModifiedProperties();

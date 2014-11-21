@@ -98,7 +98,7 @@ namespace Utils.Event
         public GPAction Action
         {
             get { return m_action; }
-            set { m_action = value; Debug.Log("Set to: "+m_action); }
+            set { m_action = value;}
         }
         #endregion
 

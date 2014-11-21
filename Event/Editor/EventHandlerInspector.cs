@@ -90,6 +90,8 @@ public class EventHandlerInspector : Editor
         System.Type type = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
         handler.Action = (GPAction) Activator.CreateInstance(type);
+
+        EditorUtility.SetDirty(handler);
     }
 
     #endregion
