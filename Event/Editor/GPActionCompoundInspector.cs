@@ -71,31 +71,49 @@ namespace Utils.Event
 			if(compoundAction._actions.Count != m_childrenInspectors.Count)
 				Debug.LogError("Wrong size of inspector array");
 
-			for(int i=0 ; i< m_childrenInspectors.Count ;)
+			Rect startRect = EditorGUILayout.GetControlRect(true,EditorGUIUtility.singleLineHeight*1.3f);
+			
+			GUI.Box(startRect,compoundAction.EditionName);
+
+			for(int i=0 ; i< m_childrenInspectors.Count ;i++)
 			{
 
-				GUI.Box(EditorGUILayout.GetControlRect(),"");
+				compoundAction._actions[i].EditionName = EditorGUILayout.TextField(
+					"Name",compoundAction._actions[i].EditionName);
 
 				m_childrenInspectors[i].DrawInspector();
 
 				EditorGUILayout.Space();
 
-				// Remove Button
-				EditorGUILayout.BeginHorizontal();
-				GUILayout.FlexibleSpace();
-				if(GUILayout.Button("Remove Action"))
+				if(m_childrenInspectors[i].IsFoldedOut)
 				{
-					RemoveActionAt(i);
-				}
-				else
-					++i;
+					// Remove Button
+					EditorGUILayout.BeginHorizontal();
+					GUILayout.FlexibleSpace();
+					if(GUILayout.Button("Remove Action"))
+					{
+						RemoveActionAt(i);
+						i--;
+					}
+					
+					EditorGUILayout.EndHorizontal();
 
-				EditorGUILayout.EndHorizontal();
+
+				}
+
+				Rect rect = EditorGUILayout.GetControlRect();
+				rect.height = 1f;
+				EditorGUI.DrawRect(rect,Color.grey);
 			}
 
 			EditorGUILayout.Space();
 
 			DisplayActionManagement();
+
+			Rect endRect = EditorGUILayout.GetControlRect();
+			endRect.height *= 1.3f;
+
+			GUI.Box(endRect,"End "+compoundAction.EditionName);
 		}
 
 		private void DisplayActionManagement()
@@ -107,7 +125,7 @@ namespace Utils.Event
 				m_actionTypeSelectedIndex = EditorGUILayout.Popup("Action", m_actionTypeSelectedIndex, 
 				                                                  GPActionManager.s_gpactionTypeNames);
 				
-				if (GUILayout.Button("Create"))
+				if (GUILayout.Button("Add"))
 				{
 					CreateAction();
 					m_createNewAction = false;
@@ -141,6 +159,8 @@ namespace Utils.Event
 			GPAction action = (GPAction)ScriptableObject.CreateInstance(selectedType);
 
 			action.name = compoundAction.name+"_"+action.GetType().Name+compoundAction._actions.Count.ToString();
+
+			action.EditionName = action.GetType().Name+compoundAction._actions.Count.ToString();
 
 			compoundAction._actions.Add(action);
 			

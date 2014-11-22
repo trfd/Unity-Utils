@@ -24,6 +24,11 @@ namespace Utils.Event
 
         #region Properties
 
+		public string EditionName
+		{
+			get; set;
+		}
+
         /// <summary>
         /// Returns whether or not the action is currently running
         /// </summary>

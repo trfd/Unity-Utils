@@ -116,6 +116,8 @@ public class EventHandlerInspector : Editor
 
         AssetDatabase.CreateAsset(handler._action, relativePath);
         AssetDatabase.SaveAssets();
+
+		handler._action.EditionName = handler._action.name;
     }
 
     private void DisplayActionDelete()

@@ -45,6 +45,12 @@ public class GPActionInspector
 
 	#region Property
 
+	public bool IsFoldedOut
+	{
+		get{ return m_inspectorFoldout;  }
+		set{ m_inspectorFoldout = value; }
+	}
+
 	public GPAction TargetAction
 	{
 		get{ return m_targetAction; }
@@ -77,7 +83,7 @@ public class GPActionInspector
 	
 	public void DrawInspector()
 	{
-		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, TargetAction.GetType().Name)))
+		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, TargetAction.EditionName)))
 		{
 			EditorGUI.indentLevel++;
 
