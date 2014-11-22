@@ -30,6 +30,7 @@ using System.Collections;
 
 namespace Utils.Event
 {
+	[GPActionAlias("Parallel")]
 	public class GPActionParallel : GPActionCompound
 	{
 		

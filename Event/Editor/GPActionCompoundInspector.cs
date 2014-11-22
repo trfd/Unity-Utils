@@ -158,9 +158,11 @@ namespace Utils.Event
 
 			GPAction action = (GPAction)ScriptableObject.CreateInstance(selectedType);
 
-			action.name = compoundAction.name+"_"+action.GetType().Name+compoundAction._actions.Count.ToString();
+			string actionTypeName = GPActionManager.s_gpactionTypeNames[m_actionTypeSelectedIndex];
+		
+			action.name = compoundAction.name+"_"+actionTypeName+compoundAction._actions.Count.ToString();
 
-			action.EditionName = action.GetType().Name+compoundAction._actions.Count.ToString();
+			action.EditionName = actionTypeName+compoundAction._actions.Count.ToString();
 
 			compoundAction._actions.Add(action);
 			

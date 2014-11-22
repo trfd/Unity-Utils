@@ -40,12 +40,16 @@ namespace Utils.Event
 
         public static string[] s_gpactionTypeNames;
 
+		public static Dictionary<System.Type,string> s_gpactionNameMap;
+
         #endregion
 
         #region Static Constructor
 
         static GPActionManager()
         {
+			s_gpactionNameMap = new Dictionary<System.Type, string>();
+
             System.Type[] types = TypeManager.Instance.ListChildrenTypesOf(typeof(GPAction),false);
 
             List<System.Type> visibleTypes = new List<System.Type>();
@@ -56,7 +60,23 @@ namespace Utils.Event
                 if(type.GetCustomAttributes(typeof (GPActionHideAttribute), false).Length == 0)
                 {
                     visibleTypes.Add(type);
-                    visibleTypeNames.Add(type.Name);
+
+					System.Object[] attrs = type.GetCustomAttributes(typeof(GPActionAliasAttribute),false);
+
+					// Add Name to list
+					// Note that if several 
+
+					if(attrs.Length == 0)
+					{
+						visibleTypeNames.Add(type.Name);
+						s_gpactionNameMap.Add(type,type.Name);
+					}
+					else
+					{
+						string alias = ((GPActionAliasAttribute) attrs[0])._aliasName;
+						visibleTypeNames.Add(alias); 
+						s_gpactionNameMap.Add(type,alias);
+					}
                 }
             }
 

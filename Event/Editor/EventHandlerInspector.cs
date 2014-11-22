@@ -49,9 +49,6 @@ public class EventHandlerInspector : Editor
 
         // Display Change Action 
 
-        
-
-
         EditorGUILayout.Space();
 
         if (m_actionInspector == null && handler._action != null)
@@ -129,8 +126,6 @@ public class EventHandlerInspector : Editor
 
         if(GUILayout.Button("Delete Action Asset"))
         {
-             
-
             if (EditorUtility.DisplayDialog("Delete Action Asset",
                 "Are you sure you want to delete this action asset." +
                 " If you need to change the action for this handler drag another " +

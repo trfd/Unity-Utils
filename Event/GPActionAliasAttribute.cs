@@ -1,5 +1,5 @@
 ﻿//
-// GPActionSequence.cs
+// GPActionAliasAttribute.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -29,9 +29,14 @@ using System.Collections;
 
 namespace Utils.Event
 {
-	[GPActionAlias("Sequence")]
-	public class GPActionSequence : GPActionCompound
+	[System.AttributeUsage(System.AttributeTargets.Class)]
+	public class GPActionAliasAttribute : System.Attribute
 	{
+		public string _aliasName;
 		
+		public GPActionAliasAttribute(string alias)
+		{
+			_aliasName = alias;
+		}
 	}
 }
