@@ -49,7 +49,7 @@ public class EventHandlerInspector : Editor
 
         // Display Change Action 
 
-        DisplayActionManagement();
+        
 
 
         EditorGUILayout.Space();
@@ -64,6 +64,9 @@ public class EventHandlerInspector : Editor
         if(handler._action != null)
             m_actionInspector.DrawInspector();
 
+		EditorGUILayout.Space();
+
+		DisplayActionManagement();
         DisplayActionDelete();
     }
 

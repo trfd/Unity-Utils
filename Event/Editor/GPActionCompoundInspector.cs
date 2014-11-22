@@ -64,7 +64,6 @@ namespace Utils.Event
 			}
 		}
 
-
 		protected override void OnInspectorGUI()
 		{
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
@@ -74,18 +73,24 @@ namespace Utils.Event
 
 			for(int i=0 ; i< m_childrenInspectors.Count ;)
 			{
+
+				GUI.Box(EditorGUILayout.GetControlRect(),"");
+
 				m_childrenInspectors[i].DrawInspector();
 
 				EditorGUILayout.Space();
 
 				// Remove Button
-
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
 				if(GUILayout.Button("Remove Action"))
 				{
 					RemoveActionAt(i);
 				}
 				else
 					++i;
+
+				EditorGUILayout.EndHorizontal();
 			}
 
 			EditorGUILayout.Space();
@@ -113,8 +118,15 @@ namespace Utils.Event
 				
 				EditorGUILayout.EndHorizontal();
 			}
-			else if (GUILayout.Button("Add New Action"))
-				m_createNewAction = true;
+			else
+			{
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
+				if (GUILayout.Button("Add New Action"))
+					m_createNewAction = true;
+				GUILayout.FlexibleSpace();
+				EditorGUILayout.EndHorizontal();
+			}
 		}
 
 		private void CreateAction()
@@ -127,7 +139,9 @@ namespace Utils.Event
 			System.Type selectedType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
 			GPAction action = (GPAction)ScriptableObject.CreateInstance(selectedType);
-			
+
+			action.name = compoundAction.name+"_"+action.GetType().Name+compoundAction._actions.Count.ToString();
+
 			compoundAction._actions.Add(action);
 			
 			AssetDatabase.AddObjectToAsset(action,compoundAction);
