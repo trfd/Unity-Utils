@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCompound.cs
+// ComponentRefAttribute.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -26,43 +26,19 @@
 
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
-namespace Utils.Event
+namespace Utils
 {
-	[GPActionHide]
-	public class GPActionCompound : GPAction
+	public class ComponentRefAttribute : PropertyAttribute
 	{
-		#region Public Members
-
-		/// <summary>
-		/// List of GPAction of compound action
-		/// </summary>
-		public List<GPAction> _actions;
-
-		#endregion
-
-		#region Constructor
-
-		public GPActionCompound()
+		public System.Type _componentType;
+		
+		public ComponentRefAttribute(System.Type type)
 		{
-			_actions = new List<GPAction>();
+			if(!typeof(Component).IsAssignableFrom(type))
+				Debug.LogError("Type passed to ComponentRefAttribute must derive from UnityEngine.Component");
+
+			_componentType = type;
 		}
-
-		#endregion
-
-		#region GPAction Override
-
-		public override void SetParentHandler(EventHandler handler)
-		{
-			base.SetParentHandler(handler);
-
-			foreach(GPAction action in _actions)
-			{
-				action.SetParentHandler(handler);
-			}
-		}
-
-		#endregion
 	}
 }

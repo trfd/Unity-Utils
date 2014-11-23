@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCompound.cs
+// ComponentRefDrawer.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -25,44 +25,42 @@
 // THE SOFTWARE.
 
 using UnityEngine;
+using UnityEditor;
 using System.Collections;
-using System.Collections.Generic;
 
-namespace Utils.Event
+using Utils;
+
+[CustomPropertyDrawer(typeof(Utils.ComponentRefAttribute))]
+public class ComponentRefDrawer : PropertyDrawer 
 {
-	[GPActionHide]
-	public class GPActionCompound : GPAction
+	#region Private Member
+
+	private int m_lastComponentID;
+	private int m_lastGameObjectID;
+	private Component m_lastComponent;
+	private GameObject m_lastObject;
+
+	#endregion
+
+	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
 	{
-		#region Public Members
+		ComponentRefAttribute attr = (ComponentRefAttribute) attribute;
 
-		/// <summary>
-		/// List of GPAction of compound action
-		/// </summary>
-		public List<GPAction> _actions;
+		SerializedProperty compIDProperty =  property.FindPropertyRelative("m_componentInstanceID");
+		SerializedProperty goIDProperty =  property.FindPropertyRelative("m_gameObjectInstanceID");
 
-		#endregion
-
-		#region Constructor
-
-		public GPActionCompound()
+		if(m_lastComponentID != compIDProperty.intValue)
 		{
-			_actions = new List<GPAction>();
+			m_lastComponent = (Component) EditorUtility.InstanceIDToObject(compIDProperty.intValue);
+			m_lastObject    = (GameObject) EditorUtility.InstanceIDToObject(goIDProperty.intValue);
 		}
+		
+		m_lastComponent = (Component) EditorGUILayout.ObjectField(label,m_lastComponent,attr._componentType,true);
 
-		#endregion
-
-		#region GPAction Override
-
-		public override void SetParentHandler(EventHandler handler)
+		if(m_lastComponent != null)
 		{
-			base.SetParentHandler(handler);
-
-			foreach(GPAction action in _actions)
-			{
-				action.SetParentHandler(handler);
-			}
+			compIDProperty.intValue = m_lastComponent.GetInstanceID();
+			m_lastComponentID = compIDProperty.intValue;
 		}
-
-		#endregion
 	}
 }

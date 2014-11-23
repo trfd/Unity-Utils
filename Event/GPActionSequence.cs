@@ -29,9 +29,91 @@ using System.Collections;
 
 namespace Utils.Event
 {
-	[GPActionAlias("Sequence")]
+	[GPActionAlias("Compound/Sequence")]
 	public class GPActionSequence : GPActionCompound
 	{
-		
+		#region Private Members
+
+		private int m_currActionIndex;
+
+		#endregion
+
+		#region Properties
+
+		public GPAction CurrentAction
+		{
+			get{ return _actions[m_currActionIndex]; }
+		}
+
+		public int CurrentActionIndex
+		{
+			get{ return m_currActionIndex; }
+		}
+
+		#endregion
+
+		#region GPAction Override
+
+		/// <summary>
+		/// Raised each time action is triggered
+		/// </summary>
+		protected override void OnTrigger()
+		{
+			// Stop previous running action
+
+			if(m_currActionIndex >= 0 && m_currActionIndex < _actions.Count &&
+			   _actions[m_currActionIndex].IsRunning)
+				_actions[m_currActionIndex].Stop();
+
+			// (re)start from 0
+
+			m_currActionIndex = 0;
+
+			_actions[m_currActionIndex].Trigger();
+		}
+
+		/// <summary>
+		/// Raised each frame while action is running.
+		/// Calling GPAction.End or GPAction.Stop will stop updates.
+		/// </summary>
+		/// <param name="dt">Dt.</param>
+		protected override void OnUpdate()
+		{
+			if(this.HasEnded || m_currActionIndex >= _actions.Count)
+				return;
+
+			if(_actions[m_currActionIndex].HasEnded)
+			{
+				m_currActionIndex++;
+
+				if(m_currActionIndex >= _actions.Count)
+				{ 
+					End(); 
+					return;
+				}
+				else
+					_actions[m_currActionIndex].Trigger();
+			}
+			else
+			{
+				_actions[m_currActionIndex].Update();
+			}
+		}
+
+		/// <summary>
+		/// Raised when GPAction.Stop is called.
+		/// </summary>
+		protected override void OnInterrupt()
+		{
+			if(m_currActionIndex >= _actions.Count || 
+			   !_actions[m_currActionIndex].IsRunning)
+			{
+				return;
+			}
+
+			_actions[m_currActionIndex].Stop();
+		}
+
+		#endregion
 	}
 }

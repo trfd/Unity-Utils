@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCompound.cs
+// GameObjectRefDrawer.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -25,44 +25,35 @@
 // THE SOFTWARE.
 
 using UnityEngine;
+using UnityEditor;
 using System.Collections;
-using System.Collections.Generic;
 
-namespace Utils.Event
+
+[CustomPropertyDrawer(typeof(Utils.GameObjectRef))]
+public class GameObjectRefDrawer : PropertyDrawer 
 {
-	[GPActionHide]
-	public class GPActionCompound : GPAction
+	#region Private Member
+
+	private int m_lastID;
+	private GameObject m_lastObject;
+
+	#endregion
+
+	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
 	{
-		#region Public Members
+		SerializedProperty idProperty =  property.FindPropertyRelative("m_instanceID");
 
-		/// <summary>
-		/// List of GPAction of compound action
-		/// </summary>
-		public List<GPAction> _actions;
-
-		#endregion
-
-		#region Constructor
-
-		public GPActionCompound()
+		if(m_lastID != idProperty.intValue)
 		{
-			_actions = new List<GPAction>();
+			m_lastObject =  (GameObject) EditorUtility.InstanceIDToObject(idProperty.intValue);
 		}
+		
+		m_lastObject = (GameObject) EditorGUILayout.ObjectField(label,m_lastObject,typeof(GameObject),true);
 
-		#endregion
-
-		#region GPAction Override
-
-		public override void SetParentHandler(EventHandler handler)
+		if(m_lastObject != null)
 		{
-			base.SetParentHandler(handler);
-
-			foreach(GPAction action in _actions)
-			{
-				action.SetParentHandler(handler);
-			}
+			idProperty.intValue = m_lastObject.GetInstanceID();
+			m_lastID = idProperty.intValue;
 		}
-
-		#endregion
 	}
 }

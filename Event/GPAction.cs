@@ -15,6 +15,8 @@ namespace Utils.Event
 
         #region Private Members
 
+		private EventHandler m_parentHandler;
+
         /// <summary>
         /// Current state of action
         /// </summary>
@@ -57,6 +59,28 @@ namespace Utils.Event
             }
         }
 
+		/// <summary>
+		/// Parent game object
+		/// </summary>
+		/// <value>The parent game object.</value>
+		public GameObject ParentGameObject
+		{
+			get{ return m_parentHandler.gameObject; }
+		}
+
+		/// <summary>
+		/// Parent event handler.
+		/// </summary>
+		/// <value>The parent handler.</value>
+		public EventHandler ParentHandler
+		{
+			get{ return m_parentHandler; }
+			set
+			{
+				SetParentHandler(value);
+			}
+		}
+
         #endregion
 
         #region Public Interface
@@ -70,33 +94,66 @@ namespace Utils.Event
         public void Update()
         {
             if(HasEnded)
-            {
-                OnDestroy();
                 return;
-            }
                 
-            OnUpdate(Time.deltaTime);
+            OnUpdate();
         }
+
+		/// <summary>
+		/// Interrupt action
+		/// </summary>
+		public void Stop()
+		{
+			if(m_currState == ActionState.RUNNNING)
+				OnInterrupt();
+		}
 
         #endregion
 
         #region Override Interface
 
+		public virtual void SetParentHandler(EventHandler handler)
+		{
+			m_parentHandler = handler;
+		}
+
+		/// <summary>
+		/// Raised each time action is triggered
+		/// </summary>
         protected virtual void OnTrigger()
         {
         }
 
-        protected virtual void OnUpdate(float dt)
+		/// <summary>
+		/// Raised each frame while action is running.
+		/// Calling GPAction.End or GPAction.Stop will stop updates.
+		/// </summary>
+		/// <param name="dt">Dt.</param>
+        protected virtual void OnUpdate()
         {
         }
 
-        protected virtual void OnDestroy()
-        {
-        }
+		/// <summary>
+		/// Raised when GPAction.Stop is called.
+		/// </summary>
+		protected virtual void OnInterrupt()
+		{
+		}
 
+		/// <summary>
+		/// Raised when action ended (typically when GPAction.End is called)
+		/// </summary>
+		protected virtual void OnTerminate()
+		{
+		}
+
+		/// <summary>
+		/// Should be called by subclass to terminate action.
+		/// </summary>
         protected virtual void End()
         {
             m_currState = ActionState.TERMINATED;
+			OnTerminate();
         }
          
         #endregion

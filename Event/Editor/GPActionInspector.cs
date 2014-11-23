@@ -83,7 +83,9 @@ public class GPActionInspector
 	
 	public void DrawInspector()
 	{
-		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, TargetAction.EditionName)))
+		string displayFoldout = TargetAction.EditionName+" ("+GPActionManager.s_gpactionNameMap[TargetAction.GetType()]+")";
+
+		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, displayFoldout)))
 		{
 			EditorGUI.indentLevel++;
 

@@ -39,7 +39,14 @@ public class EventHandlerInspector : Editor
 
         // Display Handler Kind popup
 
-        handler.Kind = (EventHandler.HandlerKind) EditorGUILayout.EnumMaskField("Kind",handler.Kind);
+        EventHandler.HandlerKind newKind = (EventHandler.HandlerKind) EditorGUILayout.EnumMaskField("Kind",handler.Kind);
+
+		if(newKind != handler.Kind)
+		{
+			handler.Kind = newKind;
+			EditorUtility.SetDirty(handler);
+			AssetDatabase.SaveAssets();
+		}
 
         EditorGUILayout.Space();
 
@@ -63,11 +70,11 @@ public class EventHandlerInspector : Editor
 
 		EditorGUILayout.Space();
 
-		DisplayActionManagement();
+		DisplayActionCreationField();
         DisplayActionDelete();
     }
 
-    private void DisplayActionManagement()
+    private void DisplayActionCreationField()
     {
         if(m_createNewAction)
         {

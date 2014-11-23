@@ -71,9 +71,11 @@ namespace Utils.Event
 			if(compoundAction._actions.Count != m_childrenInspectors.Count)
 				Debug.LogError("Wrong size of inspector array");
 
+			string actionTypeName = GPActionManager.s_gpactionNameMap[TargetAction.GetType()];
+
 			Rect startRect = EditorGUILayout.GetControlRect(true,EditorGUIUtility.singleLineHeight*1.3f);
 			
-			GUI.Box(startRect,compoundAction.EditionName);
+			GUI.Box(startRect,compoundAction.EditionName+" ("+actionTypeName+")");
 
 			for(int i=0 ; i< m_childrenInspectors.Count ;i++)
 			{
@@ -113,7 +115,7 @@ namespace Utils.Event
 			Rect endRect = EditorGUILayout.GetControlRect();
 			endRect.height *= 1.3f;
 
-			GUI.Box(endRect,"End "+compoundAction.EditionName);
+			GUI.Box(endRect,"End "+compoundAction.EditionName+" ("+actionTypeName+")");
 		}
 
 		private void DisplayActionManagement()

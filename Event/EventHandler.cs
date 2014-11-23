@@ -114,11 +114,16 @@ namespace Utils.Event
 
             if(_action.HasEnded)
             {
-              if(HasReachedMaxTriggerCount())
-                  m_currState = HandlerState.TERMINATED;
-              else
-                  m_currState = HandlerState.SLEEPING;
+            	if(HasReachedMaxTriggerCount())
+             		m_currState = HandlerState.TERMINATED;
+            	else
+            		m_currState = HandlerState.SLEEPING;
+			
+				return;
             }
+
+			if(_action.IsRunning)
+				_action.Update();
         }
 
         #endregion
@@ -131,6 +136,9 @@ namespace Utils.Event
                 throw new System.Exception("Null event name");
 
             EventManager.Instance.Register(_eventName, EventTrigger);
+
+			if(_action != null)
+				_action.SetParentHandler(this);
         }
 
         public void EventTrigger(string evtName)

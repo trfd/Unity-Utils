@@ -30,9 +30,56 @@ using System.Collections;
 
 namespace Utils.Event
 {
-	[GPActionAlias("Parallel")]
+	[GPActionAlias("Compound/Parallel")]
 	public class GPActionParallel : GPActionCompound
 	{
-		
+		#region GPAction Override
+
+		/// <summary>
+		/// Raised each time action is triggered
+		/// </summary>
+		protected override void OnTrigger()
+		{
+			foreach(GPAction action in _actions)
+				action.Trigger();
+		}
+
+		/// <summary>
+		/// Raised each frame while action is running.
+		/// Calling GPAction.End or GPAction.Stop will stop updates.
+		/// </summary>
+		/// <param name="dt">Dt.</param>
+		protected override void OnUpdate()
+		{
+			if(this.HasEnded)
+				return;
+
+			int endedCount = 0;
+			foreach(GPAction action in _actions)
+			{
+				if(!action.HasEnded)
+					action.Update();
+
+				// Note that HasEnded can change during
+				// update.
+
+				if(action.HasEnded)
+					endedCount++;
+			}
+
+			if(endedCount == _actions.Count)
+				End();
+		}
+
+		/// <summary>
+		/// Raised when GPAction.Stop is called.
+		/// </summary>
+		protected override void OnInterrupt()
+		{
+			foreach(GPAction action in _actions)
+				action.Stop();
+		}
+
+		#endregion
 	}
 }
