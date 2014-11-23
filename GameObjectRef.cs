@@ -36,7 +36,7 @@ namespace Utils
 
 		[UnityEngine.HideInInspector]
 		[UnityEngine.SerializeField]
-		private int m_instanceID;
+		private UID m_instanceID;
 
 		/// <summary>
 		/// Encapsulated game object.
@@ -94,9 +94,17 @@ namespace Utils
 		private void UpdateGameObject()
 		{
 			if(m_gameObject != null)
-				m_instanceID = m_gameObject.GetInstanceID();
-			else
-				CheckObject();
+			{
+				ObjectID id = m_gameObject.GetComponent<ObjectID>();
+
+				if(id == null)
+					id = m_gameObject.AddComponent<ObjectID>();
+
+				if(!id.IsRegistered)
+					id.Register();
+
+				m_instanceID = id.ID;
+			}
 		}
 
 		#endregion
@@ -118,12 +126,12 @@ namespace Utils
 		private void FindObjectEditor()
 		{
 #if UNITY_EDITOR
-			m_gameObject = (GameObject) UnityEditor.EditorUtility.InstanceIDToObject(m_instanceID);
+			m_gameObject = GameObjectManager.Instance.InstanceIDToObject(m_instanceID);
 
 			if(m_gameObject == null)
 			{
 				Debug.LogWarning("GameObject with ID "+m_instanceID+
-				                 " not found. Please check that object have a component GameObjectRegistrator");
+				                 " not found. Please check that object have a component ObjectID");
 			}
 #endif
 		}
@@ -135,25 +143,7 @@ namespace Utils
 			if(m_gameObject == null)
 			{
 				Debug.LogWarning("GameObject with ID "+m_instanceID+
-				                 " not found. Please check that object have a component GameObjectRegistrator");
-			}
-		}
-
-		#endregion
-
-		#region Check Object
-
-		private void CheckObject()
-		{
-			if(m_gameObject == null)
-				return;
-
-			GameObjectRegistrator reg = m_gameObject.GetComponent<GameObjectRegistrator>();
-
-			if(reg == null)
-			{
-				Debug.LogWarning("No GameObjectRegistrator found for linking GameObject to GameObjectRef, one will be added");
-				reg = m_gameObject.AddComponent<GameObjectRegistrator>();
+				                 " not found. Please check that object have a component ObjectID");
 			}
 		}
 

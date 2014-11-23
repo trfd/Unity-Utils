@@ -30,12 +30,6 @@ using System.Collections;
 namespace Utils
 {
 	[System.Serializable]
-	public class Test
-	{
-		public int myvar;
-	}
-
-	[System.Serializable]
 	public class ComponentRef : ISerializationCallbackReceiver
 	{
 		#region Private Members
@@ -118,6 +112,9 @@ namespace Utils
 		
 		private void FindComponent()
 		{
+			FindComponentRuntime();
+
+			/*
 #if UNITY_EDITOR
 			if(!UnityEditor.EditorApplication.isPlaying)
 				FindComponentEditor();
@@ -126,12 +123,13 @@ namespace Utils
 #else
 			FindObjectRuntime();
 #endif
+			*/
 		}
-		
+		/*
 		private void FindComponentEditor()
 		{
 #if UNITY_EDITOR
-			m_component = (Component) UnityEditor.EditorUtility.InstanceIDToObject(m_componentInstanceID);
+			m_component = GameObjectManager.Instance.InstanceIDToObject(m_componentInstanceID);
 
 			if(m_component == null)
 			{
@@ -140,9 +138,10 @@ namespace Utils
 			}
 #endif
 		}
+		*/
 		
 		private void FindComponentRuntime()
-		{
+		{/*
 			GameObject obj = GameObjectManager.Instance.InstanceIDToObject(m_gameObjectInstanceID);
 
 			if(obj == null)
@@ -164,6 +163,7 @@ namespace Utils
 			}
 
 			Debug.LogWarning("Component with ID "+m_componentInstanceID+" not found in object "+obj.name);
+			*/
 		}
 		
 		#endregion

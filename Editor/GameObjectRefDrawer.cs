@@ -34,7 +34,8 @@ public class GameObjectRefDrawer : PropertyDrawer
 {
 	#region Private Member
 
-	private int m_lastID;
+	private int m_lastTimeID;
+	private int m_lastUniqueID;
 	private GameObject m_lastObject;
 
 	#endregion
@@ -43,17 +44,35 @@ public class GameObjectRefDrawer : PropertyDrawer
 	{
 		SerializedProperty idProperty =  property.FindPropertyRelative("m_instanceID");
 
-		if(m_lastID != idProperty.intValue)
+		SerializedProperty timeStampProperty = idProperty.FindPropertyRelative("m_timeStamp");
+		SerializedProperty uniqueStampProperty = idProperty.FindPropertyRelative("m_uniqueStamp");
+
+		Utils.UID uid = new Utils.UID(timeStampProperty.intValue,uniqueStampProperty.intValue);
+
+		if(m_lastTimeID != timeStampProperty.intValue || 
+		   m_lastUniqueID != uniqueStampProperty.intValue)
 		{
-			m_lastObject =  (GameObject) EditorUtility.InstanceIDToObject(idProperty.intValue);
+			m_lastObject =  Utils.GameObjectManager.Instance.InstanceIDToObject(uid);
 		}
 		
 		m_lastObject = (GameObject) EditorGUILayout.ObjectField(label,m_lastObject,typeof(GameObject),true);
 
 		if(m_lastObject != null)
 		{
-			idProperty.intValue = m_lastObject.GetInstanceID();
-			m_lastID = idProperty.intValue;
+			Utils.ObjectID objID = m_lastObject.GetComponent<Utils.ObjectID>();
+
+			if(objID == null)
+				objID = m_lastObject.AddComponent<Utils.ObjectID>();
+
+			if(!objID.IsRegistered)
+				objID.Register();
+			else
+				objID.CheckRegistration();
+
+			timeStampProperty.intValue   = (int) objID.ID.TimeStamp;
+			uniqueStampProperty.intValue = (int) objID.ID.UniqueStamp;
+			m_lastTimeID   = timeStampProperty.intValue;
+			m_lastUniqueID = uniqueStampProperty.intValue;
 		}
 	}
 }

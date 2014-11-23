@@ -28,38 +28,70 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+
 namespace Utils
 {
-	public class GameObjectManager
+	public class GameObjectManager : MonoBehaviour, ISerializationCallbackReceiver
 	{
+		[System.Serializable]
+		public class GameObjectUIDMap : DictionaryWrapper<UID,GameObject>
+		{}
+
 		#region Private Members
 
 		/// <summary>
 		/// Maps game object instance ID with gameobject instance.
 		/// </summary>
-		private Dictionary<int,GameObject> m_objectMap;
+		[UnityEngine.SerializeField]
+		private GameObjectUIDMap m_objectMap;
 
 		#endregion
 
 		#region Singleton
-
-		private static GameObjectManager instance;
 		
-		private GameObjectManager()
-		{
-			Init();
-		}
+		private static GameObjectManager m_instance;
 		
 		public static GameObjectManager Instance
 		{
-			get 
+			get
 			{
-				if (instance == null)
+				if (m_instance == null)
 				{
-					instance = new GameObjectManager();
+					m_instance = GameObject.FindObjectOfType<GameObjectManager>();
+
+					if(m_instance == null) return null;
+
+					if(m_instance.m_objectMap == null)
+						m_instance.Init();
+
+					//DontDestroyOnLoad(m_instance.gameObject);
 				}
-				return instance;
+				
+				return m_instance;
 			}
+		}
+		
+		void Awake()
+		{
+			if (m_instance == null)
+			{
+				m_instance = this;
+				//DontDestroyOnLoad(this);
+			}
+			else
+			{
+				if (this != m_instance)
+					Destroy(this.gameObject);
+			}
+		}
+		
+		#endregion
+
+		#region Properties
+
+		public Dictionary<UID,GameObject> ObjectMap
+		{
+			get{ return m_objectMap.Dictionary; }
 		}
 
 		#endregion
@@ -71,7 +103,7 @@ namespace Utils
 		/// </summary>
 		private void Init()
 		{
-			m_objectMap = new Dictionary<int, GameObject>();
+			m_objectMap = new GameObjectUIDMap();
 		}
 
 		#endregion
@@ -82,18 +114,37 @@ namespace Utils
 		/// Register the specified registrator.
 		/// </summary>
 		/// <param name="registrator">Registrator.</param>
-		public void Register(GameObjectRegistrator registrator)
+		public void Register(ObjectID registrator)
 		{
-			m_objectMap.Add(registrator.gameObject.GetInstanceID() , registrator.gameObject);
+			try
+			{
+				m_objectMap.Dictionary.Add(registrator.ID , registrator.gameObject);
+			}
+			catch
+			{}
 		}
 
 		/// <summary>
 		/// Unregister the specified registrator.
 		/// </summary>
 		/// <param name="registrator">Registrator.</param>
-		public void Unregister(GameObjectRegistrator registrator)
+		public void Unregister(ObjectID registrator)
 		{
-			m_objectMap.Remove(registrator.gameObject.GetInstanceID());
+			m_objectMap.Dictionary.Remove(registrator.ID);
+		}
+
+		#endregion
+
+		#region Serialization Callback
+
+		public void OnBeforeSerialize()
+		{
+
+		}
+
+		public void OnAfterDeserialize()
+		{
+
 		}
 
 		#endregion
@@ -105,10 +156,10 @@ namespace Utils
 		/// </summary>
 		/// <returns>The identifier to object.</returns>
 		/// <param name="id">Identifier.</param>
-		public GameObject InstanceIDToObject(int id)
+		public GameObject InstanceIDToObject(UID uid)
 		{
 			GameObject obj;
-			if(m_objectMap.TryGetValue(id,out obj))
+			if(m_objectMap.Dictionary.TryGetValue(uid,out obj))
 				return obj;
 
 			return null;
