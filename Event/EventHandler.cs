@@ -7,17 +7,7 @@ namespace Utils.Event
     public class EventHandler : MonoBehaviour
     {
         #region Enum Definition
-
-        /// <summary>
-        /// Defines the behaviour of handler for multiple triggers
-        /// </summary>
-        public enum HandlerKind 
-        {
-            NONE                    = 0,
-            FIXED_COUNT             = 1, // Whether action should be triggered a fixed number of times
-            LOCKED_UNTIL_COMPLETION = 2  // Whether action should be triggered if it's already running.
-        }
-
+	
         /// <summary>
         /// State of the handler
         /// </summary>
@@ -39,6 +29,19 @@ namespace Utils.Event
         #endregion 
 
         #region Private Members
+
+		/// <summary>
+		/// Whether or not the handler can fire a fixed or infinite number of time
+		/// its action.
+		/// </summary>
+		[UnityEngine.SerializeField]
+		private bool m_usesFixedCount;
+
+		/// <summary>
+		/// Whether or not the handler can fire its action while it's already running.
+		/// </summary>
+		[UnityEngine.SerializeField]
+		private bool m_usesLockUntilCompletion;
 
         /// <summary>
         /// Number of times the event has been triggered
@@ -87,16 +90,6 @@ namespace Utils.Event
         {
             get { return m_currState; }
         }
-
-        /// <summary>
-        /// Kind of event handler
-        /// </summary>
-        [UnityEngine.SerializeField]
-        public HandlerKind Kind
-        {
-            get;
-            set;
-		}
 
         #endregion
 
@@ -156,12 +149,10 @@ namespace Utils.Event
 
         private bool CanTriggerAction()
         {
-            if (HasReachedMaxTriggerCount())
+            if(HasReachedMaxTriggerCount())
                 return false;
            
-            bool lockTrigger = (((int)this.Kind) & s_kindLockMask) == 1;
-
-            if (lockTrigger && _action.IsRunning)
+			if (m_usesLockUntilCompletion && _action.IsRunning)
                 return false;
 
             return true;
@@ -169,11 +160,9 @@ namespace Utils.Event
 
         private bool HasReachedMaxTriggerCount()
         {
-            bool fixedCount = (((int)this.Kind) & s_kindFixedCountMask) == 1;
+        	// Check if handler kind has fixed count and if current count allows to run one more time.
 
-            // Check if handler kind has fixed count and if current count allows to run one more time.
-
-            return (fixedCount && m_triggerCount >= _maxTriggerCount);
+            return (m_usesFixedCount && m_triggerCount >= _maxTriggerCount);
         }
 
         private void TriggerAction()

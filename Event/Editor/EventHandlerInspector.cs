@@ -39,15 +39,6 @@ public class EventHandlerInspector : Editor
 
         // Display Handler Kind popup
 
-        EventHandler.HandlerKind newKind = (EventHandler.HandlerKind) EditorGUILayout.EnumMaskField("Kind",handler.Kind);
-
-		if(newKind != handler.Kind)
-		{
-			handler.Kind = newKind;
-			EditorUtility.SetDirty(handler);
-			AssetDatabase.SaveAssets();
-		}
-
         EditorGUILayout.Space();
 
         EditorGUILayout.LabelField("State: "+handler.State.ToString());
