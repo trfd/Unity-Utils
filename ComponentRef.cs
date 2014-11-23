@@ -34,19 +34,13 @@ namespace Utils
 	{
 		#region Private Members
 
-		/// <summary>
-		/// Instance ID of game object owning component.
-		/// </summary>
+		[UnityEngine.HideInInspector]
 		[UnityEngine.SerializeField]
-		[HideInInspector]
-		private int m_gameObjectInstanceID;
-
-		/// <summary>
-		/// Instance ID of component.
-		/// </summary>
+		private GameObjectRef m_gameObjectRef;
+	
+		[UnityEngine.HideInInspector]
 		[UnityEngine.SerializeField]
-		[HideInInspector]
-		private int m_componentInstanceID;
+		private TypeWrapper m_componentType;
 
 		/// <summary>
 		/// Encapsulated component.
@@ -73,18 +67,20 @@ namespace Utils
 					return;
 
 				m_component = value;
-
-				UpdateComponent();
 			}
 		}
 
 		#endregion
 
+		public T ComponentAs<T>() where T : Component
+		{
+			return (T) Component;
+		}
+
 		#region Serialization callbacks
 		
 		public void OnBeforeSerialize()
 		{
-			UpdateComponent();
 			m_component = null;
 		}
 		
@@ -95,75 +91,14 @@ namespace Utils
 		
 		#endregion
 		
-		#region Update links
-		
-		private void UpdateComponent()
-		{
-			if(m_component != null)
-			{
-				m_componentInstanceID = m_component.GetInstanceID();
-				m_gameObjectInstanceID = m_component.gameObject.GetInstanceID();
-			}
-		}
-		
-		#endregion
-		
 		#region Find Object
 		
-		private void FindComponent()
+		protected virtual void FindComponent()
 		{
-			FindComponentRuntime();
-
-			/*
-#if UNITY_EDITOR
-			if(!UnityEditor.EditorApplication.isPlaying)
-				FindComponentEditor();
-			else
-				FindComponentRuntime();
-#else
-			FindObjectRuntime();
-#endif
-			*/
-		}
-		/*
-		private void FindComponentEditor()
-		{
-#if UNITY_EDITOR
-			m_component = GameObjectManager.Instance.InstanceIDToObject(m_componentInstanceID);
-
-			if(m_component == null)
-			{
-				Debug.LogWarning("Component with ID "+m_componentInstanceID+
-				                 " not found. Please check that parent game object have a component GameObjectRegistrator");
-			}
-#endif
-		}
-		*/
-		
-		private void FindComponentRuntime()
-		{/*
-			GameObject obj = GameObjectManager.Instance.InstanceIDToObject(m_gameObjectInstanceID);
-
-			if(obj == null)
-			{
-				Debug.LogWarning("GameObject with ID "+m_gameObjectInstanceID+
-				                 " not found. Please check that object have a component GameObjectRegistrator");
+			if(m_gameObjectRef.GameObject == null)
 				return;
-			}
 
-			Component[] components = obj.GetComponents<Component>();
-
-			foreach(Component component in components)
-			{
-				if(component.GetInstanceID() == m_componentInstanceID)
-				{
-					m_component = component;
-					return;
-				}
-			}
-
-			Debug.LogWarning("Component with ID "+m_componentInstanceID+" not found in object "+obj.name);
-			*/
+			m_component = m_gameObjectRef.GameObject.GetComponent(m_componentType.Type);
 		}
 		
 		#endregion

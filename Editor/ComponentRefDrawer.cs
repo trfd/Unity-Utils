@@ -31,36 +31,38 @@ using System.Collections;
 using Utils;
 
 [CustomPropertyDrawer(typeof(Utils.ComponentRefAttribute))]
-public class ComponentRefDrawer : PropertyDrawer 
+public class ComponentRefDrawer : GameObjectRefDrawer 
 {
-	#region Private Member
-
-	private int m_lastComponentID;
-	private int m_lastGameObjectID;
-	private Component m_lastComponent;
-	private GameObject m_lastObject;
-
-	#endregion
-
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
 	{
+		position.height = EditorGUIUtility.singleLineHeight;
+
 		ComponentRefAttribute attr = (ComponentRefAttribute) attribute;
+	
+		label.text += " ("+attr._componentType.Name+")";
 
-		SerializedProperty compIDProperty =  property.FindPropertyRelative("m_componentInstanceID");
-		SerializedProperty goIDProperty =  property.FindPropertyRelative("m_gameObjectInstanceID");
-
-		if(m_lastComponentID != compIDProperty.intValue)
+		if((m_foldout = EditorGUI.Foldout(position,m_foldout,label)))
 		{
-			m_lastComponent = (Component) EditorUtility.InstanceIDToObject(compIDProperty.intValue);
-			m_lastObject    = (GameObject) EditorUtility.InstanceIDToObject(goIDProperty.intValue);
+			EditorGUI.indentLevel++;
+
+			position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+			DisplayGameObjectGUI(position,property,label);
+
+			SerializedProperty typeProperty = property.FindPropertyRelative("m_componentType");
+			
+			SerializedProperty typeNameProperty = typeProperty.FindPropertyRelative("m_name");
+			
+			typeNameProperty.stringValue = attr._componentType.FullName;
+
+			EditorGUI.indentLevel--;
 		}
+	}
+
+	protected override void DisplayGameObjectGUI(Rect position, SerializedProperty property, GUIContent label)
+	{
+		SerializedProperty objRefProperty = property.FindPropertyRelative("m_gameObjectRef");
 		
-		m_lastComponent = (Component) EditorGUILayout.ObjectField(label,m_lastComponent,attr._componentType,true);
-
-		if(m_lastComponent != null)
-		{
-			compIDProperty.intValue = m_lastComponent.GetInstanceID();
-			m_lastComponentID = compIDProperty.intValue;
-		}
+		base.DisplayGameObjectGUI(position,objRefProperty,new GUIContent("GameObject"));
 	}
 }

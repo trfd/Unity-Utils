@@ -34,45 +34,126 @@ public class GameObjectRefDrawer : PropertyDrawer
 {
 	#region Private Member
 
-	private int m_lastTimeID;
-	private int m_lastUniqueID;
-	private GameObject m_lastObject;
+	protected bool m_foldout;
+	protected int m_lastTimeID;
+	protected int m_lastUniqueID;
+	protected GameObject m_lastObject;
 
 	#endregion
 
+	public override float GetPropertyHeight (SerializedProperty prop,
+	                                         GUIContent label) 
+	{
+		if(m_foldout)
+			return base.GetPropertyHeight(prop, label) +2f*EditorGUIUtility.singleLineHeight + 2f*EditorGUIUtility.standardVerticalSpacing;
+
+		return base.GetPropertyHeight(prop, label);
+	}
+	
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
 	{
-		SerializedProperty idProperty =  property.FindPropertyRelative("m_instanceID");
+		Rect totalPropertySize = position;
+		
+		totalPropertySize.height = GetPropertyHeight(property,label);
 
+		position.height = EditorGUIUtility.singleLineHeight;
+
+		if((m_foldout = EditorGUI.Foldout(position,m_foldout, label)))
+		{
+			EditorGUI.indentLevel++;
+
+			position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+			DisplayGameObjectGUI(position,property,label);
+
+			EditorGUI.indentLevel--;
+		}
+	}
+
+	protected virtual void DisplayGameObjectGUI(Rect position, SerializedProperty property, GUIContent label)
+	{
+		EditorGUI.BeginProperty(position,label,property);
+		
+		SerializedProperty accessProperty = property.FindPropertyRelative("m_access");
+		
+		accessProperty.enumValueIndex = EditorGUI.Popup(position,"Access Method",accessProperty.enumValueIndex,accessProperty.enumNames);
+		
+		position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+		
+		switch((Utils.GameObjectRef.AccessMethod)accessProperty.enumValueIndex)
+		{
+		case Utils.GameObjectRef.AccessMethod.USING_NAME:
+			DisplayGUIForNameAccess(position,property);
+			break;
+		case Utils.GameObjectRef.AccessMethod.USING_TAG:
+			DisplayGUIForTagAccess(position,property);
+			break;
+		case Utils.GameObjectRef.AccessMethod.USING_REF:
+			DisplayGUIForRefAccess(position,property);
+			break;
+		}
+		
+		EditorGUI.EndProperty();
+	}
+	
+	protected virtual void DisplayGUIForNameAccess(Rect position, SerializedProperty property)
+	{
+		SerializedProperty nameProperty =  property.FindPropertyRelative("m_name");
+
+		nameProperty.stringValue = EditorGUI.TextField(position,"Name",nameProperty.stringValue);
+
+		position.y += EditorGUIUtility.singleLineHeight+EditorGUIUtility.standardVerticalSpacing;
+	}
+
+	protected virtual void DisplayGUIForTagAccess(Rect position, SerializedProperty property)
+	{
+		SerializedProperty tagProperty =  property.FindPropertyRelative("m_tag");
+		
+		tagProperty.stringValue = EditorGUI.TagField(position,"Tag",tagProperty.stringValue);
+
+		position.y += EditorGUIUtility.singleLineHeight+EditorGUIUtility.standardVerticalSpacing;
+	}
+
+	protected virtual void DisplayGUIForRefAccess(Rect position, SerializedProperty property)
+	{
+		SerializedProperty idProperty =  property.FindPropertyRelative("m_instanceID");
+		
 		SerializedProperty timeStampProperty = idProperty.FindPropertyRelative("m_timeStamp");
 		SerializedProperty uniqueStampProperty = idProperty.FindPropertyRelative("m_uniqueStamp");
-
+		
 		Utils.UID uid = new Utils.UID(timeStampProperty.intValue,uniqueStampProperty.intValue);
-
+		
 		if(m_lastTimeID != timeStampProperty.intValue || 
 		   m_lastUniqueID != uniqueStampProperty.intValue)
 		{
 			m_lastObject =  Utils.GameObjectManager.Instance.InstanceIDToObject(uid);
 		}
 		
-		m_lastObject = (GameObject) EditorGUILayout.ObjectField(label,m_lastObject,typeof(GameObject),true);
+		m_lastObject = (GameObject) EditorGUI.ObjectField(position,"",m_lastObject,ObjectFieldConstrainType(),true);
+
+		position.y += EditorGUIUtility.singleLineHeight+EditorGUIUtility.standardVerticalSpacing;
 
 		if(m_lastObject != null)
 		{
 			Utils.ObjectID objID = m_lastObject.GetComponent<Utils.ObjectID>();
-
+			
 			if(objID == null)
 				objID = m_lastObject.AddComponent<Utils.ObjectID>();
-
+			
 			if(!objID.IsRegistered)
 				objID.Register();
 			else
 				objID.CheckRegistration();
-
+			
 			timeStampProperty.intValue   = (int) objID.ID.TimeStamp;
 			uniqueStampProperty.intValue = (int) objID.ID.UniqueStamp;
 			m_lastTimeID   = timeStampProperty.intValue;
 			m_lastUniqueID = uniqueStampProperty.intValue;
 		}
+	}
+
+	protected virtual System.Type ObjectFieldConstrainType()
+	{
+		return typeof(GameObject);
 	}
 }

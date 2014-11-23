@@ -29,11 +29,43 @@ using System.Collections;
 
 namespace Utils
 {
+
 	[System.Serializable]
 	public class GameObjectRef : ISerializationCallbackReceiver
 	{
+		public enum AccessMethod
+		{
+			USING_NAME,
+			USING_TAG,
+			USING_REF,
+		}
+
 		#region Private Members
 
+		/// <summary>
+		/// Defines the method of accessing the game object.
+		/// </summary>
+		[UnityEngine.HideInInspector]
+		[UnityEngine.SerializeField]
+		private AccessMethod m_access;
+
+		/// <summary>
+		/// Name used to find gameobject when access method is USING_NAME.
+		/// </summary>
+		[UnityEngine.HideInInspector]
+		[UnityEngine.SerializeField]
+		private string m_name;
+
+		/// <summary>
+		/// Tag used to find gameobject when access method is USING_TAG.
+		/// </summary>
+		[UnityEngine.HideInInspector]
+		[UnityEngine.SerializeField]
+		private string m_tag;
+
+		/// <summary>
+		/// Instance UID used to find gameobject when access method is USING_REF.
+		/// </summary>
 		[UnityEngine.HideInInspector]
 		[UnityEngine.SerializeField]
 		private UID m_instanceID;
@@ -113,19 +145,22 @@ namespace Utils
 
 		private void FindObject()
 		{
-#if UNITY_EDITOR
-			if(!UnityEditor.EditorApplication.isPlaying)
-				FindObjectEditor();
-			else
-				FindObjectRuntime();
-#else
-			FindObjectRuntime();
-#endif
+			switch(m_access)
+			{
+			case AccessMethod.USING_NAME:
+				FindObjectUsingName();
+				break;
+			case AccessMethod.USING_TAG:
+				FindObjectUsingTag();
+				break;
+			case AccessMethod.USING_REF:
+				FindObjectUsingRef();
+				break;
+			}
 		}
 
-		private void FindObjectEditor()
+		private void FindObjectUsingRef()
 		{
-#if UNITY_EDITOR
 			m_gameObject = GameObjectManager.Instance.InstanceIDToObject(m_instanceID);
 
 			if(m_gameObject == null)
@@ -133,17 +168,25 @@ namespace Utils
 				Debug.LogWarning("GameObject with ID "+m_instanceID+
 				                 " not found. Please check that object have a component ObjectID");
 			}
-#endif
 		}
 
-		private void FindObjectRuntime()
+		private void FindObjectUsingName()
 		{
-			m_gameObject = GameObjectManager.Instance.InstanceIDToObject(m_instanceID);
+			m_gameObject = GameObject.Find(m_name);
 
 			if(m_gameObject == null)
 			{
-				Debug.LogWarning("GameObject with ID "+m_instanceID+
-				                 " not found. Please check that object have a component ObjectID");
+				Debug.LogWarning("GameObject with name "+m_name+" not found.");
+			}
+		}
+
+		private void FindObjectUsingTag()
+		{
+			m_gameObject = GameObject.FindGameObjectWithTag(m_tag);
+
+			if(m_gameObject == null)
+			{
+				Debug.LogWarning("GameObject with tag "+m_tag+" not found.");
 			}
 		}
 
