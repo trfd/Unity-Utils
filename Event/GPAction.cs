@@ -147,6 +147,14 @@ namespace Utils.Event
 		{
 		}
 
+		public virtual void OnDrawGizmos()
+		{
+		}
+
+		public virtual void OnDrawGizmosSelected()
+		{
+		}
+
 		/// <summary>
 		/// Should be called by subclass to terminate action.
 		/// </summary>

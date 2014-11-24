@@ -119,6 +119,16 @@ namespace Utils.Event
 				_action.Update();
         }
 
+		void OnDrawGizmos()
+		{
+			_action.OnDrawGizmos();
+		}
+
+		void OnDrawGizmosSelected()
+		{
+			_action.OnDrawGizmosSelected();
+		}
+
         #endregion
 
         #region Event Listening

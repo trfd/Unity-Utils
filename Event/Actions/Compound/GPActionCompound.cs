@@ -63,6 +63,22 @@ namespace Utils.Event
 			}
 		}
 
+		public override void OnDrawGizmos()
+		{
+			foreach(GPAction action in _actions)
+			{
+				action.OnDrawGizmos();
+			}
+		}
+		
+		public override void OnDrawGizmosSelected()
+		{
+			foreach(GPAction action in _actions)
+			{
+				action.OnDrawGizmosSelected();
+			}
+		}
+
 		#endregion
 	}
 }
