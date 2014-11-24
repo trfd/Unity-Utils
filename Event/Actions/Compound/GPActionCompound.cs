@@ -31,6 +31,7 @@ using System.Collections.Generic;
 namespace Utils.Event
 {
 	[GPActionHide]
+	[System.Serializable]
 	public class GPActionCompound : GPAction
 	{
 		#region Public Members

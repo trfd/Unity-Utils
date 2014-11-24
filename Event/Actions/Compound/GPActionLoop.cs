@@ -30,6 +30,7 @@ using System.Collections;
 namespace Utils.Event
 {	
 	[GPActionAlias("Compound/Loop")]
+	[System.Serializable]
 	public class GPActionLoop : GPActionCompound
 	{
 		public enum LoopType

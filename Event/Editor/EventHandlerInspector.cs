@@ -62,7 +62,13 @@ public class EventHandlerInspector : Editor
 		EditorGUILayout.Space();
 
 		DisplayActionCreationField();
-        DisplayActionDelete();
+
+		EditorGUILayout.Space();
+		
+		if(GUILayout.Button("Export Action"))
+		{
+			ExportActionPrefab();
+		}
     }
 
     private void DisplayActionCreationField()
@@ -87,55 +93,65 @@ public class EventHandlerInspector : Editor
 
            
         }
-        else if (GUILayout.Button("Create Action Asset"))
+        else if (GUILayout.Button("Create Action"))
             m_createNewAction = true;
     }
 
-    private void CreateAction()
-    {
-        string path = EditorUtility.SaveFilePanel("Create Action", "Assets/", "New Action", "asset");
+	private void CreateAction()
+	{
+		if (m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
+			throw new Exception("Out of bound index");
 
-        if (path == null || path.Length == 0)
-            return;
-
-        string relativePath = path.Substring(path.IndexOf("Assets/"));
-
-        EventHandler handler = (EventHandler)target;
-
-        if (m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
-            throw new Exception("Out of bound index");
-
-        System.Type type = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
-
-        handler._action = (GPAction)ScriptableObject.CreateInstance(type);
-
-        AssetDatabase.CreateAsset(handler._action, relativePath);
-        AssetDatabase.SaveAssets();
-
-		handler._action.EditionName = handler._action.name;
-    }
-
-    private void DisplayActionDelete()
-    {
 		EventHandler handler = (EventHandler)target;
 
-		if(handler._action == null)
+		handler._action = (GPAction) ScriptableObject.CreateInstance(
+				GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex]);
+
+		handler._action.SetParentHandler(handler);
+	}
+
+    private void ExportActionPrefab()
+    {
+		EditorUtility.DisplayDialog("Not yet ready","This functionnality is not yet implemented.","Ok");
+
+		return;
+
+		if(EditorApplication.isPlaying)
+		{
+			Debug.LogError("Can not export in play mode");
 			return;
+		}
 
-        if(GUILayout.Button("Delete Action Asset"))
-        {
-            if (EditorUtility.DisplayDialog("Delete Action Asset",
-                "Are you sure you want to delete this action asset." +
-                " If you need to change the action for this handler drag another " +
-                "action asset in the field 'Action' above." +
-                "THIS CAN'T BE UNDONE !!!!!!!!!!!!!!!!!!!!!!!!!!", "Confirm", "Cancel"))
-            {
-                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(handler._action));
-				handler._action = null;
-            }
-        }
+		EventHandler handler = (EventHandler)target;
+
+		string path = EditorUtility.SaveFilePanel("Export Action", "Assets/", "New Action Prefab", "prefab");
+
+		if (path == null || path.Length == 0)
+			return;
+		
+		string relativePath = path.Substring(path.IndexOf("Assets/"));
+
+		GameObject go = new GameObject();
+
+		System.Type componentType = handler.GetType();
+
+		EventHandler copyhandler = (EventHandler) go.AddComponent(componentType);
+
+		System.Reflection.FieldInfo[] fields = 
+			componentType.GetFields(System.Reflection.BindingFlags.Instance  | 
+	 								System.Reflection.BindingFlags.Public 	 |
+			                        System.Reflection.BindingFlags.NonPublic ); 
+
+		foreach (System.Reflection.FieldInfo field in fields)
+		{
+			field.SetValue(copyhandler, field.GetValue(handler));
+		}
+
+		PrefabUtility.CreatePrefab(relativePath,go);
+
+		DestroyImmediate(go);
     }
-
+	
 	private void CreateActionInspector(EventHandler handler)
 	{
 		System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(handler._action);

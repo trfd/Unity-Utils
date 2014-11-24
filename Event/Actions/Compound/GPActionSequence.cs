@@ -30,6 +30,7 @@ using System.Collections;
 namespace Utils.Event
 {
 	[GPActionAlias("Compound/Sequence")]
+	[System.Serializable]
 	public class GPActionSequence : GPActionCompound
 	{
 		#region Private Members

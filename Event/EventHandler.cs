@@ -60,6 +60,7 @@ namespace Utils.Event
 		/// <summary>
 		/// Action to trigger
 		/// </summary>
+		[HideInInspector]
 		public GPAction _action;
 
         /// <summary>
@@ -121,12 +122,14 @@ namespace Utils.Event
 
 		void OnDrawGizmos()
 		{
-			_action.OnDrawGizmos();
+			if(_action != null)
+				_action.OnDrawGizmos();
 		}
 
 		void OnDrawGizmosSelected()
 		{
-			_action.OnDrawGizmosSelected();
+			if(_action != null)
+				_action.OnDrawGizmosSelected();
 		}
 
         #endregion
