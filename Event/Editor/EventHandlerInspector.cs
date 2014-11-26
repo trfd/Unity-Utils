@@ -74,7 +74,7 @@ public class EventHandlerInspector : Editor
 
 		if(EditorApplication.isPlaying && GUILayout.Button("Debug Trigger"))
 		{
-			handler.EventTrigger(handler._eventName);
+			handler.EventTrigger(new GPEvent{Name = handler._eventName});
 		}
     }
 

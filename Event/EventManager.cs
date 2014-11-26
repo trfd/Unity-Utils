@@ -44,7 +44,7 @@ namespace Utils.Event
 
         #region Delegates
 
-        public delegate void EventDelegate(string evtName);
+        public delegate void EventDelegate(GPEvent evt);
 
         #endregion
 
@@ -87,19 +87,24 @@ namespace Utils.Event
 
         #region Post Events
 
-        public void PlayEvent(string name)
+        public void PostEvent(string name , UnityEngine.Object obj = null)
         {
-            EventDelegate value;
-
-            if (m_eventMap.TryGetValue(name, out value))
-            {
-                value(name);
-            }
-            else
-            {
-                Debug.LogWarning("Event manager does not contain the event name : " + name);
-            }
+			PostEvent(new GPEvent{ Name=name, RelatedObject=obj});
         }
+	
+		public void PostEvent(GPEvent evt)
+		{
+			EventDelegate value;
+			
+			if (m_eventMap.TryGetValue(evt.Name, out value))
+			{
+				value(evt);
+			}
+			else
+			{
+				Debug.LogWarning("Event manager does not contain the event name : " + name);
+			}
+		}
 
         #endregion
     }

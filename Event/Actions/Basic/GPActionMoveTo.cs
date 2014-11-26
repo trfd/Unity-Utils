@@ -119,19 +119,22 @@ namespace Utils.Event
 	
 			this.ParentGameObject.transform.position = 
 				Vector3.Lerp (_startPoint.position, _endPoint.position, _moveCurve.Evaluate(ratioWay));
+
+			if(m_moveCurrentTime >= _moveDuration)
+				End();
 		}
 
 		#endregion
 
 		#region Gizmos
 
-		void OnDrawGizmosSelected()
+		public override void OnDrawGizmosSelected()
 		{
 			Gizmos.color = Color.white;
 			Render ();
 		}
 		
-		void OnDrawGizmos() 
+		public override void OnDrawGizmos() 
 		{
 			Gizmos.color = Color.green;
 			Render ();

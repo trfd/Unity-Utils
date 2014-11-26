@@ -92,6 +92,11 @@ namespace Utils.Event
             get { return m_currState; }
         }
 
+		public GPEvent CurrentEvent
+		{
+			get; set;
+		}
+
         #endregion
 
         #region MonoBehaviour
@@ -108,6 +113,8 @@ namespace Utils.Event
 
             if(_action.HasEnded)
             {
+				CurrentEvent = null;
+
             	if(HasReachedMaxTriggerCount())
              		m_currState = HandlerState.TERMINATED;
             	else
@@ -147,12 +154,14 @@ namespace Utils.Event
 				_action.SetParentHandler(this);
         }
 
-        public void EventTrigger(string evtName)
+        public void EventTrigger(GPEvent evt)
         {
-            if (evtName != _eventName || _action == null)
+            if (evt.Name != _eventName || _action == null)
                 return;
 
-           if(CanTriggerAction())
+			CurrentEvent = evt;
+
+            if(CanTriggerAction())
                TriggerAction();
         }
 

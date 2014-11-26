@@ -198,9 +198,9 @@ namespace Utils.Event
 
 		#region Event
 
-		private void StopEvent(string evt)
+		private void StopEvent(GPEvent evt)
 		{
-			if(evt == _stopEvent)
+			if(evt.Name == _stopEvent)
 			{
 				_actions[m_currActionIndex].Stop();
 				End();
