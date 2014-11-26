@@ -97,7 +97,7 @@ namespace Utils.Event
             }
             else
             {
-                Debug.LogError("Event manager does not contain the event name : " + name);
+                Debug.LogWarning("Event manager does not contain the event name : " + name);
             }
         }
 

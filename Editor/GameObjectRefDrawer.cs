@@ -45,7 +45,8 @@ public class GameObjectRefDrawer : PropertyDrawer
 	                                         GUIContent label) 
 	{
 		if(m_foldout)
-			return base.GetPropertyHeight(prop, label) +2f*EditorGUIUtility.singleLineHeight + 2f*EditorGUIUtility.standardVerticalSpacing;
+			return base.GetPropertyHeight(prop, label) +2f*EditorGUIUtility.singleLineHeight + 
+				2f*EditorGUIUtility.standardVerticalSpacing;
 
 		return base.GetPropertyHeight(prop, label);
 	}
@@ -101,8 +102,6 @@ public class GameObjectRefDrawer : PropertyDrawer
 		SerializedProperty nameProperty =  property.FindPropertyRelative("m_name");
 
 		nameProperty.stringValue = EditorGUI.TextField(position,"Name",nameProperty.stringValue);
-
-		position.y += EditorGUIUtility.singleLineHeight+EditorGUIUtility.standardVerticalSpacing;
 	}
 
 	protected virtual void DisplayGUIForTagAccess(Rect position, SerializedProperty property)
@@ -110,46 +109,14 @@ public class GameObjectRefDrawer : PropertyDrawer
 		SerializedProperty tagProperty =  property.FindPropertyRelative("m_tag");
 		
 		tagProperty.stringValue = EditorGUI.TagField(position,"Tag",tagProperty.stringValue);
-
-		position.y += EditorGUIUtility.singleLineHeight+EditorGUIUtility.standardVerticalSpacing;
 	}
 
 	protected virtual void DisplayGUIForRefAccess(Rect position, SerializedProperty property)
 	{
-		SerializedProperty idProperty =  property.FindPropertyRelative("m_instanceID");
+		SerializedProperty objProperty =  property.FindPropertyRelative("m_gameObject");
 		
-		SerializedProperty timeStampProperty = idProperty.FindPropertyRelative("m_timeStamp");
-		SerializedProperty uniqueStampProperty = idProperty.FindPropertyRelative("m_uniqueStamp");
-		
-		Utils.UID uid = new Utils.UID(timeStampProperty.intValue,uniqueStampProperty.intValue);
-		
-		if(m_lastTimeID != timeStampProperty.intValue || 
-		   m_lastUniqueID != uniqueStampProperty.intValue)
-		{
-			m_lastObject =  Utils.GameObjectManager.Instance.InstanceIDToObject(uid);
-		}
-		
-		m_lastObject = (GameObject) EditorGUI.ObjectField(position,"",m_lastObject,ObjectFieldConstrainType(),true);
+		objProperty.objectReferenceValue = (GameObject) EditorGUI.ObjectField(position,"",objProperty.objectReferenceValue,ObjectFieldConstrainType(),true);
 
-		position.y += EditorGUIUtility.singleLineHeight+EditorGUIUtility.standardVerticalSpacing;
-
-		if(m_lastObject != null)
-		{
-			Utils.ObjectID objID = m_lastObject.GetComponent<Utils.ObjectID>();
-			
-			if(objID == null)
-				objID = m_lastObject.AddComponent<Utils.ObjectID>();
-			
-			if(!objID.IsRegistered)
-				objID.Register();
-			else
-				objID.CheckRegistration();
-			
-			timeStampProperty.intValue   = (int) objID.ID.TimeStamp;
-			uniqueStampProperty.intValue = (int) objID.ID.UniqueStamp;
-			m_lastTimeID   = timeStampProperty.intValue;
-			m_lastUniqueID = uniqueStampProperty.intValue;
-		}
 	}
 
 	protected virtual System.Type ObjectFieldConstrainType()

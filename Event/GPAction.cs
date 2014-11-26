@@ -15,6 +15,8 @@ namespace Utils.Event
 
         #region Private Members
 
+		[UnityEngine.HideInInspector]
+		[UnityEngine.SerializeField]
 		private EventHandler m_parentHandler;
 
         /// <summary>

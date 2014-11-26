@@ -61,7 +61,7 @@ public class EventHandlerInspector : Editor
 
 		EditorGUILayout.Space();
 
-		DisplayActionCreationField();
+		DisplayActionManagementField();
 
 		EditorGUILayout.Space();
 		
@@ -69,7 +69,24 @@ public class EventHandlerInspector : Editor
 		{
 			ExportActionPrefab();
 		}
+
+		EditorGUILayout.Space();
+
+		if(EditorApplication.isPlaying && GUILayout.Button("Debug Trigger"))
+		{
+			handler.EventTrigger(handler._eventName);
+		}
     }
+
+	private void DisplayActionManagementField()
+	{
+		EventHandler handler = (EventHandler)target;
+
+		if(handler._action == null)
+			DisplayActionCreationField();
+		else
+			DisplayActionDeleteField();
+	}
 
     private void DisplayActionCreationField()
     {
@@ -97,6 +114,14 @@ public class EventHandlerInspector : Editor
             m_createNewAction = true;
     }
 
+	private void DisplayActionDeleteField()
+	{
+		if(GUILayout.Button("Delete action"))
+		{
+			DeleteAction();
+		}
+	}
+
 	private void CreateAction()
 	{
 		if (m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
@@ -108,6 +133,23 @@ public class EventHandlerInspector : Editor
 				GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex]);
 
 		handler._action.SetParentHandler(handler);
+	}
+
+	private void DeleteAction()
+	{
+		EventHandler handler = (EventHandler)target;
+		
+		if(handler._action == null)
+			return;
+
+		if(EditorUtility.DisplayDialog("Confirm Delete",
+		   	                         "Are you sure you want to delete this action ? " +
+		                            "This can not be undone!",
+		                            "Confirm","Cancel"))
+		{
+			DestroyImmediate(handler._action);
+			handler._action = null;
+		}
 	}
 
     private void ExportActionPrefab()

@@ -99,8 +99,7 @@ namespace Utils.Event
 					}
 					
 					EditorGUILayout.EndHorizontal();
-
-
+		
 				}
 
 				Rect rect = EditorGUILayout.GetControlRect();
@@ -151,7 +150,6 @@ namespace Utils.Event
 
 		private void CreateAction()
 		{
-
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
 
 			if(m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
@@ -168,6 +166,8 @@ namespace Utils.Event
 			action.EditionName = actionTypeName+compoundAction._actions.Count.ToString();
 
 			compoundAction._actions.Add(action);
+
+			action.SetParentHandler(compoundAction.ParentHandler);
 
 			EditorUtility.SetDirty(action.ParentHandler);
 
