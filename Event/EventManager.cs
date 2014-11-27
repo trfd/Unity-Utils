@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -7,6 +8,11 @@ namespace Utils.Event
 {
     public class EventManager : MonoBehaviour
     {
+		[System.Serializable]
+		public class EventIDMap : Utils.DictionaryWrapper<string, GPEventID>
+		{
+		}
+
         #region Singleton
 
         private static EventManager m_instance;
@@ -50,62 +56,244 @@ namespace Utils.Event
 
         #region Private Members
 
-        private Dictionary<string, EventDelegate> m_eventMap;
+        /// <summary>
+        /// Whether or not the list of GPEventID is dirty.
+        /// </summary>
+        private bool m_isEventIDListDirty = true;
+
+        /// <summary>
+        /// Map GPEventID.ID to listener delegates
+        /// </summary>
+        private Dictionary<int, EventDelegate> m_eventMap;
+        
+        /// <summary>
+        /// Maps event string name to GPEventID for ease of use.
+        /// </summary>
+        [UnityEngine.SerializeField]
+		private EventIDMap m_eventIDMap;
+
+        /// <summary>
+        /// List of all GPEventID declared.
+        /// </summary>
+        private GPEventID[] m_eventIDList;
+
+        /// <summary>
+        /// List of event names
+        /// </summary>
+        private string[] m_eventIDNameList;
 
         #endregion
 
+		#region Properties
+
+		public Dictionary<string,GPEventID> EventMap
+		{
+			get{ return m_eventIDMap.Dictionary; }
+		}
+
+        public GPEventID[] EventIDs
+        {
+            get
+            {
+                if (m_isEventIDListDirty)
+                    CreateEventIDList();
+
+                return m_eventIDList;
+            }
+        }
+
+        public string[] EventNames
+        {
+            get
+            {
+                if(m_isEventIDListDirty)
+                    CreateEventIDList();
+
+                return m_eventIDNameList;
+            }
+        }
+
+		#endregion
+
         private void Init()
         {
-            m_eventMap = new Dictionary<string, EventDelegate>();
+			m_eventIDMap = new EventIDMap();
+			m_eventMap = new Dictionary<int, EventDelegate>();
         }
 
         #region Registration
+
+		public void Register(int evtID, EventDelegate del)
+		{
+			try
+			{
+				m_eventMap[evtID] += del;
+			}
+			catch (KeyNotFoundException)
+			{
+				Debug.Log("Can not register for event "+evtID);
+			}
+		}
 
         public void Register(string evtName, EventDelegate del)
         {
             try
             {
-                m_eventMap[evtName] += del;
+				GPEventID evtID = EventNameToID(evtName);
+
+				if(evtID.Equals(GPEventID.Invalid))
+					throw new KeyNotFoundException();		
+
+				Register(evtID.ID,del);
             }
             catch (KeyNotFoundException)
             {
-                m_eventMap.Add(evtName, del);
+				Debug.Log("Can not register for event "+evtName);
             }
         }
+
+		public void Unregister(int evtID, EventDelegate del)
+		{
+			try
+			{
+				m_eventMap[evtID] -= del;
+			}
+			catch (KeyNotFoundException)
+			{
+				Debug.Log("Can not unregister for event "+evtID);
+			}
+		}
 
         public void Unregister(string evtName, EventDelegate del)
         {
             try
             {
-                m_eventMap[evtName] -= del;
+				GPEventID evtID = EventNameToID(evtName);
+				
+				if(evtID == GPEventID.Invalid)
+					throw new KeyNotFoundException();		
+
+				Unregister(evtID.ID,del);
             }
             catch (KeyNotFoundException)
-            { }
+            {
+				Debug.Log("Can not unregister for event "+evtName);
+			}
         }
 
         #endregion
 
-        #region Post Events
+		#region EventID Management
 
-        public void PostEvent(string name , UnityEngine.Object obj = null)
-        {
-			PostEvent(new GPEvent{ Name=name, RelatedObject=obj});
-        }
-	
-		public void PostEvent(GPEvent evt)
+        public GPEventID EventNameToID(string evtName)
 		{
-			EventDelegate value;
-			
-			if (m_eventMap.TryGetValue(evt.Name, out value))
+			try
 			{
-				value(evt);
+				return m_eventIDMap.Dictionary[evtName];
 			}
-			else
+			catch (KeyNotFoundException)
 			{
-				Debug.LogWarning("Event manager does not contain the event name : " + name);
+				return GPEventID.Invalid;
 			}
 		}
 
+		public void AddEventName()
+		{
+			int maxID = 0;
+
+            foreach (KeyValuePair<string, GPEventID> kvp in m_eventIDMap.Dictionary)
+		    {
+		        int id = kvp.Value.ID;
+
+				if(maxID <= id)
+					maxID = id;
+			}
+
+			m_eventIDMap.Dictionary.Add("Unammed",new GPEventID{ ID=maxID+1, Name= "Unammed"});
+
+		    m_isEventIDListDirty = true;
+		}
+
+        public void RemoveEventName(GPEventID id)
+        {
+            m_eventIDMap.Dictionary.Remove(id.Name);
+
+            m_isEventIDListDirty = true;
+        }
+
+        public void CheckNames(GPEventID id)
+        {
+           Debug.Log("Map matching: "+(m_eventIDMap.Dictionary[id.Name].ID == id.ID));
+
+            foreach(GPEventID eventId in m_eventIDList)
+            {
+                if(eventId.ID == id.ID)
+                {
+                    Debug.Log("List matching: " + (eventId.Name == id.Name));
+                    break;
+                }
+            }
+        }
+
+        private void CreateEventIDList()
+        {
+            m_eventIDList = new GPEventID[m_eventIDMap.Dictionary.Count];
+            m_eventIDMap.Dictionary.Values.CopyTo(m_eventIDList ,0);
+            m_isEventIDListDirty = false;
+        }
+
+        public int IndexOfEventID(GPEventID id)
+        {
+            if(m_isEventIDListDirty)
+                CreateEventIDList();
+
+            return Array.IndexOf(m_eventIDList,id);
+        }
+
+        public int IndexOfID(int id)
+        {
+            if (m_isEventIDListDirty)
+                CreateEventIDList();
+
+            for(int i=0 ; i<m_eventIDList.Length ; i++)
+            {
+                if (m_eventIDList[i].ID == id)
+                    return i;
+            }
+
+            return -1;
+        }
+
+		#endregion
+
+        #region Post Events
+
+		public void PostEvent(string evtName)
+        {
+            EventDelegate value;
+		
+			try
+			{
+				GPEventID evtID = EventNameToID(evtName);
+				
+				if(evtID.ID<0)
+					throw new KeyNotFoundException();
+
+			    if (m_eventMap.TryGetValue(evtID.ID, out value))
+			    {
+			        value(new GPEvent {EventID = evtID});
+                }
+				else
+					throw new KeyNotFoundException();
+			}
+			catch(KeyNotFoundException)
+			{
+				Debug.LogError("Event manager does not contain the event name: " + name);
+			}
+        }
+
         #endregion
+
+
     }
 }

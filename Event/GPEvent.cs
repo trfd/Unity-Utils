@@ -29,14 +29,76 @@ using System.Collections;
 
 namespace Utils.Event
 {
+    [System.Serializable]
+    public class GPEventID
+    {
+        #region Static
+
+        public static GPEventID Invalid = new GPEventID {ID = -1, Name = "Invalid"};
+
+        #endregion
+
+        #region Private Members
+
+        [UnityEngine.SerializeField]
+        private int m_ID;
+
+        [UnityEngine.SerializeField]
+        private string m_name;
+
+        #endregion
+
+        #region Properties
+
+        public int ID
+        {
+            get { return m_ID;  }
+            set { m_ID = value; }
+        }
+
+        public string Name
+        {
+            get { return m_name;  }
+            set { m_name = value; }
+        }
+
+        #endregion
+
+        public override bool Equals(System.Object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            GPEventID p = obj as GPEventID;
+            if ((System.Object)p == null)
+            {
+                return false;
+            }
+
+            return (ID == p.ID);
+        }
+
+        public bool Equals(GPEventID p)
+        {
+            if (p == null)
+            {
+                return false;
+            }
+
+            return (ID == p.ID);
+        }
+    }
+
 	public class GPEvent 
 	{
 		#region Properties
 
-		public string Name
-		{
-			get; set;
-		}
+	    public GPEventID EventID
+	    {
+	        get; set;
+	    }
 
 		public UnityEngine.Object RelatedObject
 		{

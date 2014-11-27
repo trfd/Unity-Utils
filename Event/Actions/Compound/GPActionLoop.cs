@@ -200,7 +200,7 @@ namespace Utils.Event
 
 		private void StopEvent(GPEvent evt)
 		{
-			if(evt.Name == _stopEvent)
+			if(evt.EventID.Name == _stopEvent)
 			{
 				_actions[m_currActionIndex].Stop();
 				End();

@@ -66,7 +66,7 @@ namespace Utils.Event
         /// <summary>
         /// Name of the event the handler is listening
         /// </summary>
-        public string _eventName;
+        public GPEventID _eventID;
 
         /// <summary>
         /// Maximum number of time the event can be triggered
@@ -145,10 +145,10 @@ namespace Utils.Event
 
         public void Init()
         {
-            if(string.IsNullOrEmpty(_eventName))
+            if(_eventID == GPEventID.Invalid)
                 throw new System.Exception("Null event name");
 
-            EventManager.Instance.Register(_eventName, EventTrigger);
+            EventManager.Instance.Register(_eventID.ID, EventTrigger);
 
 			if(_action != null)
 				_action.SetParentHandler(this);
@@ -156,7 +156,7 @@ namespace Utils.Event
 
         public void EventTrigger(GPEvent evt)
         {
-            if (evt.Name != _eventName || _action == null)
+            if (evt.EventID != _eventID || _action == null)
                 return;
 
 			CurrentEvent = evt;

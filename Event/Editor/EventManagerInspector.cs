@@ -2,26 +2,30 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using Utils.Event;
 
 [CustomEditor(typeof(Utils.Event.EventManager))]
 public class EventManagerInspector : Editor 
 {
-	protected override void OnInspectorGUI()
+	void OnInspectorGUI()
 	{
 		Utils.Event.EventManager manager = (Utils.Event.EventManager) target;
 
-		for(int i = 0 ; i<  manager.EventIDs.Length ; i++)
+		for(int i = 0 ; i <  manager.EventIDs.Length ; i++)
 		{
-			int id = manager.EventIDs[i];
-			string name = manager.EventNames[i];
+			GPEventID id = manager.EventIDs[i];
 
 			EditorGUILayout.BeginHorizontal();
 
-			manager.EventMap[id] = EditorGUILayout.TextField(id.ToString(), name);
+			string newName = EditorGUILayout.TextField(id.ID.ToString(), id.Name);
+
+            id.Name = newName;
+		    
+            manager.CheckNames(id);
 
 			if(GUILayout.Button("Remove"))
 			{
-				manager.EventMap.Remove(id);
+				manager.RemoveEventName(id);
 				i--;
 			}
 

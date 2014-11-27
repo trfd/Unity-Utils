@@ -62,7 +62,7 @@ namespace Utils
 		/// Access to wrapped dictionnary.
 		/// </summary>
 		/// <value>The dictionary.</value>
-		public Dictionary<Key,Value> Dictionary
+		public Dictionary<Key, Value> Dictionary
 		{
 			get{ return m_dict; }
 		}
