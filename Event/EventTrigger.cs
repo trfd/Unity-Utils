@@ -22,7 +22,7 @@ namespace Utils.Event
             if(string.IsNullOrEmpty(_eventName))
                 throw new System.NullReferenceException("Null event name");
 
-            EventManager.Instance.PlayEvent(_eventName);
+            EventManager.Instance.PostEvent(_eventName);
         }
 
         #endregion

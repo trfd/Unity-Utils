@@ -83,6 +83,14 @@ public class GPActionInspector
 	
 	public void DrawInspector()
 	{
+		string name;
+
+		if(!GPActionManager.s_gpactionNameMap.TryGetValue(TargetAction.GetType(),out name))
+		{
+			Debug.LogError("GPAction can not have type: "+TargetAction.GetType());
+			return;
+		}
+
 		string displayFoldout = TargetAction.EditionName+" ("+GPActionManager.s_gpactionNameMap[TargetAction.GetType()]+")";
 
 		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, displayFoldout)))
@@ -104,13 +112,38 @@ public class GPActionDefaultInspector : GPActionInspector
     {
         SerializedProperty property = m_serialObject.GetIterator();
 
-        bool hasChanged = false;
+		bool remainingProperties = property.NextVisible(true);
 
-        while (property.NextVisible(true))
+		Stack<SerializedProperty> endParentStack = new Stack<SerializedProperty>();
+
+		while(remainingProperties)
         {
+			while(endParentStack.Count >0 && SerializedProperty.EqualContents(endParentStack.Peek(),property))
+			{
+				endParentStack.Pop();
+				EditorGUI.indentLevel--;
+			}
+			
 			EditorGUILayout.PropertyField(property);
+			
+			if(property.hasVisibleChildren)
+			{
+				if(!property.isExpanded)
+				{
+					property = property.GetEndProperty();
+					continue;
+				}
+				else
+				{
+					endParentStack.Push(property.GetEndProperty());
+					EditorGUI.indentLevel++;
+				}
+			}
+			
+			remainingProperties = property.NextVisible(true);
         }
 
        	m_serialObject.ApplyModifiedProperties();
     }
+
 }

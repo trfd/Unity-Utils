@@ -31,6 +31,7 @@ using System.Collections;
 namespace Utils.Event
 {
 	[GPActionAlias("Compound/Parallel")]
+	[System.Serializable]
 	public class GPActionParallel : GPActionCompound
 	{
 		#region GPAction Override

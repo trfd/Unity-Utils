@@ -31,6 +31,7 @@ using System.Collections;
 namespace Utils.Event
 {
 	[GPActionInspectorAttribute(typeof(GPActionLoop))]
+	[System.Serializable]
 	public class GPActionLoopInspector : GPActionCompoundInspector
 	{
 		protected override void OnInspectorGUI()

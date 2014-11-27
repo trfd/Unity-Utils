@@ -4,7 +4,7 @@ using System.Collections;
 namespace Utils.Event
 {
     [System.Serializable]
-    public abstract class GPAction : UnityEngine.ScriptableObject
+    public class GPAction : ScriptableObject
     {
         public enum ActionState
         {
@@ -15,6 +15,8 @@ namespace Utils.Event
 
         #region Private Members
 
+		[UnityEngine.HideInInspector]
+		[UnityEngine.SerializeField]
 		private EventHandler m_parentHandler;
 
         /// <summary>
@@ -23,6 +25,12 @@ namespace Utils.Event
         private ActionState m_currState = ActionState.NONE;
 
         #endregion 
+
+		#region Public Members
+
+		public string _name;
+
+		#endregion
 
         #region Properties
 
@@ -144,6 +152,14 @@ namespace Utils.Event
 		/// Raised when action ended (typically when GPAction.End is called)
 		/// </summary>
 		protected virtual void OnTerminate()
+		{
+		}
+
+		public virtual void OnDrawGizmos()
+		{
+		}
+
+		public virtual void OnDrawGizmosSelected()
 		{
 		}
 

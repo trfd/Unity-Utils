@@ -29,9 +29,8 @@ using System.Collections;
 
 namespace Utils
 {
-
 	[System.Serializable]
-	public class GameObjectRef : ISerializationCallbackReceiver
+	public class GameObjectRef
 	{
 		public enum AccessMethod
 		{
@@ -64,15 +63,10 @@ namespace Utils
 		private string m_tag;
 
 		/// <summary>
-		/// Instance UID used to find gameobject when access method is USING_REF.
+		/// Encapsulated game object.
 		/// </summary>
 		[UnityEngine.HideInInspector]
 		[UnityEngine.SerializeField]
-		private UID m_instanceID;
-
-		/// <summary>
-		/// Encapsulated game object.
-		/// </summary>
 		private GameObject m_gameObject; 
 
 		#endregion
@@ -83,7 +77,6 @@ namespace Utils
 		/// Encapsulated game object
 		/// </summary>
 		/// <value>The game object.</value>
-		[UnityEngine.SerializeField]
 		public GameObject GameObject
 		{
 			get
@@ -98,44 +91,7 @@ namespace Utils
 				if(m_gameObject == value)
 					return;
 
-				m_gameObject = value; 
-
-				UpdateGameObject();
-			}
-		}
-
-		#endregion
-
-		#region Serialization callbacks
-
-		public void OnBeforeSerialize()
-		{
-			UpdateGameObject();
-			m_gameObject = null;
-		}
-
-		public void OnAfterDeserialize()
-		{
-			FindObject();
-		}
-
-		#endregion
-
-		#region Update links
-
-		private void UpdateGameObject()
-		{
-			if(m_gameObject != null)
-			{
-				ObjectID id = m_gameObject.GetComponent<ObjectID>();
-
-				if(id == null)
-					id = m_gameObject.AddComponent<ObjectID>();
-
-				if(!id.IsRegistered)
-					id.Register();
-
-				m_instanceID = id.ID;
+				m_gameObject = value;
 			}
 		}
 
@@ -161,12 +117,9 @@ namespace Utils
 
 		private void FindObjectUsingRef()
 		{
-			m_gameObject = GameObjectManager.Instance.InstanceIDToObject(m_instanceID);
-
 			if(m_gameObject == null)
 			{
-				Debug.LogWarning("GameObject with ID "+m_instanceID+
-				                 " not found. Please check that object have a component ObjectID");
+				Debug.LogWarning("No gameobject reference were provided");
 			}
 		}
 

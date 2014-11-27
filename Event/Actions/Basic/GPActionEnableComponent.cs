@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCompound.cs
+// GPActionEnableComponent.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -26,60 +26,69 @@
 
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
+
 
 namespace Utils.Event
-{
-	[GPActionHide]
-	[System.Serializable]
-	public class GPActionCompound : GPAction
+{	
+	[GPActionAlias("Basic/Enable Component")]
+	public class GPActionEnableComponent : GPAction
 	{
-		#region Public Members
-
-		/// <summary>
-		/// List of GPAction of compound action
-		/// </summary>
-		public List<GPAction> _actions;
-
-		#endregion
-
-		#region Constructor
-
-		public GPActionCompound()
+		public enum ActivationKind
 		{
-			_actions = new List<GPAction>();
-		}
-
-		#endregion
-
-		#region GPAction Override
-
-		public override void SetParentHandler(EventHandler handler)
-		{
-			base.SetParentHandler(handler);
-
-			foreach(GPAction action in _actions)
-			{
-				action.SetParentHandler(handler);
-			}
-		}
-
-		public override void OnDrawGizmos()
-		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmos();
-			}
+			ACTIVATE,
+			DEACTIVATE,
+			SWITCH_ACTIVATION
 		}
 		
-		public override void OnDrawGizmosSelected()
-		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmosSelected();
-			}
-		}
+		#region Public Members
+		
+		public ActivationKind _kind;
 
+		[HideInInspector]
+		public bool _thisObject;
+
+		[HideInInspector]
+		public Component _component;
+		
+		#endregion
+		
+		#region GPAction Override
+		
+		/// <summary>
+		/// Raised each time action is triggered
+		/// </summary>
+		protected override void OnTrigger()
+		{
+			if(_component == null)
+			{
+				Debug.LogWarning("Null Component can not be enabled");
+				return;
+			}
+
+			System.Reflection.PropertyInfo enableProperty = _component.GetType().GetProperty("enabled");
+
+			if(enableProperty == null)
+			{
+				Debug.LogWarning("Component of type: "+_component.GetType().FullName+" has not property 'enabled'");
+				return;
+			}
+
+			switch(_kind)
+			{
+			case ActivationKind.ACTIVATE:
+				enableProperty.SetValue(_component,true,null);
+				break;
+			case ActivationKind.DEACTIVATE:
+				enableProperty.SetValue(_component,false,null);
+				break;
+			case ActivationKind.SWITCH_ACTIVATION:
+				enableProperty.SetValue(_component,enableProperty.GetValue(_component,null),null);
+				break;
+			}
+
+			End();
+		}
+		
 		#endregion
 	}
 }

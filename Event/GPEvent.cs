@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCompound.cs
+// GPEvent.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -26,60 +26,23 @@
 
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace Utils.Event
 {
-	[GPActionHide]
-	[System.Serializable]
-	public class GPActionCompound : GPAction
+	public class GPEvent 
 	{
-		#region Public Members
+		#region Properties
 
-		/// <summary>
-		/// List of GPAction of compound action
-		/// </summary>
-		public List<GPAction> _actions;
-
-		#endregion
-
-		#region Constructor
-
-		public GPActionCompound()
+		public string Name
 		{
-			_actions = new List<GPAction>();
+			get; set;
 		}
 
-		#endregion
-
-		#region GPAction Override
-
-		public override void SetParentHandler(EventHandler handler)
+		public UnityEngine.Object RelatedObject
 		{
-			base.SetParentHandler(handler);
-
-			foreach(GPAction action in _actions)
-			{
-				action.SetParentHandler(handler);
-			}
+			get; set;
 		}
-
-		public override void OnDrawGizmos()
-		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmos();
-			}
-		}
-		
-		public override void OnDrawGizmosSelected()
-		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmosSelected();
-			}
-		}
-
+	
 		#endregion
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCompound.cs
+// GPActionDelay.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -26,58 +26,63 @@
 
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
+
 
 namespace Utils.Event
-{
-	[GPActionHide]
+{	
+	[GPActionAlias("Time/Delay")]
 	[System.Serializable]
-	public class GPActionCompound : GPAction
+	public class GPActionDelay : GPAction
 	{
-		#region Public Members
+		#region Private Members
 
-		/// <summary>
-		/// List of GPAction of compound action
-		/// </summary>
-		public List<GPAction> _actions;
+		private Timer m_timer;
 
 		#endregion
 
-		#region Constructor
+		#region Public Members
 
-		public GPActionCompound()
-		{
-			_actions = new List<GPAction>();
-		}
+		public float _duration;
 
 		#endregion
 
 		#region GPAction Override
-
-		public override void SetParentHandler(EventHandler handler)
+		
+		/// <summary>
+		/// Raised each time action is triggered
+		/// </summary>
+		protected override void OnTrigger()
 		{
-			base.SetParentHandler(handler);
-
-			foreach(GPAction action in _actions)
-			{
-				action.SetParentHandler(handler);
-			}
-		}
-
-		public override void OnDrawGizmos()
-		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmos();
-			}
+			if(m_timer == null)
+				m_timer = new Timer(_duration);
+			else
+				m_timer.Reset(_duration);
 		}
 		
-		public override void OnDrawGizmosSelected()
+		/// <summary>
+		/// Raised each frame while action is running.
+		/// Calling GPAction.End or GPAction.Stop will stop updates.
+		/// </summary>
+		/// <param name="dt">Dt.</param>
+		protected override void OnUpdate()
 		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmosSelected();
-			}
+			if(m_timer == null)
+				throw new System.NullReferenceException("Null timer");
+
+			if(m_timer.IsElapsedLoop)
+				End();
+		}
+		
+		/// <summary>
+		/// Raised when GPAction.Stop is called.
+		/// </summary>
+		protected override void OnInterrupt()
+		{
+
+		}
+		
+		protected override void OnTerminate()
+		{
 		}
 
 		#endregion

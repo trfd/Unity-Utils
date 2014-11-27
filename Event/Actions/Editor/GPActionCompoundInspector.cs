@@ -99,8 +99,7 @@ namespace Utils.Event
 					}
 					
 					EditorGUILayout.EndHorizontal();
-
-
+		
 				}
 
 				Rect rect = EditorGUILayout.GetControlRect();
@@ -158,25 +157,24 @@ namespace Utils.Event
 
 			System.Type selectedType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
-			GPAction action = (GPAction)ScriptableObject.CreateInstance(selectedType);
+			GPAction action = (GPAction) ScriptableObject.CreateInstance(selectedType);
 
 			string actionTypeName = GPActionManager.s_gpactionTypeNames[m_actionTypeSelectedIndex];
 		
-			action.name = compoundAction.name+"_"+actionTypeName+compoundAction._actions.Count.ToString();
+			action._name = compoundAction._name+"_"+actionTypeName+compoundAction._actions.Count.ToString();
 
 			action.EditionName = actionTypeName+compoundAction._actions.Count.ToString();
 
 			compoundAction._actions.Add(action);
-			
-			AssetDatabase.AddObjectToAsset(action,compoundAction);
-			
-			AssetDatabase.SaveAssets();
-			
-			EditorUtility.SetDirty(compoundAction);
+
+			action.SetParentHandler(compoundAction.ParentHandler);
+
+			EditorUtility.SetDirty(action.ParentHandler);
 
 			// Add Inspector
 
 			AddInspectorFor(action);
+		
 		}
 
 		private void AddInspectorFor(GPAction action)
@@ -196,8 +194,6 @@ namespace Utils.Event
 		private void RemoveActionAt(int idx)
 		{
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
-
-			Object.DestroyImmediate(compoundAction._actions[idx],true);
 
 			compoundAction._actions.RemoveAt(idx);
 			m_childrenInspectors.RemoveAt(idx);

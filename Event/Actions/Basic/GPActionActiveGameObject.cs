@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCompound.cs
+// GPActionActiveGameObject.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -26,60 +26,66 @@
 
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace Utils.Event
-{
-	[GPActionHide]
-	[System.Serializable]
-	public class GPActionCompound : GPAction
+{	
+	[GPActionAlias("Basic/Active GameObject")]
+	public class GPActionActiveGameObject : GPAction
 	{
+		public enum ActivationKind
+		{
+			ACTIVATE,
+			DEACTIVATE,
+			SWITCH_ACTIVATION
+		}
+
 		#region Public Members
 
-		/// <summary>
-		/// List of GPAction of compound action
-		/// </summary>
-		public List<GPAction> _actions;
+		public ActivationKind _kind;
+
+		public bool _thisObject = false;
+		public GameObjectRef _objectRef;
 
 		#endregion
-
-		#region Constructor
-
-		public GPActionCompound()
-		{
-			_actions = new List<GPAction>();
-		}
-
-		#endregion
-
-		#region GPAction Override
-
-		public override void SetParentHandler(EventHandler handler)
-		{
-			base.SetParentHandler(handler);
-
-			foreach(GPAction action in _actions)
-			{
-				action.SetParentHandler(handler);
-			}
-		}
-
-		public override void OnDrawGizmos()
-		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmos();
-			}
-		}
 		
-		public override void OnDrawGizmosSelected()
+		#region GPAction Override
+		
+		/// <summary>
+		/// Raised each time action is triggered
+		/// </summary>
+		protected override void OnTrigger()
 		{
-			foreach(GPAction action in _actions)
-			{
-				action.OnDrawGizmosSelected();
-			}
-		}
+			GameObject obj;
 
+			if(_thisObject)
+				obj = this.ParentGameObject;
+			else
+			{
+				if(_objectRef.GameObject == null)
+				{
+					Debug.LogWarning("Null GameObject will skip action: "+this.EditionName);
+					return;
+				}
+
+				obj = _objectRef.GameObject;
+			}
+
+			switch(_kind)
+			{
+			case ActivationKind.ACTIVATE:
+				obj.SetActive(true);
+				break;
+			case ActivationKind.DEACTIVATE:
+				obj.SetActive(false);
+				break;
+			case ActivationKind.SWITCH_ACTIVATION:
+				obj.SetActive(!obj.activeSelf);
+				break;
+			}
+
+			End();
+		}
+	
 		#endregion
 	}
 }
