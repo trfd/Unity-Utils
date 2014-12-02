@@ -146,7 +146,7 @@ namespace Utils.Event
 			}
 		}
 
-		public void Register (string evtName, EventDelegate del)
+		public void Register(string evtName, EventDelegate del)
 		{
 			try 
             {
@@ -337,6 +337,61 @@ namespace Utils.Event
 			{
 			}
 		}
+
+        public void PostRelativeEvent(GameObject postToObj, string evtName, GameObject obj = null)
+        {
+            if(postToObj == null)
+                throw new NullReferenceException();
+
+            EventDelegate value;
+
+            try
+            {
+                GPEventID evtID = EventNameToID(evtName);
+
+                if (evtID == GPEventID.Invalid)
+                    throw new KeyNotFoundException();
+
+                EventHandler handlerToTrigger = null;
+                
+                EventHandler[] handlers = postToObj.GetComponentsInChildren<EventHandler>();
+
+                foreach(EventHandler handler in handlers)
+                {
+                    if (handler._eventID.Equals(evtID))
+                    {
+                        if(handlerToTrigger == null)
+                            handlerToTrigger = handler;
+                        else
+                            Debug.LogError("Several handler listening to "+evtID.Name+" found in object "+
+                                postToObj.name+". Only the first handler will be triggered");
+                       
+                    }
+                }
+
+                if(handlerToTrigger == null)
+                {
+                    Debug.LogWarning("Can not post relative event to "+ postToObj.name +
+                        ". No event handler listening to " + evtID.Name + " found in object.");
+                    return;
+                }
+                    
+                if (m_eventMap.TryGetValue(evtID.ID, out value))
+                {
+                    GPEvent evt = new GPEvent();
+
+                    evt.EventID = evtID;
+                    evt.RelatedObject = obj;
+
+                    handlerToTrigger.EventTrigger(evt);
+                }
+                else
+                    throw new KeyNotFoundException();
+            }
+            catch (KeyNotFoundException)
+            {
+            }
+        }
 
         #endregion
 	}
