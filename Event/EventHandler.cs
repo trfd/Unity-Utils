@@ -156,7 +156,7 @@ namespace Utils.Event
 
         public void EventTrigger(GPEvent evt)
         {
-            if (evt.EventID != _eventID || _action == null)
+            if (!evt.EventID.Equals(_eventID) || _action == null)
                 return;
 
 			CurrentEvent = evt;

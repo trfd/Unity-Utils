@@ -36,8 +36,10 @@ namespace Utils.Event
 			if (m_instance == null) 
             {
 				m_instance = this;
-				//DontDestroyOnLoad(this);
-			} 
+                m_instance.Init();
+
+                //DontDestroyOnLoad(this);
+            } 
             else
             {
 				if (this != m_instance)
@@ -120,17 +122,27 @@ namespace Utils.Event
 
 		#endregion
 
+	    private void Init()
+	    {
+	        m_eventMap = new Dictionary<int, EventDelegate>();
+	    }
+
         #region Registration
 
 		public void Register (int evtID, EventDelegate del)
 		{
+            if (!IsIDRegistered(evtID))
+		    {
+                Debug.LogError("Event (ID: " + evtID+") is not registered in EventManager");
+		    }
+             
 			try
             {
-				m_eventMap [evtID] += del;
+				m_eventMap[evtID] += del;
 			} 
             catch (KeyNotFoundException) 
             {
-				Debug.Log ("Can not register for event " + evtID);
+				m_eventMap.Add(evtID,del);
 			}
 		}
 
@@ -138,7 +150,7 @@ namespace Utils.Event
 		{
 			try 
             {
-				GPEventID evtID = EventNameToID (evtName);
+				GPEventID evtID = EventNameToID(evtName);
 
 				if (evtID.Equals (GPEventID.Invalid))
 					throw new KeyNotFoundException ();		
@@ -147,7 +159,7 @@ namespace Utils.Event
 			} 
             catch (KeyNotFoundException) 
             {
-				Debug.Log ("Can not register for event " + evtName);
+				Debug.LogError ("Can not register for event " + evtName);
 			}
 		}
 
@@ -159,7 +171,6 @@ namespace Utils.Event
 			} 
             catch (KeyNotFoundException) 
             {
-				Debug.Log ("Can not unregister for event " + evtID);
 			}
 		}
 
@@ -176,7 +187,6 @@ namespace Utils.Event
 			} 
 			catch (KeyNotFoundException) 
 			{
-				Debug.Log ("Can not unregister for event " + evtName);
 			}
 		}
 
@@ -191,6 +201,9 @@ namespace Utils.Event
 
 		public GPEventID EventNameToID (string evtName)
 		{
+            if(m_isEventIDMapDirty)
+                CreateEventIDMap();
+
 			try 
 			{
 				return m_eventIDMap.Dictionary [evtName];
@@ -276,6 +289,23 @@ namespace Utils.Event
 			return -1;
 		}
 
+        /// <summary>
+        /// Check if ID is registered in EventManager ID Map.
+        /// (Attention, it does not check whether or not a delegate is set for this event ID)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+	    public bool IsIDRegistered(int id)
+	    {
+            foreach (GPEventID eventId  in m_eventIDList)
+            {
+                if (eventId.ID == id)
+                    return true;
+            }
+
+            return false;
+	    }
+
 		#endregion
 
         #region Post Events
@@ -283,12 +313,12 @@ namespace Utils.Event
 		public void PostEvent (string evtName, GameObject obj = null)
 		{
 			EventDelegate value;
-			
+
 			try 
 			{
 				GPEventID evtID = EventNameToID (evtName);
 				
-				if (evtID.ID < 0)
+				if (evtID == GPEventID.Invalid)
 					throw new KeyNotFoundException ();
 				
 				if (m_eventMap.TryGetValue (evtID.ID, out value)) 
@@ -305,12 +335,9 @@ namespace Utils.Event
 			} 
 			catch (KeyNotFoundException) 
 			{
-				Debug.LogError ("Event manager does not contain the event name: " + name);
 			}
 		}
 
         #endregion
-
-
 	}
 }
