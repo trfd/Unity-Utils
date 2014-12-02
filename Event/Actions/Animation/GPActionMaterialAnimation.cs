@@ -40,112 +40,11 @@ namespace Utils.Event
 			FLOAT
 		}
 
-		#region Implementation
-
-		[System.Serializable]
-		[GPActionHide]
-		public class Impl : GPAction
-		{
-			#region Protected Members
-
-			/// <summary>
-			/// Animation Timer.
-			/// </summary>
-			protected Timer m_timer;
-
-			#endregion
-
-			#region Public Members
-
-			public GPActionMaterialAnimation _parent;
-
-			#endregion
-		}
-
-		/// <summary>
-		/// Anim shader color
-		/// </summary>
-		[System.Serializable]
-		[GPActionHide]
-		public class ColorImpl : Impl
-		{
-			#region Public Members
-
-			public Gradient _colorMap;
-
-			public AnimationCurve _curve;
-
-			#endregion
-
-			#region Override Action
-
-			protected override void OnTrigger()
-			{
-				m_timer = new Timer(_parent._duration);
-			}
-
-			protected override void OnUpdate()
-			{
-				if(m_timer.IsElapsedLoop)
-				{
-					End();
-					m_timer = null;
-					return;
-				}
-
-				Color c = _colorMap.Evaluate(
-					_curve.Evaluate(1f - m_timer.CurrentNormalized));
-
-				_parent.m_material.SetColor(_parent._animatedVariable,c);
-			}
-
-			#endregion 
-		}
-
-		/// <summary>
-		/// Anim shader float
-		/// </summary>
-		[System.Serializable]
-		[GPActionHide]
-		public class FloatImpl : Impl
-		{
-			#region Public Members
-			
-			public AnimationCurve _curve;
-			
-			#endregion
-			
-			#region Override Action
-			
-			protected override void OnTrigger()
-			{
-				m_timer = new Timer(_parent._duration);
-			}
-			
-			protected override void OnUpdate()
-			{
-				if(m_timer.IsElapsedLoop)
-				{
-					End();
-					m_timer = null;
-					return;
-				}
-
-				_parent.m_material.SetFloat(_parent._animatedVariable,
-				                            _curve.Evaluate(1f - m_timer.CurrentNormalized));
-			}
-			
-			#endregion 
-		}
-		
-
-		#endregion
-
 		#region Private Members
 
 		[UnityEngine.HideInInspector]
 		[UnityEngine.SerializeField]
-		private Impl m_impl;
+        private GPActionMaterialPropertyAnimation m_impl;
 
 		/// <summary>
 		/// The type of animation
@@ -204,7 +103,7 @@ namespace Utils.Event
 			}
 		}
 
-		public Impl Implementation
+        public GPActionMaterialPropertyAnimation Implementation
 		{
 			get{ return m_impl; }
 		}
@@ -275,17 +174,17 @@ namespace Utils.Event
 			case FieldType.NONE:
 				return;
 			case FieldType.COLOR:
-				implType = typeof(ColorImpl);
+				implType = typeof(GPActionMaterialColorAnimation);
 				break;
 			case FieldType.FLOAT:
-				implType = typeof(FloatImpl);
+                implType = typeof(GPActionMaterialFloatAnimation);
 				break;
 			default:
 				Debug.LogError("Unsupported type: "+m_animationType);
 				return;
 			}
 
-			m_impl = (Impl) ScriptableObject.CreateInstance(implType);
+			m_impl = (GPActionMaterialPropertyAnimation) ScriptableObject.CreateInstance(implType);
 
 			m_impl._parent = this;
 			m_impl.ParentHandler = ParentHandler;

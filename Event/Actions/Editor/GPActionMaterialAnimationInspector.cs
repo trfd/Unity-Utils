@@ -27,13 +27,20 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Utils.Event
 {
 	[GPActionInspectorAttribute(typeof(GPActionMaterialAnimation))]
-	public class GPActionMaterialAnimationInspector : GPActionDefaultInspector 
-	{
-		protected override void OnInspectorGUI()
+	public class GPActionMaterialAnimationInspector : GPActionDefaultInspector
+    {
+        #region Private Members
+
+        private GPActionInspector m_implInspector;
+
+        #endregion
+
+        protected override void OnInspectorGUI()
 		{
 			GPActionMaterialAnimation anim = (GPActionMaterialAnimation) TargetAction;
 
@@ -58,7 +65,7 @@ namespace Utils.Event
 
 
 			anim.AnimationType = (GPActionMaterialAnimation.FieldType) EditorGUILayout.EnumPopup("Type",anim.AnimationType);
-
+            /*
 			switch(anim.AnimationType)
 			{
 			case GPActionMaterialAnimation.FieldType.COLOR:
@@ -68,18 +75,19 @@ namespace Utils.Event
 				DisplayFloatGUI();
 				break;
 			}
+            */
 
 			if(anim.UseThisObject && anim.ParentGameObject.GetComponent<Renderer>())
 			{
 				EditorGUILayout.HelpBox("'Use This Action' requires a Renderer in the GameObject",MessageType.Error);
 			}
 		}
-
+        /*
 		private void DisplayColorGUI()
 		{
 			GPActionMaterialAnimation anim = (GPActionMaterialAnimation) TargetAction;
 
-			GPActionMaterialAnimation.ColorImpl impl = (GPActionMaterialAnimation.ColorImpl) anim.Implementation;
+            GPActionMaterialColorAnimation impl = (GPActionMaterialColorAnimation)anim.Implementation;
 
 			// Show Gradient
 
@@ -92,13 +100,14 @@ namespace Utils.Event
 		private void DisplayFloatGUI()
 		{
 			GPActionMaterialAnimation anim = (GPActionMaterialAnimation) TargetAction;
-			
-			GPActionMaterialAnimation.FloatImpl impl = (GPActionMaterialAnimation.FloatImpl) anim.Implementation;
+
+            GPActionMaterialFloatAnimation impl = (GPActionMaterialFloatAnimation)anim.Implementation;
 
 			if(impl._curve == null)
 				impl._curve = new AnimationCurve();
 
 			impl._curve = EditorGUILayout.CurveField("Value", impl._curve);
 		}
+         * */
 	}
 }

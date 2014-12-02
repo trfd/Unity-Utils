@@ -17,10 +17,13 @@ namespace Utils.Event
 
 		private static EventManager m_instance;
 
-		public static EventManager Instance {
-			get {
-				if (m_instance == null) {
-					m_instance = GameObject.FindObjectOfType<EventManager> ();
+		public static EventManager Instance 
+        {
+			get 
+            {
+				if (m_instance == null) 
+                {
+					m_instance = GameObject.FindObjectOfType<EventManager>();
 					//DontDestroyOnLoad(m_instance.gameObject);
 				}
 
@@ -30,11 +33,13 @@ namespace Utils.Event
 
 		void Awake ()
 		{
-			if (m_instance == null) {
+			if (m_instance == null) 
+            {
 				m_instance = this;
-				m_instance.Init ();
 				//DontDestroyOnLoad(this);
-			} else {
+			} 
+            else
+            {
 				if (this != m_instance)
 					Destroy (this.gameObject);
 			}
@@ -93,7 +98,13 @@ namespace Utils.Event
 
 		public GPEventID[] EventIDs 
 		{
-			get { return m_eventIDList.ToArray(); }
+		    get
+		    {
+                if(m_eventIDList == null)
+                    m_eventIDList = new List<GPEventID>();
+
+		        return m_eventIDList.ToArray();
+		    }
 		}
 
 		public string[] EventNames 
@@ -109,42 +120,45 @@ namespace Utils.Event
 
 		#endregion
 
-		private void Init ()
-		{
-			m_eventIDMap = new EventIDMap ();
-			m_eventIDList = new List<GPEventID>();
-		}
-
         #region Registration
 
 		public void Register (int evtID, EventDelegate del)
 		{
-			try {
+			try
+            {
 				m_eventMap [evtID] += del;
-			} catch (KeyNotFoundException) {
+			} 
+            catch (KeyNotFoundException) 
+            {
 				Debug.Log ("Can not register for event " + evtID);
 			}
 		}
 
 		public void Register (string evtName, EventDelegate del)
 		{
-			try {
+			try 
+            {
 				GPEventID evtID = EventNameToID (evtName);
 
 				if (evtID.Equals (GPEventID.Invalid))
 					throw new KeyNotFoundException ();		
 
 				Register (evtID.ID, del);
-			} catch (KeyNotFoundException) {
+			} 
+            catch (KeyNotFoundException) 
+            {
 				Debug.Log ("Can not register for event " + evtName);
 			}
 		}
 
 		public void Unregister (int evtID, EventDelegate del)
 		{
-			try {
+			try 
+            {
 				m_eventMap [evtID] -= del;
-			} catch (KeyNotFoundException) {
+			} 
+            catch (KeyNotFoundException) 
+            {
 				Debug.Log ("Can not unregister for event " + evtID);
 			}
 		}
@@ -191,9 +205,9 @@ namespace Utils.Event
 		{
 			int maxID = 0;
 
-			foreach (KeyValuePair<string, GPEventID> kvp in m_eventIDMap.Dictionary) 
+			foreach(GPEventID evtID in m_eventIDList) 
 			{
-				int id = kvp.Value.ID;
+                int id = evtID.ID;
 
 				if (maxID <= id)
 					maxID = id;
@@ -201,7 +215,7 @@ namespace Utils.Event
 
 			string newEventName = "Unnammed "+(maxID+1).ToString();
 
-			m_eventIDList.Add(new GPEventID{ ID=maxID+1, Name=newEventName});
+			m_eventIDList.Add(new GPEventID{ ID=maxID+1, Name=newEventName });
 
 			m_isEventIDMapDirty = true;
 		}
