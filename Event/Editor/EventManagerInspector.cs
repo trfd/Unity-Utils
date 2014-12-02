@@ -7,7 +7,7 @@ using Utils.Event;
 [CustomEditor(typeof(Utils.Event.EventManager))]
 public class EventManagerInspector : Editor 
 {
-	void OnInspectorGUI()
+	public override void OnInspectorGUI()
 	{
 		Utils.Event.EventManager manager = (Utils.Event.EventManager) target;
 
@@ -21,7 +21,7 @@ public class EventManagerInspector : Editor
 
             id.Name = newName;
 		    
-            manager.CheckNames(id);
+            //manager.CheckNames(id);
 
 			if(GUILayout.Button("Remove"))
 			{
@@ -35,6 +35,11 @@ public class EventManagerInspector : Editor
 		if(GUILayout.Button("Add Event"))
 		{
 			manager.AddEventName();
+		}
+
+		if(GUILayout.Button("Refresh"))
+		{
+			manager.RefreshIDList();
 		}
 	}
 }

@@ -33,16 +33,15 @@ using Utils.Event;
 [CustomPropertyDrawer(typeof(GPEventID))]
 class GPEventIDDrawer : PropertyDrawer
 {
-
     // Draw the property inside the given rect
-    void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         SerializedProperty idProperty   = property.FindPropertyRelative("m_ID");
         SerializedProperty nameProperty = property.FindPropertyRelative("m_name");
 
         int currIdx = EventManager.Instance.IndexOfID(idProperty.intValue);
 
-        int newIdx = EditorGUILayout.Popup(currIdx,EventManager.Instance.EventNames);
+        int newIdx = EditorGUILayout.Popup(label.text,currIdx,EventManager.Instance.EventNames);
 
         if(newIdx != currIdx)
         {
