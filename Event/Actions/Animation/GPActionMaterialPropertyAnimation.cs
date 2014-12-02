@@ -72,6 +72,7 @@ namespace Utils.Event
 
         #region Public Members
 
+        [UnityEngine.HideInInspector]
         public GPActionMaterialAnimation _parent;
 
         #endregion

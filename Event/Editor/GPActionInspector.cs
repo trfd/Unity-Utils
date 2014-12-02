@@ -69,6 +69,8 @@ public class GPActionInspector
 	
 	#region Public Members
 
+    public bool HideNameField { get; set; }
+
 	#endregion
 
 	#region Accessors
@@ -81,6 +83,9 @@ public class GPActionInspector
 
 	#endregion
 	
+    /// <summary>
+    /// Draw Inspector using foldout and name wrapping
+    /// </summary>
 	public void DrawInspector()
 	{
 		string name;
@@ -103,6 +108,14 @@ public class GPActionInspector
 		}
 	}
 
+    /// <summary>
+    /// Draws the inspector without any wrapping
+    /// </summary>
+    public void DrawInspectorSimple()
+    {
+        OnInspectorGUI();
+    }
+
 	protected virtual void OnInspectorGUI(){}
 }
 
@@ -113,6 +126,11 @@ public class GPActionDefaultInspector : GPActionInspector
         SerializedProperty property = m_serialObject.GetIterator();
 
 		bool remainingProperties = property.NextVisible(true);
+
+        property.NextVisible(true);
+
+        if(HideNameField)
+            property.NextVisible(true);
 
 		Stack<SerializedProperty> endParentStack = new Stack<SerializedProperty>();
 

@@ -53,13 +53,6 @@ namespace Utils.Event
 		[UnityEngine.HideInInspector]
 		private FieldType m_animationType;
 
-		/// <summary>
-		/// Whether or not the animation uses the shared material of this object.
-		/// </summary>
-		[UnityEngine.SerializeField]
-		[UnityEngine.HideInInspector]
-		private bool m_useShared;
-
 		[UnityEngine.SerializeField]
 		[UnityEngine.HideInInspector]
 		private bool m_useThis;
@@ -117,23 +110,6 @@ namespace Utils.Event
 					return;
 
 				m_useThis = value; 
-
-				ChangeMaterial();
-			}
-		}
-
-		/// <summary>
-		/// Whether or not the animation uses the shared material of this object.
-		/// </summary>
-		public bool UseShared
-		{
-			get{ return m_useShared; }
-			set
-			{
-				if(m_useShared == value)
-					return;
-
-				m_useShared = value;
 
 				ChangeMaterial();
 			}
@@ -198,12 +174,16 @@ namespace Utils.Event
 
 				if(thisRenderer == null)
 					return;
+#if UNITY_EDITOR
+                if(UnityEditor.EditorApplication.isPlaying)
+                    m_material = thisRenderer.material;
+                else
+                    m_material = thisRenderer.sharedMaterial;
+#else
+                m_material = thisRenderer.material;
+#endif
 
-				if(m_useShared)
-					m_material = thisRenderer.sharedMaterial;
-				else
-					m_material = thisRenderer.material;
-			}
+            }
 		}
 
 		private void CheckMaterial()
@@ -213,25 +193,16 @@ namespace Utils.Event
 			if(thisRenderer == null)
 			{
 				m_useThis = false;
-				m_useShared = false;
 			}
 			else
 			{
-				if(thisRenderer.sharedMaterial == m_material)
-				{
-					m_useThis = true;
-					m_useShared = false;
-				}
-				else if(thisRenderer.material == m_material)
-				{
-					m_useThis = true;
-					m_useShared = false;
-				}
-				else
-				{
-					m_useThis = false;
-					m_useShared = false;
-				}
+#if UNITY_EDITOR
+			    m_useThis = ((UnityEditor.EditorApplication.isPlaying  && m_material == thisRenderer.material) ||
+			                 (!UnityEditor.EditorApplication.isPlaying && m_material == thisRenderer.sharedMaterial));
+
+#else
+                m_useThis = (m_material == thisRenderer.material);
+#endif
 			}
 		}
 

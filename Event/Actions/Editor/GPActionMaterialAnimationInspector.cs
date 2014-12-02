@@ -46,10 +46,6 @@ namespace Utils.Event
 
 			anim.UseThisObject = EditorGUILayout.Toggle("Use This Object",anim.UseThisObject);
 
-			if(anim.UseThisObject)
-			{
-				anim.UseShared = EditorGUILayout.Toggle("Use Shared Material", anim.UseShared);
-			}
 
 			anim.Material = (Material) EditorGUILayout.ObjectField("Material",anim.Material,typeof(Material),true);
 
@@ -57,57 +53,44 @@ namespace Utils.Event
 
 			anim._animatedVariable = EditorGUILayout.TextField("Property",anim._animatedVariable);
 
-
 			if(anim.Material != null && !anim.Material.HasProperty(anim._animatedVariable))
 			{
 				EditorGUILayout.HelpBox("Property "+anim._animatedVariable+" is not in Material "+anim.Material.name,MessageType.Error);
 			}
 
+            GPActionMaterialAnimation.FieldType prevAnimType = anim.AnimationType;
+            anim.AnimationType = (GPActionMaterialAnimation.FieldType)EditorGUILayout.EnumPopup("Type", prevAnimType);
 
-			anim.AnimationType = (GPActionMaterialAnimation.FieldType) EditorGUILayout.EnumPopup("Type",anim.AnimationType);
-            /*
-			switch(anim.AnimationType)
-			{
-			case GPActionMaterialAnimation.FieldType.COLOR:
-				DisplayColorGUI();
-				break;
-			case GPActionMaterialAnimation.FieldType.FLOAT:
-				DisplayFloatGUI();
-				break;
-			}
-            */
+            if(prevAnimType != anim.AnimationType || m_implInspector == null)
+            {
+                CreateImplInspector();
+            }
+
+            if (m_implInspector == null)
+                EditorGUILayout.LabelField("Null implementation");
+            else
+                m_implInspector.DrawInspectorSimple();
 
 			if(anim.UseThisObject && anim.ParentGameObject.GetComponent<Renderer>())
 			{
 				EditorGUILayout.HelpBox("'Use This Action' requires a Renderer in the GameObject",MessageType.Error);
 			}
 		}
-        /*
-		private void DisplayColorGUI()
-		{
-			GPActionMaterialAnimation anim = (GPActionMaterialAnimation) TargetAction;
 
-            GPActionMaterialColorAnimation impl = (GPActionMaterialColorAnimation)anim.Implementation;
+	    private void CreateImplInspector()
+	    {
+            GPActionMaterialAnimation anim = (GPActionMaterialAnimation)TargetAction;
 
-			// Show Gradient
+            System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(anim.Implementation);
 
-			if(impl._curve == null)
-				impl._curve = new AnimationCurve();
+            m_implInspector = (GPActionInspector)System.Activator.CreateInstance(inspectorType);
 
-			impl._curve = EditorGUILayout.CurveField("Time Curve", impl._curve);
-		}
+            if (m_implInspector == null)
+                throw new System.NullReferenceException();
 
-		private void DisplayFloatGUI()
-		{
-			GPActionMaterialAnimation anim = (GPActionMaterialAnimation) TargetAction;
+	        m_implInspector.TargetAction = anim.Implementation;
 
-            GPActionMaterialFloatAnimation impl = (GPActionMaterialFloatAnimation)anim.Implementation;
-
-			if(impl._curve == null)
-				impl._curve = new AnimationCurve();
-
-			impl._curve = EditorGUILayout.CurveField("Value", impl._curve);
-		}
-         * */
+	        m_implInspector.HideNameField = true;
+	    }
 	}
 }
