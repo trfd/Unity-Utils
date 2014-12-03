@@ -51,25 +51,69 @@ namespace Utils.Event
 
 			anim._duration = EditorGUILayout.FloatField("Duration",anim._duration);
 
-			anim._animatedVariable = EditorGUILayout.TextField("Property",anim._animatedVariable);
+			//anim._animatedVariable = EditorGUILayout.TextField("Property",anim._animatedVariable);
 
-			if(anim.Material != null && !anim.Material.HasProperty(anim._animatedVariable))
-			{
-				EditorGUILayout.HelpBox("Property "+anim._animatedVariable+" is not in Material "+anim.Material.name,MessageType.Error);
-			}
-
-            GPActionMaterialAnimation.FieldType prevAnimType = anim.AnimationType;
-            anim.AnimationType = (GPActionMaterialAnimation.FieldType)EditorGUILayout.EnumPopup("Type", prevAnimType);
-
-            if(prevAnimType != anim.AnimationType || m_implInspector == null)
+            if (anim.Material != null)
             {
-                CreateImplInspector();
-            }
+                Shader shader = anim.Material.shader;
+                
+                string[] properties = new string[ShaderUtil.GetPropertyCount(shader)];
 
-            if (m_implInspector == null)
-                EditorGUILayout.LabelField("Null implementation");
-            else
-                m_implInspector.DrawInspectorSimple();
+                int currIdx = 0;
+
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    properties[i] = ShaderUtil.GetPropertyName(shader, i);
+
+                    if (anim._animatedVariable == properties[i])
+                        currIdx = i;
+                }
+
+
+                int newIdx = EditorGUILayout.Popup("Property",currIdx, properties);
+
+                anim._animatedVariable = properties[newIdx];
+
+                if (currIdx != newIdx)
+                {
+                    switch (ShaderUtil.GetPropertyType(shader,newIdx))
+                    {
+                    case ShaderUtil.ShaderPropertyType.Color:
+                        anim.AnimationType = GPActionMaterialAnimation.FieldType.COLOR;
+                        break;
+                    case ShaderUtil.ShaderPropertyType.Range:
+                    case ShaderUtil.ShaderPropertyType.Float:
+                        anim.AnimationType = GPActionMaterialAnimation.FieldType.FLOAT;
+                        break;
+                    default:
+                        anim.AnimationType = GPActionMaterialAnimation.FieldType.NONE;
+                        break;   
+                    }
+                }
+
+                if (!anim.Material.HasProperty(anim._animatedVariable))
+                {
+                    EditorGUILayout.HelpBox("Property " + anim._animatedVariable + " is not in Material " + anim.Material.name, MessageType.Error);
+                }
+
+                if (ShaderUtil.GetPropertyType(shader,newIdx) != ShaderUtil.ShaderPropertyType.Color &&
+                    ShaderUtil.GetPropertyType(shader, newIdx) != ShaderUtil.ShaderPropertyType.Float &&
+                    ShaderUtil.GetPropertyType(shader, newIdx) != ShaderUtil.ShaderPropertyType.Range)
+                {
+                    EditorGUILayout.HelpBox("Property " + anim._animatedVariable + " is not yet supported (" + ShaderUtil.GetPropertyType(shader, newIdx)+")", MessageType.Error);
+                }
+    
+                if (currIdx != newIdx || m_implInspector == null)
+                {
+                    CreateImplInspector();
+                }
+
+                if (m_implInspector == null)
+                    EditorGUILayout.LabelField("Null implementation");
+                else
+                    m_implInspector.DrawInspectorSimple();
+
+            }
 
 			if(anim.UseThisObject && anim.ParentGameObject.GetComponent<Renderer>())
 			{
