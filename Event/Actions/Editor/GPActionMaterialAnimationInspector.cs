@@ -81,6 +81,9 @@ namespace Utils.Event
 	    {
             GPActionMaterialAnimation anim = (GPActionMaterialAnimation)TargetAction;
 
+			if(anim.Implementation == null)
+				return;
+
             System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(anim.Implementation);
 
             m_implInspector = (GPActionInspector)System.Activator.CreateInstance(inspectorType);
