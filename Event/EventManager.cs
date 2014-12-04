@@ -354,7 +354,7 @@ namespace Utils.Event
 
                 EventHandler handlerToTrigger = null;
                 
-                EventHandler[] handlers = postToObj.GetComponentsInChildren<EventHandler>();
+                EventHandler[] handlers = postToObj.GetComponents<EventHandler>();
 
                 foreach(EventHandler handler in handlers)
                 {
