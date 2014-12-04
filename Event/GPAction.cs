@@ -186,7 +186,8 @@ namespace Utils.Event
 
 		void OnValidate()
 		{
-//			hideFlags = HideFlags.HideInInspector;
+			hideFlags = HideFlags.HideInInspector;
+			this.enabled = false;
 		}
 
 
