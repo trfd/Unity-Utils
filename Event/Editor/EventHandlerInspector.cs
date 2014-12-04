@@ -49,14 +49,14 @@ public class EventHandlerInspector : Editor
 
         EditorGUILayout.Space();
 
-        if (m_actionInspector == null && handler._action != null)
+        if (m_actionInspector == null && handler.Action != null)
         {
 			CreateActionInspector(handler);
         }
-        else if (m_actionInspector != null && handler._action == null)
+        else if (m_actionInspector != null && handler.Action == null)
             m_actionInspector = null;
 
-        if(handler._action != null)
+        if(handler.Action != null)
             m_actionInspector.DrawInspector();
 
 		EditorGUILayout.Space();
@@ -82,7 +82,7 @@ public class EventHandlerInspector : Editor
 	{
 		EventHandler handler = (EventHandler)target;
 
-		if(handler._action == null)
+		if(handler.Action == null)
 			DisplayActionCreationField();
 		else
 			DisplayActionDeleteField();
@@ -129,17 +129,19 @@ public class EventHandlerInspector : Editor
 
 		EventHandler handler = (EventHandler)target;
 
-		handler._action = (GPAction) ScriptableObject.CreateInstance(
-				GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex]);
+		System.Type actionType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
-		handler._action.SetParentHandler(handler);
+		handler.Action = (GPAction) handler.gameObject.AddComponent(actionType);
+		handler.Action._name = System.Guid.NewGuid().ToString();
+
+		handler.Action.SetParentHandler(handler);
 	}
 
 	private void DeleteAction()
 	{
 		EventHandler handler = (EventHandler)target;
 		
-		if(handler._action == null)
+		if(handler.Action == null)
 			return;
 
 		if(EditorUtility.DisplayDialog("Confirm Delete",
@@ -147,8 +149,8 @@ public class EventHandlerInspector : Editor
 		                            "This can not be undone!",
 		                            "Confirm","Cancel"))
 		{
-			DestroyImmediate(handler._action);
-			handler._action = null;
+			DestroyImmediate(handler.Action);
+			handler.Action = null;
 		}
 	}
 
@@ -196,13 +198,13 @@ public class EventHandlerInspector : Editor
 	
 	private void CreateActionInspector(EventHandler handler)
 	{
-		System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(handler._action);
+		System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(handler.Action);
 
 		if(inspectorType == null)
 			return;
 
 		m_actionInspector = (GPActionInspector) Activator.CreateInstance(inspectorType);
-		m_actionInspector.TargetAction = handler._action;
+		m_actionInspector.TargetAction = handler.Action;
 	}
 
     #endregion

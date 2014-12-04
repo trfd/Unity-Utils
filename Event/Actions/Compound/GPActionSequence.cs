@@ -43,7 +43,7 @@ namespace Utils.Event
 
 		public GPAction CurrentAction
 		{
-			get{ return _actions[m_currActionIndex]; }
+			get{ return ActionAtIndex(m_currActionIndex); }
 		}
 
 		public int CurrentActionIndex
@@ -62,15 +62,15 @@ namespace Utils.Event
 		{
 			// Stop previous running action
 
-			if(m_currActionIndex >= 0 && m_currActionIndex < _actions.Count &&
-			   _actions[m_currActionIndex].IsRunning)
-				_actions[m_currActionIndex].Stop();
+			if(m_currActionIndex >= 0 && m_currActionIndex < _actionRefs.Count &&
+			   ActionAtIndex(m_currActionIndex).IsRunning)
+			   ActionAtIndex(m_currActionIndex).Stop();
 
 			// (re)start from 0
 
 			m_currActionIndex = 0;
 
-			_actions[m_currActionIndex].Trigger();
+			ActionAtIndex(m_currActionIndex).Trigger();
 		}
 
 		/// <summary>
@@ -80,24 +80,24 @@ namespace Utils.Event
 		/// <param name="dt">Dt.</param>
 		protected override void OnUpdate()
 		{
-			if(this.HasEnded || m_currActionIndex >= _actions.Count)
+			if(this.HasEnded || m_currActionIndex >= _actionRefs.Count)
 				return;
 
-			if(_actions[m_currActionIndex].HasEnded)
+			if(ActionAtIndex(m_currActionIndex).HasEnded)
 			{
 				m_currActionIndex++;
 
-				if(m_currActionIndex >= _actions.Count)
+				if(m_currActionIndex >= _actionRefs.Count)
 				{ 
 					End(); 
 					return;
 				}
 				else
-					_actions[m_currActionIndex].Trigger();
+					ActionAtIndex(m_currActionIndex).Trigger();
 			}
 			else
 			{
-				_actions[m_currActionIndex].Update();
+				ActionAtIndex(m_currActionIndex).Update();
 			}
 		}
 
@@ -106,13 +106,13 @@ namespace Utils.Event
 		/// </summary>
 		protected override void OnInterrupt()
 		{
-			if(m_currActionIndex >= _actions.Count || 
-			   !_actions[m_currActionIndex].IsRunning)
+			if(m_currActionIndex >= _actionRefs.Count || 
+			   !ActionAtIndex(m_currActionIndex).IsRunning)
 			{
 				return;
 			}
 
-			_actions[m_currActionIndex].Stop();
+			ActionAtIndex(m_currActionIndex).Stop();
 		}
 
 		#endregion

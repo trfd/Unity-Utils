@@ -31,6 +31,13 @@ namespace Utils.Event
         #region Private Members
 
 		/// <summary>
+		/// Action to trigger
+		/// </summary>
+		[HideInInspector]
+		[UnityEngine.SerializeField]
+		private GPActionRef m_actionRef;
+
+		/// <summary>
 		/// Whether or not the handler can fire a fixed or infinite number of time
 		/// its action.
 		/// </summary>
@@ -56,12 +63,6 @@ namespace Utils.Event
         #endregion
 
         #region Public Members
-		
-		/// <summary>
-		/// Action to trigger
-		/// </summary>
-		[HideInInspector]
-		public GPAction _action;
 
         /// <summary>
         /// Name of the event the handler is listening
@@ -77,11 +78,10 @@ namespace Utils.Event
 
         #region Properties
 
-		[System.Obsolete("Use EventHandler._action instead",true)]
 		public GPAction Action
 		{
-			get{ return _action;  }
-			set{ _action = value; }
+			get{ return m_actionRef.Action(this.gameObject);  }
+			set{ m_actionRef.SetAction(value); }
 		}
 
         /// <summary>
@@ -99,6 +99,15 @@ namespace Utils.Event
 
         #endregion
 
+		#region Constructors
+
+		public EventHandler()
+		{
+			m_actionRef = new GPActionRef();
+		}
+
+		#endregion
+
         #region MonoBehaviour
 
         void Start()
@@ -108,10 +117,10 @@ namespace Utils.Event
 
         void Update()
         {
-            if(_action == null)
+            if(Action == null)
                 return;
 
-            if(_action.HasEnded)
+            if(Action.HasEnded)
             {
 				CurrentEvent = null;
 
@@ -123,20 +132,20 @@ namespace Utils.Event
 				return;
             }
 
-			if(_action.IsRunning)
-				_action.Update();
+			if(Action.IsRunning)
+				Action.Update();
         }
 
 		void OnDrawGizmos()
 		{
-			if(_action != null)
-				_action.OnDrawGizmos();
+			if(Action != null)
+				Action.OnDrawGizmos();
 		}
 
 		void OnDrawGizmosSelected()
 		{
-			if(_action != null)
-				_action.OnDrawGizmosSelected();
+			if(Action != null)
+				Action.OnDrawGizmosSelected();
 		}
 
         #endregion
@@ -150,13 +159,13 @@ namespace Utils.Event
 
             EventManager.Instance.Register(_eventID.ID, EventTrigger);
 
-			if(_action != null)
-				_action.SetParentHandler(this);
+			if(Action != null)
+				Action.SetParentHandler(this);
         }
 
         public void EventTrigger(GPEvent evt)
         {
-            if (!evt.EventID.Equals(_eventID) || _action == null)
+            if (!evt.EventID.Equals(_eventID) || Action == null)
                 return;
 
 			CurrentEvent = evt;
@@ -174,7 +183,7 @@ namespace Utils.Event
             if(HasReachedMaxTriggerCount())
                 return false;
            
-			if (m_usesLockUntilCompletion && _action.IsRunning)
+			if (m_usesLockUntilCompletion && Action.IsRunning)
                 return false;
 
             return true;
@@ -192,7 +201,7 @@ namespace Utils.Event
             m_currState = HandlerState.RUNNING;
        
             m_triggerCount++;
-            _action.Trigger();
+            Action.Trigger();
         }
 
         #endregion

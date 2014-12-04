@@ -58,9 +58,9 @@ namespace Utils.Event
 
 			m_childrenInspectors = new List<GPActionInspector>();
 
-			foreach(GPAction act in compoundAction._actions)
+			foreach(GPActionRef actRef in compoundAction._actionRefs)
 			{
-				AddInspectorFor(act);
+				AddInspectorFor(actRef.Action(compoundAction.gameObject));
 			}
 		}
 
@@ -68,7 +68,7 @@ namespace Utils.Event
 		{
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
 
-			if(compoundAction._actions.Count != m_childrenInspectors.Count)
+			if(compoundAction._actionRefs.Count != m_childrenInspectors.Count)
 				Debug.LogError("Wrong size of inspector array");
 
 			string actionTypeName = GPActionManager.s_gpactionNameMap[TargetAction.GetType()];
@@ -80,8 +80,8 @@ namespace Utils.Event
 			for(int i=0 ; i< m_childrenInspectors.Count ;i++)
 			{
 
-				compoundAction._actions[i].EditionName = EditorGUILayout.TextField(
-					"Name",compoundAction._actions[i].EditionName);
+				compoundAction.ActionAtIndex(i).EditionName = EditorGUILayout.TextField(
+					"Name",compoundAction.ActionAtIndex(i).EditionName);
 
 				m_childrenInspectors[i].DrawInspector();
 
@@ -157,15 +157,15 @@ namespace Utils.Event
 
 			System.Type selectedType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
-			GPAction action = (GPAction) ScriptableObject.CreateInstance(selectedType);
+			GPAction action = (GPAction) compoundAction.gameObject.AddComponent(selectedType);//ScriptableObject.CreateInstance(selectedType);
 
 			string actionTypeName = GPActionManager.s_gpactionTypeNames[m_actionTypeSelectedIndex];
 		
-			action._name = compoundAction._name+"_"+actionTypeName+compoundAction._actions.Count.ToString();
+			action._name = compoundAction._name+"_"+actionTypeName+compoundAction._actionRefs.Count.ToString();
 
-			action.EditionName = actionTypeName+compoundAction._actions.Count.ToString();
+			action.EditionName = actionTypeName+compoundAction._actionRefs.Count.ToString();
 
-			compoundAction._actions.Add(action);
+			compoundAction._actionRefs.Add(new GPActionRef(action));
 
 			action.SetParentHandler(compoundAction.ParentHandler);
 
@@ -195,7 +195,7 @@ namespace Utils.Event
 		{
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
 
-			compoundAction._actions.RemoveAt(idx);
+			compoundAction._actionRefs.RemoveAt(idx);
 			m_childrenInspectors.RemoveAt(idx);
 		}
 	}

@@ -160,7 +160,7 @@ namespace Utils.Event
 				return;
 			}
 
-			m_impl = (GPActionMaterialPropertyAnimation) ScriptableObject.CreateInstance(implType);
+			m_impl = (GPActionMaterialPropertyAnimation) this.gameObject.AddComponent(implType); //ScriptableObject.CreateInstance(implType);
 
 			m_impl._parent = this;
 			m_impl.ParentHandler = ParentHandler;

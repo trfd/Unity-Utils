@@ -4,7 +4,7 @@ using System.Collections;
 namespace Utils.Event
 {
     [System.Serializable]
-    public class GPAction : ScriptableObject
+    public class GPAction : UnityEngine.MonoBehaviour //ScriptableObject
     {
         public enum ActionState
         {
@@ -91,6 +91,14 @@ namespace Utils.Event
 
         #endregion
 
+		#region Constructor
+
+		public GPAction()
+		{
+		}
+
+		#endregion
+
         #region Public Interface
 
         public void Trigger()
@@ -173,6 +181,16 @@ namespace Utils.Event
         }
          
         #endregion
+
+		#region MonoBehaviour
+
+		void OnValidate()
+		{
+//			hideFlags = HideFlags.HideInInspector;
+		}
+
+
+		#endregion
     }
 }
 

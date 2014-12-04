@@ -41,8 +41,10 @@ namespace Utils.Event
 		/// </summary>
 		protected override void OnTrigger()
 		{
-			foreach(GPAction action in _actions)
-				action.Trigger();
+			foreach(GPActionRef actionRef in _actionRefs)
+			{
+				actionRef.Action(this.gameObject).Trigger();
+			}
 		}
 
 		/// <summary>
@@ -56,8 +58,10 @@ namespace Utils.Event
 				return;
 
 			int endedCount = 0;
-			foreach(GPAction action in _actions)
+			foreach(GPActionRef actionRef in _actionRefs)
 			{
+				GPAction action = actionRef.Action(this.gameObject);
+
 				if(!action.HasEnded)
 					action.Update();
 
@@ -68,7 +72,7 @@ namespace Utils.Event
 					endedCount++;
 			}
 
-			if(endedCount == _actions.Count)
+			if(endedCount == _actionRefs.Count)
 				End();
 		}
 
@@ -77,8 +81,11 @@ namespace Utils.Event
 		/// </summary>
 		protected override void OnInterrupt()
 		{
-			foreach(GPAction action in _actions)
+			foreach(GPActionRef actionRef in _actionRefs)
+			{
+				GPAction action = actionRef.Action(this.gameObject);
 				action.Stop();
+			}
 		}
 
 		#endregion

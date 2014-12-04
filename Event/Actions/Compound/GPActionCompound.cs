@@ -39,7 +39,7 @@ namespace Utils.Event
 		/// <summary>
 		/// List of GPAction of compound action
 		/// </summary>
-		public List<GPAction> _actions;
+		public List<GPActionRef> _actionRefs;
 
 		#endregion
 
@@ -47,7 +47,16 @@ namespace Utils.Event
 
 		public GPActionCompound()
 		{
-			_actions = new List<GPAction>();
+			_actionRefs = new List<GPActionRef>();
+		}
+
+		#endregion
+
+		#region Public Interface
+
+		public GPAction ActionAtIndex(int idx)
+		{
+			return _actionRefs[idx].Action(this.gameObject);
 		}
 
 		#endregion
@@ -58,24 +67,30 @@ namespace Utils.Event
 		{
 			base.SetParentHandler(handler);
 
-			foreach(GPAction action in _actions)
+			foreach(GPActionRef actionRef in _actionRefs)
 			{
+				GPAction action = actionRef.Action(this.gameObject);
+
 				action.SetParentHandler(handler);
 			}
 		}
 
 		public override void OnDrawGizmos()
 		{
-			foreach(GPAction action in _actions)
+			foreach(GPActionRef actionRef in _actionRefs)
 			{
+				GPAction action = actionRef.Action(this.gameObject);
+
 				action.OnDrawGizmos();
 			}
 		}
 		
 		public override void OnDrawGizmosSelected()
 		{
-			foreach(GPAction action in _actions)
+			foreach(GPActionRef actionRef in _actionRefs)
 			{
+				GPAction action = actionRef.Action(this.gameObject);
+
 				action.OnDrawGizmosSelected();
 			}
 		}
