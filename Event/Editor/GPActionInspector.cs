@@ -128,16 +128,18 @@ public class GPActionDefaultInspector : GPActionInspector
 		bool remainingProperties = property.NextVisible(true);
 
         // Hide Script
-        property.NextVisible(true);
+        if (remainingProperties)
+            remainingProperties = property.NextVisible(true);
        
         // Hide Name field
-        property.NextVisible(true);
+        if (remainingProperties)
+            remainingProperties = property.NextVisible(true);
 
 		Stack<SerializedProperty> endParentStack = new Stack<SerializedProperty>();
 
 		while(remainingProperties)
         {
-			while(endParentStack.Count >0 && SerializedProperty.EqualContents(endParentStack.Peek(),property))
+			while(endParentStack.Count > 0 && SerializedProperty.EqualContents(endParentStack.Peek(),property))
 			{
 				endParentStack.Pop();
 				EditorGUI.indentLevel--;
@@ -147,14 +149,29 @@ public class GPActionDefaultInspector : GPActionInspector
 			
 			if(property.hasVisibleChildren)
 			{
+                SerializedProperty endProperty = property.GetEndProperty();
+
 				if(!property.isExpanded)
 				{
-					property = property.GetEndProperty();
-					continue;
+                    Debug.Log("Property "+ property.name + " End Property "+endProperty.name);
+
+				    if(endProperty.propertyPath == "")
+				    {
+                        remainingProperties = false;
+                        Debug.Log("End property");
+				    }
+				    else
+				    {
+                        Debug.Log("Don't End property");
+				    }
+                  
+                    property = endProperty;
+
+                    continue;
 				}
 				else
 				{
-					endParentStack.Push(property.GetEndProperty());
+                    endParentStack.Push(endProperty);
 					EditorGUI.indentLevel++;
 				}
 			}
