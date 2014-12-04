@@ -187,7 +187,6 @@ namespace Utils.Event
 #else
                 m_material = thisRenderer.material;
 #endif
-
             }
 		}
 

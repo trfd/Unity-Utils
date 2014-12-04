@@ -40,7 +40,7 @@ namespace Utils.Event
     {
         #region Public Members
 
-        public AnimationCurve _curve;
+        public RandomAnimationCurve _curve;
 
         #endregion
 
