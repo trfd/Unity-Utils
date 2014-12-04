@@ -51,7 +51,9 @@ namespace Utils.Event
 		public void SetAction(GPAction action)
 		{
 			m_action = action;
-			m_actionName = m_action._name;
+
+            if(m_action != null)
+                m_actionName = m_action._name;
 		}
 
 		public bool FindAction(GameObject containerObj)

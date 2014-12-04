@@ -108,6 +108,33 @@ namespace Utils.Event
 
 		#endregion
 
+        #region ContextMenu
+
+        [ContextMenu("Show all actions")]
+        private void ShowAllActions()
+        {
+            GPAction[] actions = GetComponents<GPAction>();
+
+            foreach (GPAction action in actions)
+            {
+                action.hideFlags = HideFlags.None;
+            }
+        }
+
+
+        [ContextMenu("Hide all actions")]
+        private void HideAllActions()
+        {
+            GPAction[] actions = GetComponents<GPAction>();
+
+            foreach (GPAction action in actions)
+            {
+                action.hideFlags = HideFlags.HideInInspector;
+            }
+        }
+
+        #endregion 
+
         #region MonoBehaviour
 
         void Start()

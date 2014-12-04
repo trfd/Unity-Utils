@@ -92,7 +92,7 @@ public class GPActionInspector
 
 		if(!GPActionManager.s_gpactionNameMap.TryGetValue(TargetAction.GetType(),out name))
 		{
-			Debug.LogError("GPAction can not have type: "+TargetAction.GetType());
+            Debug.LogError("GPAction type " + TargetAction.GetType() + " not registered");
 			return;
 		}
 
@@ -127,10 +127,11 @@ public class GPActionDefaultInspector : GPActionInspector
 
 		bool remainingProperties = property.NextVisible(true);
 
+        // Hide Script
         property.NextVisible(true);
-
-        if(HideNameField)
-            property.NextVisible(true);
+       
+        // Hide Name field
+        property.NextVisible(true);
 
 		Stack<SerializedProperty> endParentStack = new Stack<SerializedProperty>();
 

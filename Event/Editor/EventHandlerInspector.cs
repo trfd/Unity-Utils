@@ -135,6 +135,9 @@ public class EventHandlerInspector : Editor
 		handler.Action._name = System.Guid.NewGuid().ToString();
 
 		handler.Action.SetParentHandler(handler);
+
+	    handler.Action.enabled = false;
+        handler.Action.hideFlags = HideFlags.HideInInspector;
 	}
 
 	private void DeleteAction()

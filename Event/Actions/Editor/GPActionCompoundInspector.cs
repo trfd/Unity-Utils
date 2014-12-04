@@ -162,8 +162,11 @@ namespace Utils.Event
 			string actionTypeName = GPActionManager.s_gpactionTypeNames[m_actionTypeSelectedIndex];
 		
 			action._name = compoundAction._name+"_"+actionTypeName+compoundAction._actionRefs.Count.ToString();
-
+            Debug.Log("Name: "+action._name);
 			action.EditionName = actionTypeName+compoundAction._actionRefs.Count.ToString();
+
+            action.enabled = false;
+            action.hideFlags = HideFlags.HideInInspector;
 
 			compoundAction._actionRefs.Add(new GPActionRef(action));
 

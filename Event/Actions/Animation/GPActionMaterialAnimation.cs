@@ -164,6 +164,11 @@ namespace Utils.Event
 
 			m_impl._parent = this;
 			m_impl.ParentHandler = ParentHandler;
+
+		    m_impl.enabled = false;
+            m_impl.hideFlags = HideFlags.HideInInspector;
+
+		    m_impl._name = _name + "_" + m_impl.GetType().ToString();
 		}
 
 		private void ChangeMaterial()
