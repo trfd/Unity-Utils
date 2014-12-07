@@ -120,6 +120,76 @@ public class EditorUtils
 			}
 		}
 	}
+
+	/// 
+	/// 
+	/// 
+	public class ReflectionProperty
+	{
+		#region Public Members
+
+		/// <summary>
+		/// Object Represented by property
+		/// </summary>
+		public System.Object _object;
+
+		/// <summary>
+		/// Owner of property
+		/// </summary>
+		public System.Object _parentObject;
+
+		/// <summary>
+		/// Field in parent object
+		/// </summary>
+		public FieldInfo _field;
+
+		#endregion
+	}
+
+	public static ReflectionProperty ObjectFromProperty(SerializedProperty property)
+	{
+		BindingFlags flags = BindingFlags.Public    | 
+						     BindingFlags.NonPublic | 
+				             BindingFlags.Instance  | 
+				             BindingFlags.FlattenHierarchy;
+
+		ReflectionProperty refProp = new ReflectionProperty();
+
+		System.Object currObj = property.serializedObject.targetObject;
+
+		System.Type currType = currObj.GetType();
+
+		FieldInfo currField = null;
+
+		string[] path = property.propertyPath.Split('.');
+
+		for(int i=0 ; i<path.Length ; i++)
+		{
+			currType = currObj.GetType();
+
+			currField = currType.GetField(path[i],flags);
+
+			if(currField == null)
+			{
+				Debug.LogError("Field "+path[i]+" not found in type "+currType.FullName);
+				return null;
+			}
+
+			refProp._parentObject = currObj;
+			currObj = currField.GetValue(currObj);
+
+			if(currObj == null)
+			{
+				Debug.LogError("Can not access to object at path "+property+", "+path[i]+" is null");
+				return null;
+			}
+		}
+
+		refProp._object = currObj;
+		refProp._field = currField;
+
+		return refProp;
+	}
 }
 
 

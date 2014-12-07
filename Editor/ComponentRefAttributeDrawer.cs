@@ -31,7 +31,7 @@ using System.Collections;
 using Utils;
 
 [CustomPropertyDrawer(typeof(Utils.ComponentRefAttribute))]
-public class ComponentRefDrawer : GameObjectRefDrawer 
+public class ComponentRefAttributeDrawer : GameObjectRefDrawer 
 {
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
 	{

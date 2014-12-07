@@ -110,11 +110,6 @@ namespace Utils
 				m_info = null;
 
 			m_info = m_type.Type.GetField(m_fieldName);
-
-			if(m_info == null)
-			{
-				Debug.LogError("Serialization error in FieldInfoWrapper");
-			}
 		}
 
 		#endregion

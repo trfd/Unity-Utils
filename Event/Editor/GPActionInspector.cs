@@ -153,17 +153,10 @@ public class GPActionDefaultInspector : GPActionInspector
 
 				if(!property.isExpanded)
 				{
-                    Debug.Log("Property "+ property.name + " End Property "+endProperty.name);
-
 				    if(endProperty.propertyPath == "")
 				    {
                         remainingProperties = false;
-                        Debug.Log("End property");
-				    }
-				    else
-				    {
-                        Debug.Log("Don't End property");
-				    }
+					}
                   
                     property = endProperty;
 
