@@ -36,7 +36,7 @@ namespace Utils
 	/// Wraps System.Reflection.FieldInfo to enable Unity serialization.
 	/// </summary>
 	[System.Serializable]
-	public class TypeWrapper
+	public class TypeWrapper : ISerializationCallbackReceiver
 	{
 		#region Static
 
@@ -111,6 +111,8 @@ namespace Utils
 			}
 			catch(System.SystemException excpt)
 			{}
+
+			throw new System.Exception();
 
 			return sInvalid;
 		}
@@ -188,7 +190,7 @@ namespace Utils
 				else
 					m_type = typeof(InvalidType);
 				
-				m_name = m_type.Name;
+				m_name = m_type.FullName;
 			}
 		}
 
@@ -205,7 +207,7 @@ namespace Utils
 		{
 			// Setting to default values
 			m_type = typeof(InvalidType);
-			m_name = m_type.Name;
+			m_name = m_type.FullName;
 		}
 
 		public TypeWrapper(System.Type pType)
@@ -237,6 +239,7 @@ namespace Utils
 				m_type = FindType(value);
 				m_name = value;
 				m_dirty = false;
+
 			}
 			catch(System.Exception excpt)
 			{
@@ -245,9 +248,23 @@ namespace Utils
 				
 				// Reset value to default
 				m_type = typeof(InvalidType);
-				m_name = m_type.Name;
+				m_name = m_type.FullName;
 				m_dirty = false;
 			}
+		}
+
+		#endregion
+
+		#region Serialization Callbacks
+
+		public void OnBeforeSerialize()
+		{
+			m_name = m_type.FullName;
+		}
+
+		public void OnAfterDeserialize()
+		{
+			SetType(m_name);
 		}
 
 		#endregion

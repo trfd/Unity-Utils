@@ -53,10 +53,10 @@ namespace Utils.Event
 
 			Component comp = (Component) property.objectReferenceValue;
 
-			GameObject newObject = m_currGameObject;
-
 			if(comp != null)
 				m_currGameObject = comp.gameObject;
+
+			GameObject newObject = m_currGameObject;
 
 			m_thisObject = (m_thisComponent.gameObject == m_currGameObject);
 
@@ -69,8 +69,6 @@ namespace Utils.Event
 
 				if(m_thisObject)
 					newObject = m_thisComponent.gameObject;
-				else
-					newObject = null;
 			}
 
 			newObject = (GameObject) EditorGUI.ObjectField(position,"Object",newObject,typeof(GameObject));
@@ -86,11 +84,13 @@ namespace Utils.Event
 					m_componentList = null;
 				}
 
-				CreateComponentList();
+				CreateComponentList((Component)property.objectReferenceValue);
 			}
 
 			if(m_componentList == null)
-				CreateComponentList();
+				CreateComponentList((Component) property.objectReferenceValue);
+			else 
+				FindComponentInList((Component) property.objectReferenceValue);
 
 			if(m_componentList != null)
 			{
@@ -100,12 +100,14 @@ namespace Utils.Event
 				property.objectReferenceValue = m_components[m_componentPopupIndex];
 			}
 
+			property.serializedObject.ApplyModifiedProperties();
+
 			EditorGUI.indentLevel--;
 		}
 
 		#endregion
 		
-		private void CreateComponentList()
+		private void CreateComponentList(Component comp)
 		{	
 			if(m_currGameObject == null)
 				return;
@@ -118,12 +120,23 @@ namespace Utils.Event
 			
 			for(int i = 0 ; i < m_components.Length ; i++)
 			{
-				if(m_components[i] == m_thisComponent)
+				if(m_components[i] == comp)
 					m_componentPopupIndex = i;
 				
 				m_componentList[i] = m_components[i].GetType().Name+" ("+m_components[i].GetInstanceID()+")";
 			}
 		}
 
+		private void FindComponentInList(Component comp)
+		{
+			if(m_components == null)
+				return;
+
+			for(int i = 0 ; i < m_components.Length ; i++)
+			{
+				if(m_components[i] == comp)
+					m_componentPopupIndex = i;
+			}
+		}
 	}
 }

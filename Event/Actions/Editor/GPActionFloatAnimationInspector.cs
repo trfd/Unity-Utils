@@ -23,19 +23,24 @@ namespace Utils.Event
 		{
 			GPActionFloatAnimation anim = (GPActionFloatAnimation) TargetAction;
 
+			if(anim._member == null)
+				anim._member = new DataMemberWrapper();
+
 			SerializedProperty compProp = SerialObject.FindProperty("_component");
 
 			Object prevObj = compProp.objectReferenceValue;
 
 			EditorGUILayout.PropertyField(compProp);
 
-			if(prevObj != compProp.objectReferenceValue)
-				CreateFieldList((Component)compProp.objectReferenceValue);
+			if(prevObj != compProp.objectReferenceValue || m_memberInfoList == null)
+				CreateMemberList((Component)compProp.objectReferenceValue);
 
-			if(m_memberInfoList != null && m_memberInfoList.Length > 0)
+			if( m_memberInfoList != null && m_memberInfoList.Length > 0)
 			{
-					m_currMemberListIndex = EditorGUILayout.Popup("Field",m_currMemberListIndex,m_memberNameList);
-					anim._member.SetMember( m_memberInfoList[m_currMemberListIndex] );
+				FindMemberInList(anim._member.GetMember());
+
+				m_currMemberListIndex = EditorGUILayout.Popup("Field",m_currMemberListIndex,m_memberNameList);
+				anim._member.SetMember( m_memberInfoList[m_currMemberListIndex] );
 			}
 			else if(compProp.objectReferenceValue != null)
 				EditorGUILayout.HelpBox("Type "+compProp.objectReferenceValue.GetType().FullName+
@@ -45,9 +50,26 @@ namespace Utils.Event
 
 			EditorGUILayout.PropertyField(SerialObject.FindProperty("_duration"));
 			EditorGUILayout.PropertyField(SerialObject.FindProperty("_curve"));
+
+			SerialObject.ApplyModifiedProperties();
+
 		}
 
-		private void CreateFieldList(Component comp)
+		private void FindMemberInList(MemberInfo mInfo)
+		{
+			for(int i=0 ; i<m_memberInfoList.Length ; i++)
+			{
+				if(m_memberInfoList[i] == mInfo)
+				{
+					m_currMemberListIndex = i;
+					return;
+				}
+			}
+
+			m_currMemberListIndex = 0;
+		}
+
+		private void CreateMemberList(Component comp)
 		{
 			GPActionFloatAnimation anim = (GPActionFloatAnimation) TargetAction;
 
@@ -63,7 +85,6 @@ namespace Utils.Event
 			
 			FieldInfo[] fInfos = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
 			PropertyInfo[] pInfos = comp.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
 
 			List<MemberInfo> dInfos = new List<MemberInfo>();
 			List<string> dInfosName = new List<string>();

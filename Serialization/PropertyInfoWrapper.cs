@@ -74,13 +74,9 @@ namespace Utils
 		/// </summary>
 		public void OnAfterDeserialize()
 		{
-			if(m_propertyName == "")
-				m_info = null;
-			
-			m_info = m_type.Type.GetProperty(m_propertyName);
+			m_info = m_type.Type.GetProperty(m_propertyName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 		}
 		
 		#endregion
 	}
-
 }

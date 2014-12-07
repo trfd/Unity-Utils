@@ -5,7 +5,7 @@ using System.Reflection;
 namespace Utils
 {
 	[System.Serializable]
-	public class DataMemberWrapper
+	public class DataMemberWrapper : ISerializationCallbackReceiver
 	{
 		#region Private Members
 
@@ -79,9 +79,15 @@ namespace Utils
 		public void SetMember(MemberInfo member)
 		{
 			if(member is PropertyInfo)
+			{
 				m_property.PropertyInfo = (PropertyInfo) member;
+				m_field.FieldInfo = null;
+			}
 			else if(member is FieldInfo)
+			{
 				m_field.FieldInfo = (FieldInfo) member;
+				m_property.PropertyInfo = null;
+			}
 			else
 				Debug.Log("DataMember can not use member of type "+member.GetType().FullName);
 		}
@@ -117,5 +123,13 @@ namespace Utils
 		}
 
 		#endregion
+
+		public void OnBeforeSerialize()
+		{
+		}
+
+		public void OnAfterDeserialize()
+		{
+		}
 	}
 }
