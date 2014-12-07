@@ -11,11 +11,11 @@ namespace Utils.Event
 	{
 		#region Private Members
 
-		private FieldInfo[] m_fieldInfoList;
+		private MemberInfo[] m_memberInfoList;
 
-		private string[] m_fieldNameList;
+		private string[] m_memberNameList;
 
-		private int m_currFieldListIndex;
+		private int m_currMemberListIndex;
 
 		#endregion
 
@@ -32,10 +32,10 @@ namespace Utils.Event
 			if(prevObj != compProp.objectReferenceValue)
 				CreateFieldList((Component)compProp.objectReferenceValue);
 
-			if(m_fieldInfoList != null && m_fieldInfoList.Length > 0)
+			if(m_memberInfoList != null && m_memberInfoList.Length > 0)
 			{
-					m_currFieldListIndex = EditorGUILayout.Popup("Field",m_currFieldListIndex,m_fieldNameList);
-					anim._field.FieldInfo = m_fieldInfoList[m_currFieldListIndex];
+					m_currMemberListIndex = EditorGUILayout.Popup("Field",m_currMemberListIndex,m_memberNameList);
+					anim._member.SetMember( m_memberInfoList[m_currMemberListIndex] );
 			}
 			else if(compProp.objectReferenceValue != null)
 				EditorGUILayout.HelpBox("Type "+compProp.objectReferenceValue.GetType().FullName+
@@ -53,35 +53,49 @@ namespace Utils.Event
 
 			if(comp == null)
 			{
-				m_fieldInfoList = null;
-				m_fieldNameList = null;
+				m_memberInfoList = null;
+				m_memberNameList = null;
 				
-				m_currFieldListIndex = 0;
+				m_currMemberListIndex = 0;
 				
 				return;
 			}
 			
-			FieldInfo[] infos = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+			FieldInfo[] fInfos = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+			PropertyInfo[] pInfos = comp.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-			List<FieldInfo> dInfos = new List<FieldInfo>();
+
+			List<MemberInfo> dInfos = new List<MemberInfo>();
 			List<string> dInfosName = new List<string>();
 
-			m_currFieldListIndex = 0;
+			m_currMemberListIndex = 0;
 
-			foreach(FieldInfo info in infos)
+			foreach(FieldInfo info in fInfos)
 			{
 				if(info.FieldType == typeof(float))
 				{
 					dInfos.Add(info);
 					dInfosName.Add(info.Name);
 
-					if(anim._field.FieldInfo == info)
-						m_currFieldListIndex = dInfos.Count-1;
+					if(anim._member.GetMember() == info)
+						m_currMemberListIndex = dInfos.Count-1;
 				}
 			}
 
-			m_fieldInfoList = dInfos.ToArray();
-			m_fieldNameList = dInfosName.ToArray();
+			foreach(PropertyInfo info in pInfos)
+			{
+				if(info.PropertyType == typeof(float))
+				{
+					dInfos.Add(info);
+					dInfosName.Add(info.Name);
+					
+					if(anim._member.GetMember() == info)
+						m_currMemberListIndex = dInfos.Count-1;
+				}
+			}
+
+			m_memberInfoList = dInfos.ToArray();
+			m_memberNameList = dInfosName.ToArray();
 		}
 	}
 }
