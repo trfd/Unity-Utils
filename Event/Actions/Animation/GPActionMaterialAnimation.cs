@@ -132,6 +132,12 @@ namespace Utils.Event
 
 		protected override void OnUpdate()
 		{
+			if(m_impl.HasEnded)
+			{
+				End();
+				return;
+			}
+
 			m_impl.Update();
 		}
 

@@ -52,6 +52,8 @@ namespace Utils.Event
 		/// </summary>
 		private int m_currLoopCount;
 
+		private bool m_dueToRestart;
+
 		#endregion
 
 		#region Public Members
@@ -122,7 +124,14 @@ namespace Utils.Event
 		{
 			if(this.HasEnded || m_currActionIndex >= _actionRefs.Count)
 				return;
-			
+
+			if(m_dueToRestart)
+			{
+				ActionAtIndex(m_currActionIndex).Trigger();
+
+				m_dueToRestart = false;
+			}
+
 			if(ActionAtIndex(m_currActionIndex).HasEnded)
 			{
 				m_currActionIndex++;
@@ -192,6 +201,8 @@ namespace Utils.Event
 		{
 			m_currLoopCount++;
 			m_currActionIndex = 0;
+
+			m_dueToRestart = true;
 		}
 
 		#endregion
