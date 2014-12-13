@@ -30,14 +30,17 @@ using System.Collections;
 using System.Reflection;
 using System;
 
-[CustomEditor(typeof(UnityEngine.MonoBehaviour),true)]
+[CustomEditor(typeof(UnityEngine.MonoBehaviour),true),CanEditMultipleObjects]
 public class BehaviourEditor : UnityEditor.Editor 
 {
 	public override void OnInspectorGUI()
 	{
 		base.OnInspectorGUI();
 
-		EditorUtils.DrawMethodGUIButton(target);
-		EditorUtils.DrawMemberValue(target);
+	    foreach(MonoBehaviour beh in targets)
+	    {
+            EditorUtils.DrawMethodGUIButton(beh);
+            EditorUtils.DrawMemberValue(beh);
+	    }
 	}
 }
