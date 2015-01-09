@@ -110,27 +110,21 @@ namespace Utils.Event
 
         #region ContextMenu
 
-        [ContextMenu("Show all actions")]
+        [ContextMenu("Show GPActionObject")]
         private void ShowAllActions()
         {
-            GPAction[] actions = GetComponents<GPAction>();
+            GameObject obj = GetGPActionObjectOrCreate();
 
-            foreach (GPAction action in actions)
-            {
-                action.hideFlags = HideFlags.None;
-            }
+            obj.hideFlags = HideFlags.None;
         }
 
 
-        [ContextMenu("Hide all actions")]
+        [ContextMenu("Hide GPActionObject")]
         private void HideAllActions()
         {
-            GPAction[] actions = GetComponents<GPAction>();
+            GameObject obj = GetGPActionObjectOrCreate();
 
-            foreach (GPAction action in actions)
-            {
-                action.hideFlags = HideFlags.HideInInspector;
-            }
+            obj.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
         }
 
         #endregion 
@@ -229,6 +223,43 @@ namespace Utils.Event
        
             m_triggerCount++;
             Action.Trigger();
+        }
+
+        #endregion
+
+        #region GPActionObjectMapper Wrapping
+
+        public virtual GameObject GetGPActionObject()
+        {
+            return GPActionUtils.GetGPActionObject(this.gameObject);
+        }
+
+        public virtual GPActionObjectMapper GetGPActionObjectMapper()
+        {
+            return GPActionUtils.GetGPActionObjectMapper(this.gameObject);
+        }
+
+        public virtual GameObject GetGPActionObjectOrCreate()
+        {
+            return GPActionUtils.GetGPActionObjectOrCreate(this.gameObject);
+        }
+
+        public virtual GPActionObjectMapper GetGPActionObjectMapperOrCreate()
+        {
+            return GPActionUtils.GetGPActionObjectMapperOrCreate(this.gameObject);
+        }
+
+        public virtual GPAction AddAction(System.Type actionType)
+        {
+            GPAction action = GetGPActionObjectMapperOrCreate().AddAction(this,actionType);
+
+            action.enabled = false;
+
+            action._name = System.Guid.NewGuid().ToString();
+
+            action.SetParentHandler(this);
+
+            return action;
         }
 
         #endregion

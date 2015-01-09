@@ -42,22 +42,18 @@ namespace Utils.Event
 
 	    #region Private Members
 
+        /// <summary>
+        /// Maps EventHanlder to GameObject. Those game object are GPActionHolderObject
+        /// </summary>
         private GPActionObjectMap m_actionObjectMap;
-
-	    #endregion
-
-	    #region Public Members
-
-        
-
-	    #endregion
-
-	    #region Properties
 
 	    #endregion
 
 	    #region Constructors
 
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
         public GPActionObjectMapper()
         {
             m_actionObjectMap = new GPActionObjectMap();
@@ -66,27 +62,64 @@ namespace Utils.Event
 	    #endregion
 
         #region Public Interface
-        
+
+        #region Context Menu
+
+        [ContextMenu("Show Children")]
+        private void ShowAllActions()
+        {
+            for (int i = 0; i < this.transform.childCount; ++i)
+                this.transform.GetChild(i).gameObject.hideFlags = HideFlags.None;
+        }
+
+
+        [ContextMenu("Hide Children")]
+        private void HideAllActions()
+        {
+            for (int i = 0; i < this.transform.childCount; ++i)
+                this.transform.GetChild(i).gameObject.hideFlags = HideFlags.HideInHierarchy;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Adds an EventHandler to the mapping.
+        /// </summary>
+        /// <param name="handler"></param>
         public void AddEventHandler(EventHandler handler)
         {
             m_actionObjectMap.Dictionary.Add(handler, CreateGPActionHolderObject(handler));
         }
 
-        public T AddAction<T>(EventHandler handler) where T : GPAction
+        /// <summary>
+        /// Add an action to the EventHandler
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="handler"></param>
+        /// <returns></returns>
+        public GPAction AddAction(EventHandler handler,System.Type actionType)
         {
             if (handler == null)
                 throw new System.ArgumentNullException();
 
+            if (!typeof(GPAction).IsAssignableFrom(actionType))
+                throw new System.ArgumentException("Type 'actionType' must inherit from GPAction");
+
             GameObject holder;
 
             if (!m_actionObjectMap.Dictionary.TryGetValue(handler, out holder))
-                throw new GPActionHolderObjectNotFoundException();
+                holder = CreateGPActionHolderObject(handler);
 
-            return holder.AddComponent<T>();
+            return (GPAction) holder.AddComponent(actionType);
         }
 
 #if UNITY_EDITOR
 
+        /// <summary>
+        /// Imports an action prefab for the specified EventHandler
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="prefab"></param>
         public void ImportGPActionObjectHolderPrefab(EventHandler handler,Object prefab)
         {
             try
@@ -96,6 +129,11 @@ namespace Utils.Event
             catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException();  }
         }
 
+        /// <summary>
+        /// Exports the current GPActionHolderObject as action prefab
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <returns></returns>
         public Object ExportGPActionObjectHolderPrefab(EventHandler handler)
         {
             try
@@ -112,7 +150,39 @@ namespace Utils.Event
             catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException(); }
         }
 
-        public void ApplyGPActionObjectHolderToPrefab()
+        /// <summary>
+        /// Applies the modification of GPActionHolderObject to its prefab if any.
+        /// </summary>
+        /// <param name="handler"></param>
+        public void ApplyGPActionObjectHolderToPrefab(EventHandler handler)
+        {
+            try
+            {
+                GameObject obj = m_actionObjectMap.Dictionary[handler];
+
+                Object prefab = PrefabUtility.GetPrefabObject(obj);
+
+                PrefabUtility.ReplacePrefab(obj, prefab);
+            }
+            catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException(); }
+        }
+
+        /// <summary>
+        /// Resets all GPActionHolderObject modifications to the prefab values
+        /// </summary>
+        /// <param name="handler"></param>
+        public void ResetGPActionObjectHolderToPrefab(EventHandler handler)
+        {
+            try
+            {
+                GameObject obj = m_actionObjectMap.Dictionary[handler];
+
+                Object prefab = PrefabUtility.GetPrefabObject(obj);
+
+                PrefabUtility.ResetToPrefabState(obj);
+            }
+            catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException(); }
+        }
 
 #endif
 
@@ -120,6 +190,11 @@ namespace Utils.Event
 
         #region Protected Interface
 
+        /// <summary>
+        /// Create a GPActionHolderObject in the hierarchy
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <returns></returns>
         protected GameObject CreateGPActionHolderObject(EventHandler handler)
         {
             GameObject holder = new GameObject(handler._eventID.Name);
@@ -129,15 +204,10 @@ namespace Utils.Event
             return holder;
         }
 
-        protected GameObject CreateGPActionHolderObject(EventHandler handler, GameObject prefab)
-        {
-            GameObject holder = (GameObject) GameObject.Instantiate(prefab);
-
-            InitGPActionHolderObject(holder);
-
-            return holder;
-        }
-
+        /// <summary>
+        /// Init a GPActionHolderObject properties.
+        /// </summary>
+        /// <param name="holder"></param>
         protected void InitGPActionHolderObject(GameObject holder)
         {
             holder.transform.parent = this.transform;

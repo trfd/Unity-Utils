@@ -131,13 +131,7 @@ public class EventHandlerInspector : Editor
 
 		System.Type actionType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
-		handler.Action = (GPAction) handler.gameObject.AddComponent(actionType);
-		handler.Action._name = System.Guid.NewGuid().ToString();
-
-		handler.Action.SetParentHandler(handler);
-
-	    handler.Action.enabled = false;
-        handler.Action.hideFlags = HideFlags.HideInInspector;
+        handler.Action = handler.AddAction(actionType);
 	}
 
 	private void DeleteAction()
