@@ -34,7 +34,7 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    public class GPActionObjectMapper : MonoBehaviour 
+    public class GPActionObjectMapper : MonoBehaviour , ISerializationCallbackReceiver
     {
         [System.Serializable]
         public class GPActionObjectMap : DictionaryWrapper<EventHandler,GameObject>
@@ -86,9 +86,11 @@ namespace Utils.Event
         /// Adds an EventHandler to the mapping.
         /// </summary>
         /// <param name="handler"></param>
-        public void AddEventHandler(EventHandler handler)
+        public GameObject AddEventHandler(EventHandler handler)
         {
-            m_actionObjectMap.Dictionary.Add(handler, CreateGPActionHolderObject(handler));
+			GameObject holder = CreateGPActionHolderObject(handler);
+            m_actionObjectMap.Dictionary.Add(handler, holder);
+			return holder;
         }
 
         /// <summary>
@@ -107,11 +109,26 @@ namespace Utils.Event
 
             GameObject holder;
 
-            if (!m_actionObjectMap.Dictionary.TryGetValue(handler, out holder))
-                holder = CreateGPActionHolderObject(handler);
+            if(!m_actionObjectMap.Dictionary.TryGetValue(handler, out holder))
+				holder = AddEventHandler(handler);
 
             return (GPAction) holder.AddComponent(actionType);
         }
+
+		/// <summary>
+		/// Removes the event handler from the map.
+		/// </summary>
+		/// <param name="handler">Handler.</param>
+		public void RemoveEventHandler(EventHandler handler)
+		{
+			try
+			{
+				DestroyImmediate(m_actionObjectMap.Dictionary[handler]);
+				m_actionObjectMap.Dictionary.Remove(handler);
+			}
+			catch(KeyNotFoundException e)
+			{}
+		}
 
 #if UNITY_EDITOR
 
@@ -122,11 +139,16 @@ namespace Utils.Event
         /// <param name="prefab"></param>
         public void ImportGPActionObjectHolderPrefab(EventHandler handler,Object prefab)
         {
+			GameObject instPrefab = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
+
             try
-            {
-                m_actionObjectMap.Dictionary[handler] = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
-            }
-            catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException();  }
+			{ m_actionObjectMap.Dictionary[handler] = instPrefab; }
+            catch (KeyNotFoundException) 
+			{ m_actionObjectMap.Dictionary.Add(handler,instPrefab); }
+
+			handler.Action = instPrefab.GetComponent<GPActionExport>()._rootAction;
+
+			InitGPActionHolderObject(instPrefab);
         }
 
         /// <summary>
@@ -136,18 +158,27 @@ namespace Utils.Event
         /// <returns></returns>
         public Object ExportGPActionObjectHolderPrefab(EventHandler handler)
         {
+			GameObject obj;
+
             try
             {
-                string str = EditorUtility.SaveFilePanel("Export Action","Assets","New Action","prefab");
-
-                if(string.IsNullOrEmpty(str))
-                    return null;
-
-                GameObject obj = m_actionObjectMap.Dictionary[handler];
-
-                return PrefabUtility.CreatePrefab(str, obj, ReplacePrefabOptions.ConnectToPrefab);
+				obj = m_actionObjectMap.Dictionary[handler];
             }
-            catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException(); }
+			catch (KeyNotFoundException) 
+			{ 
+				obj = AddEventHandler(handler); 
+			}
+
+			obj.GetComponentOrCreate<GPActionExport>()._rootAction = handler.Action;
+
+			string str = EditorUtility.SaveFilePanel("Export Action","Assets","New Action","prefab");
+			
+			if(string.IsNullOrEmpty(str))
+				return null;
+
+			str = "Assets/"+FileUtils.GetRelativePath(str,Application.dataPath);
+
+			return PrefabUtility.CreatePrefab(str, obj, ReplacePrefabOptions.ConnectToPrefab);
         }
 
         /// <summary>
@@ -156,15 +187,21 @@ namespace Utils.Event
         /// <param name="handler"></param>
         public void ApplyGPActionObjectHolderToPrefab(EventHandler handler)
         {
+			GameObject obj;
+
             try
             {
-                GameObject obj = m_actionObjectMap.Dictionary[handler];
-
-                Object prefab = PrefabUtility.GetPrefabObject(obj);
-
-                PrefabUtility.ReplacePrefab(obj, prefab);
+                obj = m_actionObjectMap.Dictionary[handler];
             }
-            catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException(); }
+            catch (KeyNotFoundException)
+			{ 
+				obj = AddEventHandler(handler); 
+			}
+
+			Object prefab = PrefabUtility.GetPrefabObject(obj);
+			
+			PrefabUtility.ReplacePrefab(obj, prefab);
+
         }
 
         /// <summary>
@@ -173,16 +210,37 @@ namespace Utils.Event
         /// <param name="handler"></param>
         public void ResetGPActionObjectHolderToPrefab(EventHandler handler)
         {
-            try
-            {
-                GameObject obj = m_actionObjectMap.Dictionary[handler];
-
-                Object prefab = PrefabUtility.GetPrefabObject(obj);
-
-                PrefabUtility.ResetToPrefabState(obj);
-            }
-            catch (KeyNotFoundException) { throw new GPActionHolderObjectNotFoundException(); }
+			GameObject obj;
+			
+			try
+			{
+				obj = m_actionObjectMap.Dictionary[handler];
+			}
+			catch (KeyNotFoundException)
+			{ 
+				obj = AddEventHandler(handler); 
+			}
+			
+			Object prefab = PrefabUtility.GetPrefabObject(obj);
+			
+			PrefabUtility.ResetToPrefabState(obj);
         }
+
+		public void ResetGPActionObjectHolder(EventHandler handler)
+		{
+			try
+			{
+				DestroyImmediate(m_actionObjectMap.Dictionary[handler]);
+				m_actionObjectMap.Dictionary.Remove(handler);
+			}
+			catch (KeyNotFoundException)
+			{
+			}
+
+			AddEventHandler(handler); 
+
+			handler.Action = null;
+		}
 
 #endif
 
@@ -215,6 +273,21 @@ namespace Utils.Event
         }
 
         #endregion
+
+		#region Serialization Callback
+
+		public void OnBeforeSerialize()
+		{
+		}
+
+		public void OnAfterDeserialize()
+		{
+			foreach(var kvp in m_actionObjectMap.Dictionary)
+			{
+			}
+		}
+
+		#endregion
     }
 
     public class GPActionHolderObjectNotFoundException : System.Exception

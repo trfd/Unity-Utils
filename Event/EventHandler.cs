@@ -169,6 +169,16 @@ namespace Utils.Event
 				Action.OnDrawGizmosSelected();
 		}
 
+		void OnDestroy()
+		{
+			GPActionObjectMapper obj = GetGPActionObjectMapper();
+
+			if(obj == null)
+				return;
+
+			obj.RemoveEventHandler(this);
+		}
+
         #endregion
 
         #region Event Listening

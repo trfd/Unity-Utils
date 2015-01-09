@@ -25,6 +25,10 @@ public class EventHandlerInspector : Editor
 
 	private GPActionInspector m_actionInspector;
 
+	private UnityEngine.Object m_importPrefab;
+
+	private bool m_displayImportPrefab = false;
+
     #endregion
 
     #region Inspector 
@@ -64,7 +68,9 @@ public class EventHandlerInspector : Editor
 		DisplayActionManagementField();
 
 		EditorGUILayout.Space();
-		
+
+		DisplayImportField();
+
 		if(GUILayout.Button("Export Action"))
 		{
 			ExportActionPrefab();
@@ -122,6 +128,33 @@ public class EventHandlerInspector : Editor
 		}
 	}
 
+	private void DisplayImportField()
+	{
+		if(!m_displayImportPrefab)
+		{
+			if(GUILayout.Button("Import Action"))
+			{
+				m_displayImportPrefab = true;
+			}
+		}
+		else
+		{
+			m_importPrefab = EditorGUILayout.ObjectField("Prefab",m_importPrefab,typeof(GameObject),false);
+
+			EditorGUILayout.BeginHorizontal();
+
+			if(GUILayout.Button("Import"))
+			{
+				ImportActionPrefab();
+				m_displayImportPrefab = false;
+			}
+			else if(GUILayout.Button("Cancel"))
+				m_displayImportPrefab = false;
+
+			EditorGUILayout.EndHorizontal();
+		}
+	}
+
 	private void CreateAction()
 	{
 		if (m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
@@ -142,12 +175,11 @@ public class EventHandlerInspector : Editor
 			return;
 
 		if(EditorUtility.DisplayDialog("Confirm Delete",
-		   	                         "Are you sure you want to delete this action ? " +
-		                            "This can not be undone!",
-		                            "Confirm","Cancel"))
+		   	                           "Are you sure you want to delete this action ? " +
+		                               "This can not be undone!",
+		                               "Confirm","Cancel"))
 		{
-			DestroyImmediate(handler.Action);
-			handler.Action = null;
+			handler.GetGPActionObjectMapperOrCreate().ResetGPActionObjectHolder(handler);
 		}
 	}
 
@@ -163,7 +195,20 @@ public class EventHandlerInspector : Editor
 
         handler.GetGPActionObjectMapperOrCreate().ExportGPActionObjectHolderPrefab(handler);
     }
-	
+
+	private void ImportActionPrefab()
+	{
+		if(EditorApplication.isPlaying)
+		{
+			Debug.LogError("Can not import in play mode");
+			return;
+		}
+
+		EventHandler handler = (EventHandler)target;
+		
+		handler.GetGPActionObjectMapperOrCreate().ImportGPActionObjectHolderPrefab(handler,m_importPrefab);
+	}
+
 	private void CreateActionInspector(EventHandler handler)
 	{
 		System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(handler.Action);

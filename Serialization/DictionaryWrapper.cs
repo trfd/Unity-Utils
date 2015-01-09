@@ -119,6 +119,9 @@ namespace Utils
 
 			for(int i=0 ; i<m_keys.Count ; ++i)
 			{
+				if(m_keys[i] == null)
+					continue;
+
 				m_dict.Add(m_keys[i],m_values[i]);
 			}
 		}
