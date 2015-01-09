@@ -1,0 +1,193 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,800,300);
+@import url(http://fonts.googleapis.com/css?family=Inconsolata:400,700);
+
+pre {
+	display:none;
+}
+
+.stack-trace {
+    font-family: "Inconsolata";
+    font-size: 14px;
+    padding: 20px 30px;
+    background-color: #222;
+    border: 1px solid #383838;
+    border-radius: 10px;
+    overflow: scroll;
+}
+
+a{
+	color:#ff0000;
+	background-color: rgba(255, 255, 255, 0.5);
+	padding:3px;
+	font-size:small;
+	text-decoration: none;
+	width:10em;
+	font-weight:normal;
+	cursor: hand;
+	border-radius:4px;
+	margin: 5px;
+}
+
+h1 {
+padding-top: 3em;
+}
+
+body {
+font-family: "Open Sans";
+padding-top: 0;
+background-color: #272822;
+margin-top: 0;
+color: #A9A9A9;
+}
+
+p {
+font-family: "Open Sans";
+padding:4px;
+border-radius:5px;
+margin:2px;
+display:block;
+}
+
+.fa {
+    margin: 3px;
+}
+
+span.sub-info {
+    display: block;
+    font-size: 13px;
+}
+
+img{
+float: none;
+}
+
+.full-msg
+{
+	display:none;
+	font-size: 14px;
+	padding: 10px;
+	border: 1px solid;
+}
+
+.Header{
+position:fixed;
+padding-bottom:1em;
+background-color: #272822;
+width: 100%;
+margin: 0px;
+padding: 10px;
+border-bottom: 1px solid #626262;
+}
+
+.Padding{
+ height:20em;
+}
+
+.time{
+float: left;
+background-color:transparent;
+}
+
+.Log {
+background-color:#eeeeee;
+font-weight:bold;
+}
+
+.Warning {
+background-color:#e48625;
+color:#ffffff;
+font-weight:bold;
+}
+
+.Error {
+background-color:#ff2a2a;
+color:#ffffff;
+font-weight:bold;
+}
+
+.Assert {
+color:#e48625;
+background-color:#ffeecc;
+font-weight:bold;
+}
+
+
+.Exception {
+color:#dd0000;
+background-color:#ffdddd;
+font-weight:bold;
+}
+
+
+.Physics {
+background-color: #691602;]
+;
+color: #FF6E4B;
+}
+
+.Audio {
+background-color: #4A6600;
+color: #85B800;
+}
+
+.Graphics {
+background-color: #8B4D8B;
+color: #E079E0;
+}
+
+.GUI {
+background-color: #3C2751;
+color: #AD5BED;
+}
+
+
+.GUIMessage {
+background-color:#9000ff;
+color:#ffffff;
+}
+
+.AI {
+background-color: #1E4D7C;
+color: #448ED7;
+}
+
+.GameLogic {
+background-color: #416B6B;
+color: #6ACFCF;
+}
+
+.System{
+background-color: #000047;
+color: #7474D2;
+}
+
+.Networking {
+background-color:#99ffcc;
+}
+
+.None {
+background-color: rgba(61, 61, 61, 1);
+}
+
+.NetworkClient {
+background-color:#99ffcc;
+}
+
+.NetworkServer {
+background-color:#99ffcc;
+}
+
+.Input {
+background-color: #866C06;
+color: #E2B402;
+}
+
+.Button {
+	display:inline;
+	width:10em;
+	border:none;
+	border-radius: 5px;
+	padding:4px;
+	margin:2px;
+	cursor: hand;
+}
