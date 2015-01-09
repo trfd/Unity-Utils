@@ -4,7 +4,7 @@ using System.Collections;
 namespace Utils.Event
 {
     [System.Serializable]
-    public class GPAction : UnityEngine.MonoBehaviour //ScriptableObject
+    public class GPAction : UnityEngine.MonoBehaviour
     {
         public enum ActionState
         {
@@ -192,6 +192,84 @@ namespace Utils.Event
 
 
 		#endregion
+    }
+
+    public static class GPActionUtils
+    {
+        #region Static Members
+
+        /// <summary>
+        /// Name used to designate the GPActionObject (that is the object holding GPAction)
+        /// </summary>
+        public static const string c_ActionObjectName = "__ActionObject__";
+
+        #endregion
+
+        #region Interface
+
+        /// <summary>
+        /// Creates a default GPActionObject if not existing.
+        /// Returns the created GameObject or the existing GPActionObject
+        /// </summary>
+        /// <param name="parentObj"></param>
+        /// <returns></returns>
+        public static GameObject CreateActionObject(GameObject parentObj)
+        {
+            GameObject gpaObj = GetGPActionObject(parentObj);
+
+            if (gpaObj != null)
+                return gpaObj;
+
+            gpaObj = new GameObject(c_ActionObjectName);
+
+            InitGPActionObject(parentObj,gpaObj);
+
+            return gpaObj;
+        }
+
+        /// <summary>
+        /// Init a GameObject owner GPAction (a so-called "GPActionObject").
+        /// That is, the object is hid in the hierarchy and parent transform is 
+        /// set to parent gameobject
+        /// </summary>
+        /// <param name="gpactionParent"></param>
+        /// <param name="gpactionObj"></param>
+        public static void InitGPActionObject(GameObject gpactionParent, GameObject gpactionObj)
+        {
+            gpactionObj.hideFlags = HideFlags.HideInHierarchy;
+
+            gpactionObj.transform.parent = gpactionParent.transform;
+        }
+
+        public static void DestroyActionObject(GameObject parentObj)
+        {
+            GameObject gpaObj = GetGPActionObject(parentObj);
+
+            if (gpaObj == null)
+                return;
+
+            GameObject.Destroy(gpaObj);
+        }
+
+        public static bool HasGPActionObject(GameObject parentObj)
+        {
+            return (GetGPActionObject(parentObj) != null);
+        }
+
+        public static GameObject GetGPActionObject(GameObject parentObj)
+        {
+            GameObject gpactionObj = null;
+
+            for (int i = 0; i < parentObj.transform.childCount; i++)
+                if (parentObj.transform.GetChild(i).gameObject.name == c_ActionObjectName)
+                    gpactionObj = parentObj.transform.GetChild(i).gameObject;
+
+            return gpactionObj;
+        }
+
+      
+
+        #endregion
     }
 }
 
