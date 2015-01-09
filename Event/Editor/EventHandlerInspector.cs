@@ -153,10 +153,6 @@ public class EventHandlerInspector : Editor
 
     private void ExportActionPrefab()
     {
-		EditorUtility.DisplayDialog("Not yet ready","This functionnality is not yet implemented.","Ok");
-
-		return;
-
 		if(EditorApplication.isPlaying)
 		{
 			Debug.LogError("Can not export in play mode");
@@ -165,32 +161,7 @@ public class EventHandlerInspector : Editor
 
 		EventHandler handler = (EventHandler)target;
 
-		string path = EditorUtility.SaveFilePanel("Export Action", "Assets/", "New Action Prefab", "prefab");
-
-		if (path == null || path.Length == 0)
-			return;
-		
-		string relativePath = path.Substring(path.IndexOf("Assets/"));
-
-		GameObject go = new GameObject();
-
-		System.Type componentType = handler.GetType();
-
-		EventHandler copyhandler = (EventHandler) go.AddComponent(componentType);
-
-		System.Reflection.FieldInfo[] fields = 
-			componentType.GetFields(System.Reflection.BindingFlags.Instance  | 
-	 								System.Reflection.BindingFlags.Public 	 |
-			                        System.Reflection.BindingFlags.NonPublic ); 
-
-		foreach (System.Reflection.FieldInfo field in fields)
-		{
-			field.SetValue(copyhandler, field.GetValue(handler));
-		}
-
-		PrefabUtility.CreatePrefab(relativePath,go);
-
-		DestroyImmediate(go);
+        handler.GetGPActionObjectMapperOrCreate().ExportGPActionObjectHolderPrefab(handler);
     }
 	
 	private void CreateActionInspector(EventHandler handler)

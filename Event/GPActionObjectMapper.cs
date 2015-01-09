@@ -77,7 +77,7 @@ namespace Utils.Event
         private void HideAllActions()
         {
             for (int i = 0; i < this.transform.childCount; ++i)
-                this.transform.GetChild(i).gameObject.hideFlags = HideFlags.HideInHierarchy;
+                this.transform.GetChild(i).gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
         }
 
         #endregion

@@ -184,13 +184,6 @@ namespace Utils.Event
 
 		#region MonoBehaviour
 
-		void OnValidate()
-		{
-			hideFlags = HideFlags.HideInInspector;
-			this.enabled = false;
-		}
-
-
 		#endregion
     }
 }
