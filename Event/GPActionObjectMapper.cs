@@ -127,7 +127,22 @@ namespace Utils.Event
 				m_actionObjectMap.Dictionary.Remove(handler);
 			}
 			catch(KeyNotFoundException e)
-			{}
+			{
+				Debug.LogWarning("Try to remove unexisting handler");
+			}
+		}
+
+		public GPAction[] GetAllActions(EventHandler handler)
+		{
+			if (handler == null)
+				throw new System.ArgumentNullException();
+
+			GameObject holder;
+			
+			if(m_actionObjectMap.Dictionary.TryGetValue(handler, out holder))
+				return holder.GetComponents<GPAction>();
+		
+			return new GPAction[0];
 		}
 
 #if UNITY_EDITOR

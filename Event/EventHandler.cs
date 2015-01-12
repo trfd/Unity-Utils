@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
+	[ExecuteInEditMode]
     public class EventHandler : MonoBehaviour
     {
         #region Enum Definition
@@ -133,11 +134,17 @@ namespace Utils.Event
 
         void Start()
         {
+			if(!Application.isPlaying)
+				return;
+
             Init();
         }
 
         void Update()
         {
+			if(!Application.isPlaying)
+				return;
+
             if(Action == null)
                 return;
 

@@ -30,6 +30,13 @@ namespace Utils.Event
 
 		public string _name;
 
+#if UNITY_EDITOR
+
+		[UnityEngine.HideInInspector]
+		public Rect _windowRect = new Rect(0,0,200,100);
+
+#endif
+
 		#endregion
 
         #region Properties
