@@ -33,7 +33,7 @@ namespace Utils.Event
 #if UNITY_EDITOR
 
 		[UnityEngine.HideInInspector]
-		public Rect _windowRect = new Rect(0,0,200,100);
+		public Rect _windowRect = new Rect(0,0,100,50);
 
 #endif
 

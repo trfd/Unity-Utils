@@ -98,9 +98,9 @@ public class GPActionInspector
 
 		string displayFoldout = TargetAction.EditionName+" ("+GPActionManager.s_gpactionNameMap[TargetAction.GetType()]+")";
 
-		if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, displayFoldout)))
+		//if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, displayFoldout)))
 		{
-			EditorGUI.indentLevel++;
+		//	EditorGUI.indentLevel++;
 
 			OnInspectorGUI();
 
@@ -144,9 +144,9 @@ public class GPActionDefaultInspector : GPActionInspector
 				endParentStack.Pop();
 				EditorGUI.indentLevel--;
 			}
-			
+
 			EditorGUILayout.PropertyField(property);
-			
+
 			if(property.hasVisibleChildren)
 			{
                 SerializedProperty endProperty = property.GetEndProperty();

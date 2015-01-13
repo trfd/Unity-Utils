@@ -37,7 +37,7 @@ namespace Utils.Event
 	{
 		#region Static Interface
 		
-		[MenuItem ("Window/Visual Script/Open")]
+		[MenuItem ("Window/Utils/Action Tool")]
 		public static void ShowWindow() 
 		{
 			EditorWindow.GetWindow(typeof(ActionEditorWindow));
@@ -47,10 +47,25 @@ namespace Utils.Event
 
 		#region Private Members
 
+		private float m_inspectorWidth = 250;
+
 		private GPAction[] m_actions;
 		private GPActionInspector[] m_actionInspectors;
 
 		private EventHandler m_handler;
+
+		private Vector2 m_blueprintScrollPosition;
+		private Vector2 m_sidebarScrollPosition;
+
+		private int m_selectedBoxID = -1;
+
+		#endregion
+
+		#region Const
+
+		private Color m_backColor          = new Color(0.18f,0.18f,0.18f);
+		private Color m_borderLineColor    = new Color(0.13f,0.13f,0.13f);
+		private Color m_inspectorBackColor = new Color(0.22f, 0.22f, 0.22f); 
 
 		#endregion
 
@@ -65,7 +80,7 @@ namespace Utils.Event
 			
 			if(Selection.activeObject == null && Selection.activeGameObject == null)
 			{
-				GUILayout.Label("No VisualScript Selected ");
+				GUILayout.Label("No Event Handler Selected ");
 				return false;
 			}
 			
@@ -73,7 +88,7 @@ namespace Utils.Event
 			{
 				if((handler = Selection.activeGameObject.GetComponent<EventHandler>()) == null)
 				{
-					GUILayout.Label("No EventHandler Selected ");
+					GUILayout.Label("No Event Handler Selected ");
 					return false;
 				}
 				
@@ -155,6 +170,39 @@ namespace Utils.Event
 		}
 
 		#endregion
+
+		#region Selection Management
+		
+		private void CheckSelectedActionBox()
+		{
+			if(UnityEngine.Event.current.isMouse && UnityEngine.Event.current.type == EventType.MouseDown)
+			{
+				// If click in inspector skip change
+				if(UnityEngine.Event.current.mousePosition.x >= position.width-m_inspectorWidth)
+					return;
+				
+				int currSelectedIndex = -1;
+				
+				for(int i=0 ; i<m_actions.Length ; i++)
+				{
+
+					if(IsMouseIn(m_actions[i]._windowRect))
+						currSelectedIndex = i;
+				}
+				
+				if(m_selectedBoxID != currSelectedIndex)
+				{
+					ChangeSelectedModule(currSelectedIndex);
+				}
+			}
+		}
+		
+		private void ChangeSelectedModule(int currSelectedIndex)
+		{
+			m_selectedBoxID = currSelectedIndex;
+		}
+		
+		#endregion
 		
 		public virtual void Reset()
 		{
@@ -171,27 +219,11 @@ namespace Utils.Event
 
 			FetchActions();
 
-			Handles.BeginGUI();
-			
-			BeginWindows();
-		
-			for(int i=0 ; i<m_actions.Length ; i++)
-			{
-				GPAction box = m_actions[i];
+			CheckSelectedActionBox();
 
-				/*
-				if(m_selectedModule == box)
-					GUI.backgroundColor = Color.white;
-				else
-					GUI.backgroundColor = new Color(0.8f,0.8f,0.8f);
-				*/
+			DisplaySidebar();
 
-				box._windowRect = GUI.Window(i, box._windowRect, DisplayAction, box.GetType().Name);
-			}
-			
-			EndWindows();
-			
-			Handles.EndGUI();
+			DisplayBlueprint();
 		}
 
 		protected virtual void DisplayAction(int id)
@@ -199,12 +231,123 @@ namespace Utils.Event
 			if(m_actionInspectors[id] == null)
 				CreateInspector(id);
 
-			m_actionInspectors[id].DrawInspector();
-			m_actionInspectors[id].IsFoldedOut
+			//m_actionInspectors[id].DrawInspector();
+
 			EditorUtility.SetDirty(m_actions[id]);
 
-			GUI.DragWindow(new Rect(0,0,100,30));
+			GUI.DragWindow(new Rect(0,0,10000,20));
 		}
+
+		#region Sidebar
+
+		protected virtual void DisplaySidebar()
+		{	
+			float xInspector = position.width-m_inspectorWidth;
+			
+			DrawQuad(new Rect(0           , 0, xInspector      , position.height),m_backColor);
+			DrawQuad(new Rect(xInspector-1, 0, 10              , position.height),m_borderLineColor);
+			DrawQuad(new Rect(xInspector  , 0, m_inspectorWidth, position.height),m_inspectorBackColor);
+
+			GUILayout.BeginArea(new Rect(position.width-m_inspectorWidth+5,0,
+			                             m_inspectorWidth-10,position.height));
+
+			m_sidebarScrollPosition = GUILayout.BeginScrollView(m_sidebarScrollPosition,
+			                                                    GUILayout.Width(m_inspectorWidth-10),
+			                                                    GUILayout.Height(position.height));
+
+			DisplaySidebarHeader();
+
+			Rect rect = EditorGUILayout.GetControlRect();
+			rect.height = 1f;
+			EditorGUI.DrawRect(rect,new Color(0.282f,0.282f,0.282f));
+			
+			DisplaySidebarInspector();
+
+			GUILayout.EndScrollView();
+
+			GUILayout.EndArea();
+		}
+
+		protected virtual void DisplaySidebarHeader()
+		{
+			GUILayout.Label("Header");
+		}
+
+		protected virtual void DisplaySidebarInspector()
+		{	
+			if(m_selectedBoxID == -1)
+				return;
+
+			GUILayout.Label(m_actions[m_selectedBoxID].GetType().Name);
+			
+			m_actionInspectors[m_selectedBoxID].DrawInspector();
+		}
+
+
+		#endregion
+
+		#region BluePrint
+
+		protected virtual void DisplayBlueprint()
+		{
+			float xInspector = position.width-m_inspectorWidth;
+
+			Handles.BeginGUI();
+
+			GUILayout.BeginArea(new Rect(0,0,xInspector,position.height));
+
+			m_blueprintScrollPosition = GUILayout.BeginScrollView(m_blueprintScrollPosition,
+			                                                      GUILayout.Width(xInspector),
+			                                                      GUILayout.Height(position.height));
+
+			BeginWindows();
+
+			for(int i=0 ; i<m_actions.Length ; i++)
+			{
+				GPAction box = m_actions[i];
+
+				if(m_selectedBoxID == i)
+					GUI.backgroundColor = Color.white;
+				else
+					GUI.backgroundColor = new Color(0.8f,0.8f,0.8f);
+				
+				box._windowRect = GUI.Window(i, box._windowRect, DisplayAction, box.GetType().Name);
+			}
+
+			EndWindows();
+
+			GUILayout.EndScrollView();
+			GUILayout.EndArea();
+
+			Handles.EndGUI();
+		}
+
+		#endregion
+
+		#region Utils
+
+		/// <summary>
+		/// Draws a rectangle of specified size and color in the GUI.
+		/// </summary>
+		/// <param name="position">Position.</param>
+		/// <param name="color">Color.</param>
+		private void DrawQuad(Rect position, Color color)
+		{
+			Texture2D texture = new Texture2D(1, 1);
+			texture.SetPixel(0,0,color);
+			texture.Apply();
+			GUI.skin.box.normal.background = texture;
+			GUI.Box(position, GUIContent.none);
+		}
+		
+		private bool IsMouseIn(Rect rect)
+		{		
+			Vector2 screenPos = UnityEngine.Event.current.mousePosition;
+			
+			return rect.Contains(screenPos);
+		}
+
+		#endregion
 
 	}
 }
