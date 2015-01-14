@@ -41,9 +41,9 @@ namespace Utils.Event
 		/// </summary>
 		protected override void OnTrigger()
 		{
-			foreach(GPActionRef actionRef in _actionRefs)
+			for(int i=0 ; i< ActionCount() ; i++)
 			{
-				actionRef.Action(this.gameObject).Trigger();
+				ActionAtIndex(i).Trigger();
 			}
 		}
 
@@ -58,9 +58,10 @@ namespace Utils.Event
 				return;
 
 			int endedCount = 0;
-			foreach(GPActionRef actionRef in _actionRefs)
+			for(int i=0 ; i< ActionCount() ; i++)
 			{
-				GPAction action = actionRef.Action(this.gameObject);
+
+				GPAction action = ActionAtIndex(i);
 
 				if(!action.HasEnded)
 					action.Update();
@@ -72,7 +73,7 @@ namespace Utils.Event
 					endedCount++;
 			}
 
-			if(endedCount == _actionRefs.Count)
+			if(endedCount == ActionCount())
 				End();
 		}
 
@@ -81,10 +82,10 @@ namespace Utils.Event
 		/// </summary>
 		protected override void OnInterrupt()
 		{
-			foreach(GPActionRef actionRef in _actionRefs)
+			
+			for(int i=0 ; i< ActionCount() ; i++)
 			{
-				GPAction action = actionRef.Action(this.gameObject);
-				action.Stop();
+				ActionAtIndex(i).Stop();
 			}
 		}
 

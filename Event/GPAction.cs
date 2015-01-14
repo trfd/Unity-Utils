@@ -1,8 +1,59 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Utils.Event
 {
+	#region Node
+	
+	[System.Serializable]
+	public class ActionEditorNode
+	{
+		public GPAction _action;
+		
+		public bool _selected;
+		
+		public ActionEditorConnection _connection;
+
+		public Vector2 _center;
+
+		public void Draw()
+		{
+			if(_selected)
+				Handles.color = Color.white;
+			else
+				Handles.color = Color.gray;
+
+			if(_connection == null)
+				Handles.DrawWireDisc((Vector3)_center,Vector3.forward,5);
+			else
+				Handles.DrawSolidDisc((Vector3)_center,Vector3.forward,5);
+		}
+	}
+	
+	#endregion
+	
+	#region NodeConnection
+	
+	public class ActionEditorConnection
+	{
+		public ActionEditorNode _nodeParent;
+		public ActionEditorNode _nodeChild;
+
+		public ActionEditorConnection(ActionEditorNode parent, ActionEditorNode child)
+		{
+			_nodeParent = parent;
+			_nodeChild = child;
+		}
+	}
+	
+	#endregion
+
     [System.Serializable]
     public class GPAction : UnityEngine.MonoBehaviour
     {
@@ -34,6 +85,12 @@ namespace Utils.Event
 
 		[UnityEngine.HideInInspector]
 		public Rect _windowRect = new Rect(0,0,100,50);
+
+		[UnityEngine.HideInInspector]
+		public ActionEditorNode _leftNode;
+
+		[UnityEngine.HideInInspector]
+		public List<ActionEditorNode> _rightNodes;
 
 #endif
 
@@ -102,6 +159,7 @@ namespace Utils.Event
 
 		public GPAction()
 		{
+			CreateNodes();
 		}
 
 		#endregion
@@ -186,12 +244,47 @@ namespace Utils.Event
             m_currState = ActionState.TERMINATED;
 			OnTerminate();
         }
-         
+
+		#region Node
+
+		protected virtual void CreateNodes()
+		{
+			CreateLeftNode();
+
+			_rightNodes = new List<ActionEditorNode>();
+		}
+
+		protected virtual void CreateLeftNode()
+		{
+			_leftNode = new ActionEditorNode();
+			
+			_leftNode._action = this;
+			_leftNode._connection = null;
+			_leftNode._center = new Vector2(8,25);
+		}
+
+		protected virtual void AddRightNode()
+		{
+			_rightNodes.Add(new ActionEditorNode());
+
+			_rightNodes.Last()._action = this;
+			_rightNodes.Last()._connection = null;
+			_rightNodes.Last()._center = new Vector2(92,25+16*(_rightNodes.Count-1));
+		}
+        
+		#endregion
+
         #endregion
 
 		#region MonoBehaviour
 
 		#endregion
     }
+
+	public interface IActionOwner 
+	{
+		void Connect(GPAction child);
+		// Disconnect
+	}
 }
 

@@ -58,9 +58,9 @@ namespace Utils.Event
 
 			m_childrenInspectors = new List<GPActionInspector>();
 
-			foreach(GPActionRef actRef in compoundAction._actionRefs)
+			for(int i=0 ; i< compoundAction.ActionCount() ; i++)
 			{
-				AddInspectorFor(actRef.Action(compoundAction.gameObject));
+				AddInspectorFor(compoundAction.ActionAtIndex(i));
 			}
 		}
 
@@ -68,7 +68,7 @@ namespace Utils.Event
 		{
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
 
-			if(compoundAction._actionRefs.Count != m_childrenInspectors.Count)
+			if(compoundAction.ActionCount() != m_childrenInspectors.Count)
 				Debug.LogError("Wrong size of inspector array");
 
 			string actionTypeName = GPActionManager.s_gpactionNameMap[TargetAction.GetType()];
@@ -157,18 +157,18 @@ namespace Utils.Event
 
 			System.Type selectedType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
 
-			GPAction action = (GPAction) compoundAction.gameObject.AddComponent(selectedType);//ScriptableObject.CreateInstance(selectedType);
+			GPAction action = (GPAction) compoundAction.gameObject.AddComponent(selectedType);
 
 			string actionTypeName = GPActionManager.s_gpactionTypeNames[m_actionTypeSelectedIndex];
 		
-			action._name = compoundAction._name+"_"+actionTypeName+compoundAction._actionRefs.Count.ToString();
+			action._name = compoundAction._name+"_"+actionTypeName+compoundAction.ActionCount().ToString();
           
-			action.EditionName = actionTypeName+compoundAction._actionRefs.Count.ToString();
+			action.EditionName = actionTypeName+compoundAction.ActionCount().ToString();
 
             action.enabled = false;
             action.hideFlags = HideFlags.HideInInspector;
 
-			compoundAction._actionRefs.Add(new GPActionRef(action));
+			compoundAction.AddAction(action);
 
 			action.SetParentHandler(compoundAction.ParentHandler);
 
@@ -198,7 +198,7 @@ namespace Utils.Event
 		{
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
 
-			compoundAction._actionRefs.RemoveAt(idx);
+			compoundAction.RemoveActionAt(idx);
 			m_childrenInspectors.RemoveAt(idx);
 		}
 	}

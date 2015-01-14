@@ -27,19 +27,24 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Utils.Event
 {
 	[GPActionHide]
 	[System.Serializable]
-	public class GPActionCompound : GPAction
+	public class GPActionCompound : GPAction , IActionOwner
 	{
-		#region Public Members
+		#region Private Members
 
 		/// <summary>
 		/// List of GPAction of compound action
 		/// </summary>
-		public List<GPActionRef> _actionRefs;
+		private List<GPAction> m_actions;
+
+		#endregion
+
+		#region Public Members
 
 		#endregion
 
@@ -47,19 +52,13 @@ namespace Utils.Event
 
 		public GPActionCompound()
 		{
-			_actionRefs = new List<GPActionRef>();
+			m_actions = new List<GPAction>();
 		}
 
 		#endregion
 
 		#region Public Interface
 
-		public GPAction ActionAtIndex(int idx)
-		{
-			return _actionRefs[idx].Action(this.gameObject);
-		}
-
-		#endregion
 
 		#region GPAction Override
 
@@ -67,32 +66,99 @@ namespace Utils.Event
 		{
 			base.SetParentHandler(handler);
 
-			foreach(GPActionRef actionRef in _actionRefs)
-			{
-				GPAction action = actionRef.Action(this.gameObject);
-
+			foreach(GPAction action in m_actions)
 				action.SetParentHandler(handler);
-			}
 		}
 
 		public override void OnDrawGizmos()
 		{
-			foreach(GPActionRef actionRef in _actionRefs)
-			{
-				GPAction action = actionRef.Action(this.gameObject);
-
+			foreach(GPAction action in m_actions)
 				action.OnDrawGizmos();
-			}
 		}
 		
 		public override void OnDrawGizmosSelected()
 		{
-			foreach(GPActionRef actionRef in _actionRefs)
-			{
-				GPAction action = actionRef.Action(this.gameObject);
-
+			foreach(GPAction action in m_actions)
 				action.OnDrawGizmosSelected();
-			}
+		}
+
+		#endregion
+
+		#region Children Action Management
+
+		public virtual int ActionCount()
+		{
+			return m_actions.Count;
+		}
+
+		public virtual GPAction ActionAtIndex(int idx)
+		{
+			return m_actions[idx];
+		}
+
+		public virtual GPAction AddAction(System.Type t)
+		{
+			return AddAction(this.ParentHandler.GetGPActionObjectMapperOrCreate().AddAction(this.ParentHandler,t));
+		}
+
+		public virtual GPAction AddAction(GPAction action)
+		{
+			m_actions.Add(action);
+
+#if UNITY_EDITOR
+			_rightNodes[m_actions.Count]._connection = new ActionEditorConnection(_rightNodes[m_actions.Count],m_actions.Last()._leftNode);
+			m_actions.Last()._leftNode._connection = _rightNodes[m_actions.Count]._connection;
+
+			AddRightNode();
+#endif
+			return m_actions.Last();
+		}
+
+		public virtual void SetActionAt(int idx, GPAction action)
+		{
+#if UNITY_EDITOR			
+			_rightNodes[idx]._connection = new ActionEditorConnection(_rightNodes[idx],action._leftNode);
+			m_actions[idx]._leftNode._connection = _rightNodes[idx]._connection;
+#endif
+			m_actions[idx] = action;
+		}
+
+		public virtual void RemoveAction(GPAction action)
+		{
+			int idx = m_actions.IndexOf(action);
+
+			RemoveActionAt(idx);
+		}
+
+		public virtual void RemoveActionAt(int idx)
+		{
+#if UNITY_EDITOR			
+			_rightNodes.RemoveAt(idx);
+			m_actions[idx]._leftNode._connection = null;
+#endif
+			m_actions.RemoveAt(idx);
+		}
+
+		#endregion
+
+		#region Nodes
+
+		protected override void CreateNodes()
+		{
+			base.CreateNodes();
+
+			AddRightNode();
+		}
+
+		#endregion
+
+		#endregion
+
+		#region IActionOwner
+
+		public void Connect(GPAction child)
+		{
+			AddAction(child);
 		}
 
 		#endregion

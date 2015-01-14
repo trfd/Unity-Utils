@@ -62,7 +62,7 @@ namespace Utils.Event
 		{
 			// Stop previous running action
 
-			if(m_currActionIndex >= 0 && m_currActionIndex < _actionRefs.Count &&
+			if(m_currActionIndex >= 0 && m_currActionIndex < ActionCount() &&
 			   ActionAtIndex(m_currActionIndex).IsRunning)
 			   ActionAtIndex(m_currActionIndex).Stop();
 
@@ -80,14 +80,14 @@ namespace Utils.Event
 		/// <param name="dt">Dt.</param>
 		protected override void OnUpdate()
 		{
-			if(this.HasEnded || m_currActionIndex >= _actionRefs.Count)
+			if(this.HasEnded || m_currActionIndex >= ActionCount())
 				return;
 
 			if(ActionAtIndex(m_currActionIndex).HasEnded)
 			{
 				m_currActionIndex++;
 
-				if(m_currActionIndex >= _actionRefs.Count)
+				if(m_currActionIndex >= ActionCount())
 				{ 
 					End(); 
 					return;
@@ -106,7 +106,7 @@ namespace Utils.Event
 		/// </summary>
 		protected override void OnInterrupt()
 		{
-			if(m_currActionIndex >= _actionRefs.Count || 
+			if(m_currActionIndex >=  ActionCount() || 
 			   !ActionAtIndex(m_currActionIndex).IsRunning)
 			{
 				return;

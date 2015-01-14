@@ -29,7 +29,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace Utils.Event
 {
@@ -58,6 +58,8 @@ namespace Utils.Event
 		private Vector2 m_sidebarScrollPosition;
 
 		private int m_selectedBoxID = -1;
+
+		private ActionEditorNode m_selectedNode;
 
 		#endregion
 
@@ -144,6 +146,10 @@ namespace Utils.Event
 
 		#endregion
 
+		#region Dot Managenement
+
+		#endregion
+
 		#region Inspector Management
 
 		protected virtual void CreateAllInspectors()
@@ -175,33 +181,113 @@ namespace Utils.Event
 		
 		private void CheckSelectedActionBox()
 		{
-			if(UnityEngine.Event.current.isMouse && UnityEngine.Event.current.type == EventType.MouseDown)
-			{
-				// If click in inspector skip change
-				if(UnityEngine.Event.current.mousePosition.x >= position.width-m_inspectorWidth)
-					return;
-				
-				int currSelectedIndex = -1;
-				
-				for(int i=0 ; i<m_actions.Length ; i++)
-				{
+			if(!UnityEngine.Event.current.isMouse || UnityEngine.Event.current.type != EventType.MouseDown)
+				return;
 
-					if(IsMouseIn(m_actions[i]._windowRect))
-						currSelectedIndex = i;
-				}
-				
-				if(m_selectedBoxID != currSelectedIndex)
-				{
-					ChangeSelectedModule(currSelectedIndex);
-				}
+			// If click in inspector skip change
+			if(UnityEngine.Event.current.mousePosition.x >= position.width-m_inspectorWidth)
+				return;
+			
+			int currSelectedIndex = -1;
+			
+			for(int i=0 ; i<m_actions.Length ; i++)
+			{
+
+				if(IsMouseIn(m_actions[i]._windowRect))
+					currSelectedIndex = i;
 			}
+
+			ChangeSelectedModule(currSelectedIndex);
 		}
 		
 		private void ChangeSelectedModule(int currSelectedIndex)
 		{
 			m_selectedBoxID = currSelectedIndex;
 		}
-		
+
+		private void CheckSelectedNode()
+		{
+			if(!UnityEngine.Event.current.isMouse || UnityEngine.Event.current.type != EventType.MouseDown)
+				return;
+
+			ActionEditorNode newNode = null;
+
+			foreach(GPAction action in m_actions)
+			{
+				if(IsMouseOverNode(action._leftNode))
+				{
+					newNode = action._leftNode;
+				}
+
+				foreach(ActionEditorNode node in action._rightNodes)
+				{
+					if(IsMouseOverNode(node))
+					{
+						newNode = node;
+					}
+				}
+			}
+
+			ChangeSelectedNode(newNode);
+		}
+
+		private void ChangeSelectedNode(ActionEditorNode node)
+		{
+			if(m_selectedNode != null)
+			{
+				if(node != null)
+				{
+					CreateConnection(node,m_selectedNode);
+				}
+
+				m_selectedNode._selected = false;
+				m_selectedNode = null;
+
+				return;
+			}
+			// else
+
+			m_selectedNode = node;
+
+			if(m_selectedNode != null)
+				m_selectedNode._selected = true;
+		}
+
+		#endregion
+
+		#region Connection Management
+
+		private void CreateConnection(ActionEditorNode node1, ActionEditorNode node2)
+		{
+			if(node1._action == node2._action || node1._action == null || node2._action == null)
+				return;
+
+			bool node1IsLeft = (node1._action._leftNode == node1);
+			bool node2IsLeft = (node2._action._leftNode == node2);
+
+			if((node1IsLeft && node2IsLeft) || (!node1IsLeft && !node2IsLeft))
+				return;
+
+			GPAction parent;
+			GPAction child;
+
+			if(node2IsLeft)
+			{
+				child  = node2._action;
+				parent = node1._action;
+			}
+			else
+			{
+				child  = node1._action; 
+				parent = node2._action;
+			}
+
+			if(!(parent is IActionOwner))
+				return;
+
+			((IActionOwner) parent).Connect(child);
+		}
+
 		#endregion
 		
 		public virtual void Reset()
@@ -213,13 +299,15 @@ namespace Utils.Event
 		/// Raises the GUI event.
 		/// </summary>
 		private void OnGUI() 
-		{
+		{ 
 			if(!FetchEventHandler())
 				return;
 
 			FetchActions();
 
 			CheckSelectedActionBox();
+
+			CheckSelectedNode();
 
 			DisplaySidebar();
 
@@ -231,7 +319,12 @@ namespace Utils.Event
 			if(m_actionInspectors[id] == null)
 				CreateInspector(id);
 
-			//m_actionInspectors[id].DrawInspector();
+			m_actions[id]._leftNode.Draw();
+
+			for(int i =0 ; i< m_actions[id]._rightNodes.Count ; i++)
+			{
+				m_actions[id]._rightNodes[i].Draw();
+			}
 
 			EditorUtility.SetDirty(m_actions[id]);
 
@@ -278,9 +371,14 @@ namespace Utils.Event
 			if(m_selectedBoxID == -1)
 				return;
 
-			GUILayout.Label(m_actions[m_selectedBoxID].GetType().Name);
+			try
+			{
+				GUILayout.Label(m_actions[m_selectedBoxID].GetType().Name);
 			
-			m_actionInspectors[m_selectedBoxID].DrawInspector();
+				m_actionInspectors[m_selectedBoxID].DrawInspector();
+			}catch(System.Exception)
+			{
+			}
 		}
 
 
@@ -310,7 +408,7 @@ namespace Utils.Event
 					GUI.backgroundColor = Color.white;
 				else
 					GUI.backgroundColor = new Color(0.8f,0.8f,0.8f);
-				
+
 				box._windowRect = GUI.Window(i, box._windowRect, DisplayAction, box.GetType().Name);
 			}
 
@@ -347,7 +445,15 @@ namespace Utils.Event
 			return rect.Contains(screenPos);
 		}
 
-		#endregion
+		private bool IsMouseOverNode(ActionEditorNode node)
+		{
 
+			return IsMouseIn(new Rect(node._action._windowRect.x + node._center.x - 3, 
+			                          node._action._windowRect.y + node._center.y - 3, 6,6));
+		}
+
+		#endregion
 	}
+
+
 }
