@@ -69,7 +69,9 @@ namespace Utils.Event
 			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
 
 			if(compoundAction.ActionCount() != m_childrenInspectors.Count)
-				Debug.LogError("Wrong size of inspector array");
+			{
+				return;
+			}
 
 			string actionTypeName = GPActionManager.s_gpactionNameMap[TargetAction.GetType()];
 

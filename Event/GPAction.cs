@@ -254,22 +254,26 @@ namespace Utils.Event
 			_rightNodes = new List<ActionEditorNode>();
 		}
 
-		protected virtual void CreateLeftNode()
+		protected virtual ActionEditorNode CreateLeftNode()
 		{
 			_leftNode = new ActionEditorNode();
 			
 			_leftNode._action = this;
 			_leftNode._connection = null;
 			_leftNode._center = new Vector2(8,25);
+
+			return _leftNode;
 		}
 
-		protected virtual void AddRightNode()
+		protected virtual ActionEditorNode AddRightNode()
 		{
 			_rightNodes.Add(new ActionEditorNode());
 
 			_rightNodes.Last()._action = this;
 			_rightNodes.Last()._connection = null;
 			_rightNodes.Last()._center = new Vector2(92,25+16*(_rightNodes.Count-1));
+
+			return _rightNodes.Last();
 		}
         
 		#endregion

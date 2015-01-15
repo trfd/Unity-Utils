@@ -33,7 +33,7 @@ namespace Utils.Event
 {
 	[GPActionHide]
 	[System.Serializable]
-	public class GPActionCompound : GPAction , IActionOwner
+	public class GPActionCompound : GPAction , IActionOwner , ISerializationCallbackReceiver
 	{
 		#region Private Members
 
@@ -106,7 +106,11 @@ namespace Utils.Event
 			m_actions.Add(action);
 
 #if UNITY_EDITOR
-			_rightNodes[m_actions.Count]._connection = new ActionEditorConnection(_rightNodes[m_actions.Count],m_actions.Last()._leftNode);
+			Debug.Log("Add Action: ActionCount:"+m_actions.Count+" Node Count: "+_rightNodes.Count);
+
+			_rightNodes[m_actions.Count-1]._connection = 
+				new ActionEditorConnection(_rightNodes[m_actions.Count],m_actions.Last()._leftNode);
+
 			m_actions.Last()._leftNode._connection = _rightNodes[m_actions.Count]._connection;
 
 			AddRightNode();
@@ -147,6 +151,30 @@ namespace Utils.Event
 		{
 			base.CreateNodes();
 
+			//AddRightNode();
+
+			CreateAllRightNodes();
+		}
+
+		protected void CreateAllRightNodes()
+		{
+			if(m_actions == null)
+				m_actions = new List<GPAction>();
+
+			if(_rightNodes != null)
+				_rightNodes.Clear();
+			else
+				_rightNodes = new List<ActionEditorNode>();
+
+			foreach(GPAction action in m_actions)
+			{
+				ActionEditorNode node = AddRightNode();
+
+				node._action = this;
+				node._connection = new ActionEditorConnection(node,action._leftNode);
+				action._leftNode._connection = node._connection;
+			}
+
 			AddRightNode();
 		}
 
@@ -159,6 +187,19 @@ namespace Utils.Event
 		public void Connect(GPAction child)
 		{
 			AddAction(child);
+		}
+
+		#endregion
+
+		#region ISerializable Callback
+
+		public void OnBeforeSerialize()
+		{
+		}
+
+		public void OnAfterDeserialize()
+		{
+			CreateAllRightNodes();
 		}
 
 		#endregion

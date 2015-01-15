@@ -288,6 +288,33 @@ namespace Utils.Event
 			((IActionOwner) parent).Connect(child);
 		}
 
+		protected virtual void DisplayAllConnections()
+		{
+			foreach(GPAction action in m_actions)
+			{
+				if(action._leftNode._connection == null)
+					continue;
+
+				DisplayConnection(action._leftNode._connection);
+			}
+		}
+
+		protected virtual void DisplayConnection(ActionEditorConnection connection)
+		{
+			Texture2D texture = new Texture2D(1, 1);
+			texture.SetPixel(0,0,Color.white);
+			texture.Apply();
+
+			Vector2 inPos = connection._nodeParent._center + connection._nodeParent._action._windowRect.position;
+			Vector2 outPos = connection._nodeChild._center + connection._nodeChild._action._windowRect.position;
+			
+			Handles.DrawBezier(inPos, outPos,
+
+			                   inPos  + 30 * Vector2.right,
+			                   outPos - 30 * Vector2.right,
+			                   Color.white,texture,1f);
+		}
+
 		#endregion
 		
 		public virtual void Reset()
@@ -308,6 +335,10 @@ namespace Utils.Event
 			CheckSelectedActionBox();
 
 			CheckSelectedNode();
+
+			DrawBackground();
+
+			DisplayAllConnections();
 
 			DisplaySidebar();
 
@@ -331,16 +362,26 @@ namespace Utils.Event
 			GUI.DragWindow(new Rect(0,0,10000,20));
 		}
 
-		#region Sidebar
+		#region Background
 
-		protected virtual void DisplaySidebar()
-		{	
+		protected virtual void DrawBackground()
+		{
 			float xInspector = position.width-m_inspectorWidth;
 			
 			DrawQuad(new Rect(0           , 0, xInspector      , position.height),m_backColor);
 			DrawQuad(new Rect(xInspector-1, 0, 10              , position.height),m_borderLineColor);
 			DrawQuad(new Rect(xInspector  , 0, m_inspectorWidth, position.height),m_inspectorBackColor);
 
+		}
+
+		#endregion
+
+		#region Sidebar
+
+		protected virtual void DisplaySidebar()
+		{	
+			float xInspector = position.width-m_inspectorWidth;
+		
 			GUILayout.BeginArea(new Rect(position.width-m_inspectorWidth+5,0,
 			                             m_inspectorWidth-10,position.height));
 
