@@ -291,6 +291,11 @@ namespace Utils.Event
 			if(!(parent is IActionOwner))
 				return;
 
+			if(child._leftNode._connection != null)
+			{
+				((IActionOwner)child._leftNode._connection._nodeParent._action).Disconnect(child);
+			}
+
 			((IActionOwner) parent).Connect(child);
 		}
 
@@ -315,7 +320,6 @@ namespace Utils.Event
 			Vector2 outPos = connection._nodeChild._center + connection._nodeChild._action._windowRect.position;
 			
 			Handles.DrawBezier(inPos, outPos,
-
 			                   inPos  + 30 * Vector2.right,
 			                   outPos - 30 * Vector2.right,
 			                   Color.white,texture,1f);

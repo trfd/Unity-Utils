@@ -140,6 +140,8 @@ namespace Utils.Event
 
 		public virtual void RemoveActionAt(int idx)
 		{
+			m_actions.RemoveAt(idx);
+
 #if UNITY_EDITOR			
 			/*
 			_rightNodes.RemoveAt(idx);
@@ -147,7 +149,7 @@ namespace Utils.Event
 			*/
 			CreateAllRightNodes();
 #endif
-			m_actions.RemoveAt(idx);
+
 		}
 
 		#endregion
@@ -194,6 +196,11 @@ namespace Utils.Event
 		public void Connect(GPAction child)
 		{
 			AddAction(child);
+		}
+
+		public void Disconnect(GPAction child)
+		{
+			RemoveAction(child);
 		}
 
 		#endregion

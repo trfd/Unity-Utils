@@ -273,7 +273,7 @@ namespace Utils.Event
 			_rightNodes.Last()._connection = null;
 			_rightNodes.Last()._center = new Vector2(92,25+16*(_rightNodes.Count-1));
 
-			_windowRect.height = Mathf.Max(35+16*(_rightNodes.Count-1),_windowRect.height);
+			_windowRect.height = 35+16*(_rightNodes.Count-1);
 
 			return _rightNodes.Last();
 		}
@@ -290,7 +290,7 @@ namespace Utils.Event
 	public interface IActionOwner 
 	{
 		void Connect(GPAction child);
-		// Disconnect
+		void Disconnect(GPAction child);
 	}
 }
 
