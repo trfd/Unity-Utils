@@ -61,6 +61,12 @@ namespace Utils.Event
 
 		private ActionEditorNode m_selectedNode;
 
+		private bool m_createNewAction = false;
+
+		private int m_actionTypeSelectedIndex;
+
+		private GUIStyle m_windowStyle;
+
 		#endregion
 
 		#region Const
@@ -330,6 +336,8 @@ namespace Utils.Event
 			if(!FetchEventHandler())
 				return;
 
+			EditorGUIUtility.labelWidth = 80;
+
 			FetchActions();
 
 			CheckSelectedActionBox();
@@ -343,6 +351,9 @@ namespace Utils.Event
 			DisplaySidebar();
 
 			DisplayBlueprint();
+
+			
+			EditorGUIUtility.labelWidth = 0;
 		}
 
 		protected virtual void DisplayAction(int id)
@@ -404,7 +415,9 @@ namespace Utils.Event
 
 		protected virtual void DisplaySidebarHeader()
 		{
-			GUILayout.Label("Header");
+			EditorGUILayout.Space();
+
+			DisplayActionCreationField();
 		}
 
 		protected virtual void DisplaySidebarInspector()
@@ -417,11 +430,45 @@ namespace Utils.Event
 				GUILayout.Label(m_actions[m_selectedBoxID].GetType().Name);
 			
 				m_actionInspectors[m_selectedBoxID].DrawInspector();
-			}catch(System.Exception)
-			{
 			}
+			catch(System.Exception)
+			{}
 		}
 
+		private void DisplayActionCreationField()
+		{
+			if(m_createNewAction)
+			{
+				m_actionTypeSelectedIndex = EditorGUILayout.Popup("Action", m_actionTypeSelectedIndex, 
+				                                                  GPActionManager.s_gpactionTypeNames);
+
+				EditorGUILayout.BeginHorizontal();
+				
+				if (GUILayout.Button("Create"))
+				{
+					CreateAction();
+					m_createNewAction = false;
+				}
+				
+				if (GUILayout.Button("Cancel"))
+					m_createNewAction = false;
+				
+				EditorGUILayout.EndHorizontal();
+
+			}
+			else if (GUILayout.Button("Create Action"))
+				m_createNewAction = true;
+		}
+
+		private void CreateAction()
+		{
+			if (m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
+				throw new System.Exception("Out of bound index");
+			
+			System.Type actionType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
+			
+			m_handler.AddAction(actionType);
+		}
 
 		#endregion
 
@@ -429,6 +476,8 @@ namespace Utils.Event
 
 		protected virtual void DisplayBlueprint()
 		{
+			m_windowStyle = GUI.skin.window;
+
 			float xInspector = position.width-m_inspectorWidth;
 
 			Handles.BeginGUI();

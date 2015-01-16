@@ -45,7 +45,8 @@ namespace Utils.Event
         /// <summary>
         /// Maps EventHanlder to GameObject. Those game object are GPActionHolderObject
         /// </summary>
-        private GPActionObjectMap m_actionObjectMap;
+        [UnityEngine.SerializeField]
+		private GPActionObjectMap m_actionObjectMap;
 
 	    #endregion
 
@@ -283,6 +284,7 @@ namespace Utils.Event
         /// <param name="holder"></param>
         protected void InitGPActionHolderObject(GameObject holder)
         {
+			holder.name = "__Holder__";
             holder.transform.parent = this.transform;
             holder.hideFlags = HideFlags.HideInHierarchy;
         }

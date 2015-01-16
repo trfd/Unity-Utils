@@ -36,7 +36,7 @@ namespace Utils.Event
 		/// </summary>
 		[HideInInspector]
 		[UnityEngine.SerializeField]
-		private GPActionRef m_actionRef;
+		private GPAction m_action;
 
 		/// <summary>
 		/// Whether or not the handler can fire a fixed or infinite number of time
@@ -81,8 +81,8 @@ namespace Utils.Event
 
 		public GPAction Action
 		{
-			get{ return m_actionRef.Action(this.gameObject);  }
-			set{ m_actionRef.SetAction(value); }
+			get{ return m_action;  }
+			set{ m_action = value; }
 		}
 
         /// <summary>
@@ -104,7 +104,6 @@ namespace Utils.Event
 
 		public EventHandler()
 		{
-			m_actionRef = new GPActionRef();
 		}
 
 		#endregion

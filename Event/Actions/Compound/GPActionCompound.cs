@@ -106,14 +106,15 @@ namespace Utils.Event
 			m_actions.Add(action);
 
 #if UNITY_EDITOR
-			Debug.Log("Add Action: ActionCount:"+m_actions.Count+" Node Count: "+_rightNodes.Count);
-
+			/*
 			_rightNodes[m_actions.Count-1]._connection = 
 				new ActionEditorConnection(_rightNodes[m_actions.Count],m_actions.Last()._leftNode);
 
 			m_actions.Last()._leftNode._connection = _rightNodes[m_actions.Count]._connection;
 
 			AddRightNode();
+			*/
+			CreateAllRightNodes();
 #endif
 			return m_actions.Last();
 		}
@@ -121,8 +122,11 @@ namespace Utils.Event
 		public virtual void SetActionAt(int idx, GPAction action)
 		{
 #if UNITY_EDITOR			
+			/*
 			_rightNodes[idx]._connection = new ActionEditorConnection(_rightNodes[idx],action._leftNode);
 			m_actions[idx]._leftNode._connection = _rightNodes[idx]._connection;
+			*/
+			CreateAllRightNodes();
 #endif
 			m_actions[idx] = action;
 		}
@@ -137,8 +141,11 @@ namespace Utils.Event
 		public virtual void RemoveActionAt(int idx)
 		{
 #if UNITY_EDITOR			
+			/*
 			_rightNodes.RemoveAt(idx);
 			m_actions[idx]._leftNode._connection = null;
+			*/
+			CreateAllRightNodes();
 #endif
 			m_actions.RemoveAt(idx);
 		}
