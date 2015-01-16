@@ -77,6 +77,16 @@ namespace Utils.Event
 
 		#endregion
 
+		#region Update
+
+		public void Update()
+		{
+			if(m_selectedNode != null)
+				Repaint();
+		}
+
+		#endregion
+
 		#region EventHandler Management
 
 		/// <summary>
@@ -325,6 +335,29 @@ namespace Utils.Event
 			                   Color.white,null,3f);
 		}
 
+		protected virtual void DisplayDrawingConnection()
+		{
+			if(m_selectedNode == null)
+				return;
+
+			if(m_selectedNode._action == null)
+			{
+				Debug.LogError("Node: "+m_selectedNode+" has no action");
+				return;
+			}
+
+			float sign = (m_selectedNode._action._leftNode == m_selectedNode) ? -1f : 1f;
+
+			Vector2 inPos = m_selectedNode._center + m_selectedNode._action._windowRect.position;
+
+			Vector2 outPos = UnityEngine.Event.current.mousePosition;
+
+			Handles.DrawBezier(inPos, outPos,
+			                   inPos  + 30 * sign * Vector2.right,
+			                   outPos - 30 * sign * Vector2.right,
+			                   Color.grey,null,3f);
+		}
+
 		#endregion
 		
 		public virtual void Reset()
@@ -351,6 +384,9 @@ namespace Utils.Event
 			DrawBackground();
 
 			DisplayAllConnections();
+
+			if(m_selectedNode != null)
+				DisplayDrawingConnection();
 
 			DisplaySidebar();
 
