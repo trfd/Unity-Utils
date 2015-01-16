@@ -249,6 +249,8 @@ namespace Utils.Event
 				m_selectedNode._selected = false;
 				m_selectedNode = null;
 
+				Repaint();
+
 				return;
 			}
 			// else
@@ -257,6 +259,8 @@ namespace Utils.Event
 
 			if(m_selectedNode != null)
 				m_selectedNode._selected = true;
+
+			Repaint();
 		}
 
 		#endregion
@@ -312,17 +316,13 @@ namespace Utils.Event
 
 		protected virtual void DisplayConnection(ActionEditorConnection connection)
 		{
-			Texture2D texture = new Texture2D(1, 1);
-			texture.SetPixel(0,0,Color.white);
-			texture.Apply();
-
 			Vector2 inPos = connection._nodeParent._center + connection._nodeParent._action._windowRect.position;
 			Vector2 outPos = connection._nodeChild._center + connection._nodeChild._action._windowRect.position;
 			
 			Handles.DrawBezier(inPos, outPos,
 			                   inPos  + 30 * Vector2.right,
 			                   outPos - 30 * Vector2.right,
-			                   Color.white,texture,1f);
+			                   Color.white,null,3f);
 		}
 
 		#endregion
