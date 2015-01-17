@@ -77,9 +77,15 @@ namespace Utils.Event
 
 		#region Const
 
-		private Color m_backColor          = new Color(0.18f,0.18f,0.18f);
-		private Color m_borderLineColor    = new Color(0.13f,0.13f,0.13f);
+		private Color m_backColor          = new Color(0.18f, 0.18f, 0.18f);
+		private Color m_borderLineColor    = new Color(0.13f, 0.13f, 0.13f);
 		private Color m_inspectorBackColor = new Color(0.22f, 0.22f, 0.22f); 
+
+		private Color m_actionNoneColor		  = new Color(1.0f , 1.0f , 1.0f);
+		private Color m_actionRunningColor	  = new Color(0.0f , 0.62f, 1.0f);
+		private Color m_actionTerminatedColor = new Color(0.36f, 1.0f , 0.0f);
+		private Color m_actionFailureColor	  = new Color(1.0f , 0.14f, 0.0f);
+		private Color m_eventHandlerColor	  = new Color(1.0f , 0.53f, 0.0f);
 
 		#endregion
 
@@ -152,6 +158,9 @@ namespace Utils.Event
 			Reset();
 			
 			m_handler = handler;
+
+			if(m_handler != null)
+				m_handler.CreateEventNode();
 		}
 
 		#endregion
@@ -184,6 +193,9 @@ namespace Utils.Event
 				m_actions[i] = actions[i];
 				CreateInspector(i);
 			}
+
+			if(m_selectedBoxID >= m_actions.Length)
+				m_selectedBoxID = -1;
 		}
 
 		#endregion
@@ -260,6 +272,9 @@ namespace Utils.Event
 
 			ActionEditorNode newNode = null;
 
+			if(IsMouseOverNode(m_handler._eventNode))
+				newNode = m_handler._eventNode;
+
 			foreach(GPAction action in m_actions)
 			{
 				if(IsMouseOverNode(action._leftNode))
@@ -311,11 +326,13 @@ namespace Utils.Event
 
 		private void CreateConnection(ActionEditorNode node1, ActionEditorNode node2)
 		{
-			if(node1._action == node2._action || node1._action == null || node2._action == null)
+			if(node1._owner == node2._owner || node1._owner == null || node2._owner == null)
 				return;
 
-			bool node1IsLeft = (node1._action._leftNode == node1);
-			bool node2IsLeft = (node2._action._leftNode == node2);
+			bool node1IsLeft = (node1._owner is GPAction && ((GPAction) node1._owner)._leftNode == node1);
+			bool node2IsLeft = (node2._owner is GPAction && ((GPAction) node2._owner)._leftNode == node2);
+
+			Debug.Log("1 is left: "+node1IsLeft+" -- 2 is left: "+node2IsLeft);
 
 			if((node1IsLeft && node2IsLeft) || (!node1IsLeft && !node2IsLeft))
 				return;
@@ -325,13 +342,13 @@ namespace Utils.Event
 
 			if(node2IsLeft)
 			{
-				child  = node2._action;
-				parent = node1._action;
+				child  = (GPAction) node2._owner;
+				parent = (GPAction) node1._owner;
 			}
 			else
 			{
-				child  = node1._action; 
-				parent = node2._action;
+				child  = (GPAction) node1._owner; 
+				parent = (GPAction) node2._owner;
 			}
 
 			if(!(parent is IActionOwner))
@@ -339,7 +356,7 @@ namespace Utils.Event
 
 			if(child._leftNode._connection != null)
 			{
-				((IActionOwner)child._leftNode._connection._nodeParent._action).Disconnect(child);
+				((IActionOwner)child._leftNode._connection._nodeParent._owner).Disconnect(child);
 			}
 
 			((IActionOwner) parent).Connect(child);
@@ -352,14 +369,15 @@ namespace Utils.Event
 				if(action._leftNode._connection == null)
 					continue;
 
-				DisplayConnection(action._leftNode._connection);
+				if(action._leftNode._connection.IsValid)
+					DisplayConnection(action._leftNode._connection);
 			}
 		}
 
 		protected virtual void DisplayConnection(ActionEditorConnection connection)
 		{
-			Vector2 inPos = connection._nodeParent._center + connection._nodeParent._action._windowRect.position;
-			Vector2 outPos = connection._nodeChild._center + connection._nodeChild._action._windowRect.position;
+			Vector2 inPos  = connection._nodeParent._center + connection._nodeParent._owner.WindowRect.position;
+			Vector2 outPos = connection._nodeChild._center  + connection._nodeChild._owner.WindowRect.position;
 			
 			Handles.DrawBezier(inPos, outPos,
 			                   inPos  + 30 * Vector2.right,
@@ -372,15 +390,15 @@ namespace Utils.Event
 			if(m_selectedNode == null)
 				return;
 
-			if(m_selectedNode._action == null)
+			if(m_selectedNode._owner == null)
 			{
-				Debug.LogError("Node: "+m_selectedNode+" has no action");
+				//Debug.LogError("Node: "+m_selectedNode+" has no action");
 				return;
 			}
 
-			float sign = (m_selectedNode._action._leftNode == m_selectedNode) ? -1f : 1f;
+			float sign = (m_selectedNode._owner is GPAction && ((GPAction) m_selectedNode._owner)._leftNode == m_selectedNode) ? -1f : 1f;
 
-			Vector2 inPos = m_selectedNode._center + m_selectedNode._action._windowRect.position;
+			Vector2 inPos = m_selectedNode._center + m_selectedNode._owner.WindowRect.position;
 
 			Vector2 outPos = UnityEngine.Event.current.mousePosition;
 
@@ -440,6 +458,16 @@ namespace Utils.Event
 			}
 
 			EditorUtility.SetDirty(m_actions[id]);
+
+			GUI.DragWindow(new Rect(0,0,10000,20));
+		}
+
+		protected virtual void DisplayHandler(int id)
+		{
+			if(m_handler._eventID != null)
+				GUILayout.Label(m_handler._eventID.Name);
+
+			m_handler._eventNode.Draw();
 
 			GUI.DragWindow(new Rect(0,0,10000,20));
 		}
@@ -593,14 +621,15 @@ namespace Utils.Event
 
 			BeginWindows();
 
+			GUI.backgroundColor = m_eventHandlerColor;
+
+			m_handler._windowRect = GUI.Window(-1, m_handler._windowRect, DisplayHandler, "Event");
+
 			for(int i=0 ; i<m_actions.Length ; i++)
 			{
 				GPAction box = m_actions[i];
 
-				if(m_selectedBoxID == i)
-					GUI.backgroundColor = Color.white;
-				else
-					GUI.backgroundColor = new Color(0.8f,0.8f,0.8f);
+				SetBoxColor(box);
 
 				box._windowRect = GUI.Window(i, box._windowRect, DisplayAction, box.GetType().Name);
 			}
@@ -611,6 +640,37 @@ namespace Utils.Event
 			GUILayout.EndArea();
 
 			Handles.EndGUI();
+		}
+
+		public void SetBoxColor(GPAction box)
+		{
+			Color c;
+
+			switch(box.State)
+			{
+			case GPAction.ActionState.NONE:
+				c = m_actionNoneColor;
+				break;
+			case GPAction.ActionState.RUNNNING:
+				c = m_actionRunningColor;
+				break;
+			case GPAction.ActionState.TERMINATED:
+				c = m_actionTerminatedColor;
+				break;
+			case GPAction.ActionState.FAILURE:
+				c = m_actionFailureColor;
+				break;
+			default:
+				c = Color.gray;
+				break;
+			}
+
+			if(m_selectedBoxID != -1 && m_actions[m_selectedBoxID] != box)
+				c *= 0.5f;
+
+			c.a = 1.0f;
+
+			GUI.backgroundColor = c;
 		}
 
 		#endregion
@@ -629,8 +689,8 @@ namespace Utils.Event
 					m_actions[m_selectedBoxID]._leftNode._connection._nodeChild._connection = null;
 					m_actions[m_selectedBoxID]._leftNode._connection = null;
 				}
-				else if(m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._action != null)
-					((IActionOwner)m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._action).Disconnect(m_actions[m_selectedBoxID]);
+				else if(m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._owner != null)
+					((IActionOwner)m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._owner).Disconnect(m_actions[m_selectedBoxID]);
 			}
 
 			if(action is IActionOwner)
@@ -694,9 +754,8 @@ namespace Utils.Event
 
 		private bool IsMouseOverNode(ActionEditorNode node)
 		{
-
-			return IsMouseIn(new Rect(node._action._windowRect.x + node._center.x - 3, 
-			                          node._action._windowRect.y + node._center.y - 3, 6,6));
+			return IsMouseIn(new Rect(node._owner.WindowRect.x + node._center.x - 3, 
+			                          node._owner.WindowRect.y + node._center.y - 3, 6,6));
 		}
 
 		#endregion

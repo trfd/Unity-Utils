@@ -10,11 +10,19 @@ using System.Linq;
 namespace Utils.Event
 {
 	#region Node
-	
+
+	public interface INodeOwner
+	{
+		Rect WindowRect
+		{
+			get; set;
+		}
+	}
+
 	[System.Serializable]
 	public class ActionEditorNode
 	{
-		public GPAction _action;
+		public INodeOwner _owner;
 		
 		public bool _selected;
 		
@@ -45,6 +53,11 @@ namespace Utils.Event
 		public ActionEditorNode _nodeParent;
 		public ActionEditorNode _nodeChild;
 
+		public bool IsValid
+		{
+			get{ return _nodeParent != null && _nodeChild != null; }
+		}
+
 		public ActionEditorConnection(ActionEditorNode parent, ActionEditorNode child)
 		{
 			_nodeParent = parent;
@@ -55,13 +68,14 @@ namespace Utils.Event
 	#endregion
 
     [System.Serializable]
-    public class GPAction : UnityEngine.MonoBehaviour
+    public class GPAction : UnityEngine.MonoBehaviour , INodeOwner
     {
         public enum ActionState
         {
             NONE,
             RUNNNING,
-            TERMINATED
+            TERMINATED,
+			FAILURE
         }
 
         #region Private Members
@@ -101,6 +115,11 @@ namespace Utils.Event
 		public string EditionName
 		{
 			get; set;
+		}
+
+		public ActionState State
+		{
+			get{ return m_currState; }
 		}
 
         /// <summary>
@@ -152,6 +171,16 @@ namespace Utils.Event
 				SetParentHandler(value);
 			}
 		}
+
+#if UNITY_EDITOR
+
+		public Rect WindowRect
+		{
+			get{ return _windowRect; }
+			set{ _windowRect = value; }
+		}
+
+#endif
 
         #endregion
 
@@ -258,7 +287,7 @@ namespace Utils.Event
 		{
 			_leftNode = new ActionEditorNode();
 			
-			_leftNode._action = this;
+			_leftNode._owner = this;
 			_leftNode._connection = null;
 			_leftNode._center = new Vector2(8,25);
 
@@ -269,7 +298,7 @@ namespace Utils.Event
 		{
 			_rightNodes.Add(new ActionEditorNode());
 
-			_rightNodes.Last()._action = this;
+			_rightNodes.Last()._owner = this;
 			_rightNodes.Last()._connection = null;
 			_rightNodes.Last()._center = new Vector2(92,25+16*(_rightNodes.Count-1));
 

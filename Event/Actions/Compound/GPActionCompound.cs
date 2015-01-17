@@ -1,4 +1,4 @@
-﻿//
+//
 // GPActionCompound.cs
 //
 // Author(s):
@@ -179,7 +179,7 @@ namespace Utils.Event
 			{
 				ActionEditorNode node = AddRightNode();
 
-				node._action = this;
+				node._owner = this;
 				node._connection = new ActionEditorConnection(node,action._leftNode);
 				action._leftNode._connection = node._connection;
 			}

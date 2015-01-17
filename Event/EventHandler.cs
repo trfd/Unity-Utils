@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Utils.Event
 {
 	[ExecuteInEditMode]
-    public class EventHandler : MonoBehaviour
+    public class EventHandler : MonoBehaviour , IActionOwner , INodeOwner
     {
         #region Enum Definition
 	
@@ -75,6 +75,16 @@ namespace Utils.Event
         /// </summary>
         public int _maxTriggerCount;
 
+#if UNITY_EDITOR
+
+		[UnityEngine.HideInInspector]
+		public ActionEditorNode _eventNode;
+
+		[UnityEngine.HideInInspector]
+		public Rect _windowRect = new Rect(0,0,100,50);
+
+#endif
+
         #endregion
 
         #region Properties
@@ -82,7 +92,16 @@ namespace Utils.Event
 		public GPAction Action
 		{
 			get{ return m_action;  }
-			set{ m_action = value; }
+			set
+			{ 
+#if UNITY_EDITOR
+				Disconnect(m_action);
+#endif
+				m_action = value; 
+#if UNITY_EDITOR
+				Connect(m_action);
+#endif
+			}
 		}
 
         /// <summary>
@@ -97,6 +116,16 @@ namespace Utils.Event
 		{
 			get; set;
 		}
+
+#if UNITY_EDITOR
+		
+		public Rect WindowRect
+		{
+			get{ return _windowRect; }
+			set{ _windowRect = value; }
+		}
+		
+#endif
 
         #endregion
 
@@ -213,6 +242,50 @@ namespace Utils.Event
 
         #endregion
 
+#if UNITY_EDITOR
+
+		public void CreateEventNode()
+		{
+			_eventNode = new ActionEditorNode();
+
+			_eventNode._owner = this;
+			_eventNode._center = new Vector2(92,25);
+
+			if(m_action != null)
+				Connect(m_action);
+			else
+				_eventNode._connection = null;
+		}
+
+		#region IActionOwner
+
+		public void Connect(GPAction action)
+		{
+			if(action == null)
+				return;
+
+			_eventNode._connection = new ActionEditorConnection(_eventNode,m_action._leftNode);
+			m_action._leftNode._connection = _eventNode._connection;
+		}
+
+		public void Disconnect(GPAction Action)
+		{
+			if(m_action == null)
+				return;
+
+			m_action._leftNode._connection = null;
+			_eventNode._connection = null;
+		}
+
+		public void DisconnectAll()
+		{
+			Disconnect(m_action);
+		}
+
+		#endregion
+
+#endif
+
         #region Private Utils
 
         private bool CanTriggerAction()
@@ -228,7 +301,8 @@ namespace Utils.Event
 
         private bool HasReachedMaxTriggerCount()
         {
-        	// Check if handler kind has fixed count and if current count allows to run one more time.
+        	// Check if handler kind has fixed count and 
+			// if current count allows to run one more time.
 
             return (m_usesFixedCount && m_triggerCount >= _maxTriggerCount);
         }
@@ -279,5 +353,7 @@ namespace Utils.Event
         }
 
         #endregion
+
+	
     }
 }
