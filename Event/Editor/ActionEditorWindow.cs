@@ -58,6 +58,8 @@ namespace Utils.Event
 		private Vector2 m_sidebarScrollPosition;
 
 		private int m_selectedBoxID = -1;
+		private int m_layoutSelectedBoxID = -1;
+
 
 		private ActionEditorNode m_selectedNode;
 
@@ -67,6 +69,10 @@ namespace Utils.Event
 
 		private GUIStyle m_windowStyle;
 
+		private Texture2D m_backgroundBlueprintTex;
+		private Texture2D m_backgroundLineInspectorTex;
+		private Texture2D m_backgroundInspectorTex;
+
 		#endregion
 
 		#region Const
@@ -74,6 +80,26 @@ namespace Utils.Event
 		private Color m_backColor          = new Color(0.18f,0.18f,0.18f);
 		private Color m_borderLineColor    = new Color(0.13f,0.13f,0.13f);
 		private Color m_inspectorBackColor = new Color(0.22f, 0.22f, 0.22f); 
+
+		#endregion
+
+		#region Constructor
+
+		public ActionEditorWindow()
+		{
+		
+		}
+
+		#endregion
+
+		#region Destructor
+
+		void OnDestroy()
+		{
+			DestroyImmediate(m_backgroundBlueprintTex);
+			DestroyImmediate(m_backgroundInspectorTex);
+			DestroyImmediate(m_backgroundLineInspectorTex);
+		}
 
 		#endregion
 
@@ -197,6 +223,12 @@ namespace Utils.Event
 		
 		private void CheckSelectedActionBox()
 		{
+			if(UnityEngine.Event.current.type == EventType.Layout && m_layoutSelectedBoxID != -1)
+			{
+				m_selectedBoxID = m_layoutSelectedBoxID;
+				m_layoutSelectedBoxID = -1;
+			}
+
 			if(!UnityEngine.Event.current.isMouse || UnityEngine.Event.current.type != EventType.MouseDown)
 				return;
 
@@ -218,7 +250,7 @@ namespace Utils.Event
 		
 		private void ChangeSelectedModule(int currSelectedIndex)
 		{
-			m_selectedBoxID = currSelectedIndex;
+			m_layoutSelectedBoxID = currSelectedIndex;
 		}
 
 		private void CheckSelectedNode()
@@ -391,7 +423,6 @@ namespace Utils.Event
 			DisplaySidebar();
 
 			DisplayBlueprint();
-
 			
 			EditorGUIUtility.labelWidth = 0;
 		}
@@ -417,12 +448,16 @@ namespace Utils.Event
 
 		protected virtual void DrawBackground()
 		{
+			if(m_backgroundBlueprintTex 	 == null ||
+			   m_backgroundLineInspectorTex  == null ||
+			   m_backgroundInspectorTex 	 == null)
+				CreateTextures();
+
 			float xInspector = position.width-m_inspectorWidth;
 			
-			DrawQuad(new Rect(0           , 0, xInspector      , position.height),m_backColor);
-			DrawQuad(new Rect(xInspector-1, 0, 10              , position.height),m_borderLineColor);
-			DrawQuad(new Rect(xInspector  , 0, m_inspectorWidth, position.height),m_inspectorBackColor);
-
+			DrawQuad(new Rect(0           , 0, xInspector      , position.height),m_backgroundBlueprintTex);
+			DrawQuad(new Rect(xInspector-1, 0, 10              , position.height),m_backgroundLineInspectorTex);
+			DrawQuad(new Rect(xInspector  , 0, m_inspectorWidth, position.height),m_backgroundInspectorTex);
 		}
 
 		#endregion
@@ -440,13 +475,30 @@ namespace Utils.Event
 			                                                    GUILayout.Width(m_inspectorWidth-10),
 			                                                    GUILayout.Height(position.height));
 
-			DisplaySidebarHeader();
-
+			// Header
+			
 			Rect rect = EditorGUILayout.GetControlRect();
 			rect.height = 1f;
 			EditorGUI.DrawRect(rect,new Color(0.282f,0.282f,0.282f));
 			
+			DisplaySidebarHeader();
+
+			rect = EditorGUILayout.GetControlRect();
+			rect.height = 1f;
+			EditorGUI.DrawRect(rect,new Color(0.282f,0.282f,0.282f));
+
+			// Inspector
+
 			DisplaySidebarInspector();
+
+			// Footer
+
+			rect = EditorGUILayout.GetControlRect();
+			rect.height = 1f;
+			
+			EditorGUI.DrawRect(rect,new Color(0.282f,0.282f,0.282f));
+			
+			DisplaySidebarFooter();
 
 			GUILayout.EndScrollView();
 
@@ -458,6 +510,17 @@ namespace Utils.Event
 			EditorGUILayout.Space();
 
 			DisplayActionCreationField();
+		}
+
+		protected virtual void DisplaySidebarFooter()
+		{
+			if(GUILayout.Button("Remove Action"))
+			{
+				if(m_selectedBoxID == -1)
+					return;
+
+				RemoveSelectedAction();
+			}
 		}
 
 		protected virtual void DisplaySidebarInspector()
@@ -552,20 +615,74 @@ namespace Utils.Event
 
 		#endregion
 
+		public void RemoveSelectedAction()
+		{
+			if(m_selectedBoxID == -1)
+				return;
+
+			GPAction action = m_actions[m_selectedBoxID];
+
+			if(action._leftNode._connection != null)
+			{
+				if(m_actions[m_selectedBoxID]._leftNode._connection._nodeParent == null)
+				{
+					m_actions[m_selectedBoxID]._leftNode._connection._nodeChild._connection = null;
+					m_actions[m_selectedBoxID]._leftNode._connection = null;
+				}
+				else if(m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._action != null)
+					((IActionOwner)m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._action).Disconnect(m_actions[m_selectedBoxID]);
+			}
+
+			if(action is IActionOwner)
+				((IActionOwner) action).DisconnectAll();
+
+			DestroyImmediate(m_actions[m_selectedBoxID]);
+
+			Repaint();
+		}
+
 		#region Utils
+
+		private void CreateTextures()
+		{
+			m_backgroundInspectorTex = new Texture2D(1, 1);
+			m_backgroundInspectorTex.SetPixel(0,0,m_inspectorBackColor);
+			m_backgroundInspectorTex.Apply();
+			
+			m_backgroundLineInspectorTex = new Texture2D(1, 1);
+			m_backgroundLineInspectorTex.SetPixel(0,0,m_borderLineColor);
+			m_backgroundLineInspectorTex.Apply();
+			
+			m_backgroundBlueprintTex = new Texture2D(10, 10);
+			m_backgroundBlueprintTex.wrapMode = TextureWrapMode.Repeat;
+
+			for(int x=0; x < 10 ; x++)
+			{
+				for(int y=0; y < 10 ; y++)
+				{
+					if(x%5 == 0 && y%5 ==0)
+						m_backgroundBlueprintTex.SetPixel(x,y,m_inspectorBackColor);
+					else
+						m_backgroundBlueprintTex.SetPixel(x,y,m_backColor);
+				}
+			}
+
+
+			m_backgroundBlueprintTex.Apply();
+		}
 
 		/// <summary>
 		/// Draws a rectangle of specified size and color in the GUI.
 		/// </summary>
 		/// <param name="position">Position.</param>
 		/// <param name="color">Color.</param>
-		private void DrawQuad(Rect position, Color color)
+		private void DrawQuad(Rect position, Texture2D tex)
 		{
-			Texture2D texture = new Texture2D(1, 1);
-			texture.SetPixel(0,0,color);
-			texture.Apply();
-			GUI.skin.box.normal.background = texture;
-			GUI.Box(position, GUIContent.none);
+			GUI.skin.box.normal.background = tex;
+
+			//GUI.Box(position, GUIContent.none);
+
+			GUI.DrawTextureWithTexCoords(position, tex, new Rect(0, 0, position.width / tex.width, position.height / tex.height));
 		}
 		
 		private bool IsMouseIn(Rect rect)

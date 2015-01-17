@@ -291,6 +291,7 @@ namespace Utils.Event
 	{
 		void Connect(GPAction child);
 		void Disconnect(GPAction child);
+		void DisconnectAll();
 	}
 }
 

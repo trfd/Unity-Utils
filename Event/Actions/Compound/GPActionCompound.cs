@@ -203,6 +203,22 @@ namespace Utils.Event
 			RemoveAction(child);
 		}
 
+		public void DisconnectAll()
+		{
+			foreach(ActionEditorNode node in _rightNodes)
+			{
+				if(node._connection == null)
+					continue;
+
+				node._connection._nodeChild._connection = null;
+				node._connection._nodeParent._connection = null;
+			}
+
+			m_actions.Clear();
+
+			CreateAllRightNodes();
+		}
+
 		#endregion
 
 		#region ISerializable Callback
