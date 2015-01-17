@@ -32,7 +32,7 @@ namespace Utils.Event
 {
 	[GPActionInspectorAttribute(typeof(GPActionLoop))]
 	[System.Serializable]
-	public class GPActionLoopInspector : GPActionCompoundInspector
+	public class GPActionLoopInspector : GPActionDefaultInspector
 	{
 		protected override void OnInspectorGUI()
 		{

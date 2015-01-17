@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Utils.Event
 {
 	[ExecuteInEditMode]
-    public class EventHandler : MonoBehaviour , IActionOwner , INodeOwner
+    public class EventHandler : MonoBehaviour , IActionOwner , INodeOwner , ISerializationCallbackReceiver
     {
         #region Enum Definition
 	
@@ -285,6 +285,17 @@ namespace Utils.Event
 		#endregion
 
 #endif
+
+		#region Serialization Callbacks
+
+		public void OnBeforeSerialize(){}
+
+		public void OnAfterDeserialize()
+		{
+			CreateEventNode();
+		}
+
+		#endregion
 
         #region Private Utils
 

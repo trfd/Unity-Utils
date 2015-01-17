@@ -273,7 +273,9 @@ namespace Utils.Event
 			ActionEditorNode newNode = null;
 
 			if(IsMouseOverNode(m_handler._eventNode))
+			{
 				newNode = m_handler._eventNode;
+			}
 
 			foreach(GPAction action in m_actions)
 			{
@@ -300,7 +302,12 @@ namespace Utils.Event
 			{
 				if(node != null)
 				{
-					CreateConnection(node,m_selectedNode);
+					if(node == m_handler._eventNode)
+						CreateHandlerActionConnection(m_selectedNode);
+					else if(m_selectedNode == m_handler._eventNode)
+						CreateHandlerActionConnection(node);
+					else
+						CreateConnection(node,m_selectedNode);
 				}
 
 				m_selectedNode._selected = false;
@@ -332,8 +339,6 @@ namespace Utils.Event
 			bool node1IsLeft = (node1._owner is GPAction && ((GPAction) node1._owner)._leftNode == node1);
 			bool node2IsLeft = (node2._owner is GPAction && ((GPAction) node2._owner)._leftNode == node2);
 
-			Debug.Log("1 is left: "+node1IsLeft+" -- 2 is left: "+node2IsLeft);
-
 			if((node1IsLeft && node2IsLeft) || (!node1IsLeft && !node2IsLeft))
 				return;
 
@@ -360,6 +365,14 @@ namespace Utils.Event
 			}
 
 			((IActionOwner) parent).Connect(child);
+		}
+
+		protected virtual void CreateHandlerActionConnection(ActionEditorNode node)
+		{
+			if(m_handler == null || node == null || !(node._owner is GPAction))
+				return;
+
+			m_handler.Action = (GPAction) node._owner;
 		}
 
 		protected virtual void DisplayAllConnections()
@@ -665,7 +678,9 @@ namespace Utils.Event
 				break;
 			}
 
-			if(m_selectedBoxID != -1 && m_actions[m_selectedBoxID] != box)
+			if(m_selectedBoxID >= 0 && 
+			   m_selectedBoxID <m_actions.Length &&
+			   m_actions[m_selectedBoxID] != box)
 				c *= 0.5f;
 
 			c.a = 1.0f;
@@ -697,6 +712,9 @@ namespace Utils.Event
 				((IActionOwner) action).DisconnectAll();
 
 			DestroyImmediate(m_actions[m_selectedBoxID]);
+
+			m_selectedBoxID = -1;
+			m_layoutSelectedBoxID = -1;
 
 			Repaint();
 		}
@@ -754,8 +772,11 @@ namespace Utils.Event
 
 		private bool IsMouseOverNode(ActionEditorNode node)
 		{
-			return IsMouseIn(new Rect(node._owner.WindowRect.x + node._center.x - 3, 
-			                          node._owner.WindowRect.y + node._center.y - 3, 6,6));
+			if(node._owner == null) 
+				return false;
+
+			return IsMouseIn(new Rect(node._owner.WindowRect.x + node._center.x - 5, 
+			                          node._owner.WindowRect.y + node._center.y - 5, 10,10));
 		}
 
 		#endregion

@@ -29,6 +29,7 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
+/*
 namespace Utils.Event
 {
 	[GPActionInspectorAttribute(typeof(GPActionCompound))]
@@ -45,8 +46,6 @@ namespace Utils.Event
 		/// The index of the m_action type selected.
 		/// </summary>
 		private int m_actionTypeSelectedIndex;
-
-		private List<GPActionInspector> m_childrenInspectors;
 
 		#endregion
 
@@ -149,59 +148,6 @@ namespace Utils.Event
 				EditorGUILayout.EndHorizontal();
 			}
 		}
-
-		private void CreateAction()
-		{
-			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
-
-			if(m_actionTypeSelectedIndex >= GPActionManager.s_gpactionTypes.Length)
-				throw new System.Exception("Out of bound selected index");
-
-			System.Type selectedType = GPActionManager.s_gpactionTypes[m_actionTypeSelectedIndex];
-
-			GPAction action = (GPAction) compoundAction.gameObject.AddComponent(selectedType);
-
-			string actionTypeName = GPActionManager.s_gpactionTypeNames[m_actionTypeSelectedIndex];
-		
-			action._name = compoundAction._name+"_"+actionTypeName+compoundAction.ActionCount().ToString();
-          
-			action.EditionName = actionTypeName+compoundAction.ActionCount().ToString();
-
-            action.enabled = false;
-            action.hideFlags = HideFlags.HideInInspector;
-
-			compoundAction.AddAction(action);
-
-			action.SetParentHandler(compoundAction.ParentHandler);
-
-			EditorUtility.SetDirty(action.ParentHandler);
-
-			// Add Inspector
-
-			AddInspectorFor(action);
-		
-		}
-
-		private void AddInspectorFor(GPAction action)
-		{
-			System.Type inspectorType = GPActionInspectorManager.InspectorTypeForAction(action);
-			
-			GPActionInspector insp = (GPActionInspector) System.Activator.CreateInstance(inspectorType);
-			
-			if(insp == null)
-				throw new System.NullReferenceException();
-			
-			m_childrenInspectors.Add(insp);
-
-			insp.TargetAction = action;
-		}
-
-		private void RemoveActionAt(int idx)
-		{
-			GPActionCompound compoundAction = (GPActionCompound) TargetAction;
-
-			compoundAction.RemoveActionAt(idx);
-			m_childrenInspectors.RemoveAt(idx);
-		}
 	}
 }
+*/

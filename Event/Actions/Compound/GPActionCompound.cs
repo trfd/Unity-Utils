@@ -40,6 +40,8 @@ namespace Utils.Event
 		/// <summary>
 		/// List of GPAction of compound action
 		/// </summary>
+		[UnityEngine.HideInInspector]
+		[UnityEngine.SerializeField]
 		private List<GPAction> m_actions;
 
 		#endregion
