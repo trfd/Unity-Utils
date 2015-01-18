@@ -47,17 +47,6 @@ public class EventHandlerInspector : Editor
 
         EditorGUILayout.LabelField("State: "+handler.State.ToString());
 
-		EditorGUILayout.Space();
-
-		DisplayImportField();
-
-		if(GUILayout.Button("Export Action"))
-		{
-			ExportActionPrefab();
-		}
-
-		EditorGUILayout.Space();
-
 		if(EditorApplication.isPlaying && GUILayout.Button("Debug Trigger"))
 		{
 			handler.EventTrigger(new GPEvent{EventID= handler._eventID});
@@ -108,32 +97,7 @@ public class EventHandlerInspector : Editor
 		}
 	}
 
-	private void DisplayImportField()
-	{
-		if(!m_displayImportPrefab)
-		{
-			if(GUILayout.Button("Import Action"))
-			{
-				m_displayImportPrefab = true;
-			}
-		}
-		else
-		{
-			m_importPrefab = EditorGUILayout.ObjectField("Prefab",m_importPrefab,typeof(GameObject),false);
 
-			EditorGUILayout.BeginHorizontal();
-
-			if(GUILayout.Button("Import"))
-			{
-				ImportActionPrefab();
-				m_displayImportPrefab = false;
-			}
-			else if(GUILayout.Button("Cancel"))
-				m_displayImportPrefab = false;
-
-			EditorGUILayout.EndHorizontal();
-		}
-	}
 
 	private void CreateAction()
 	{
@@ -163,31 +127,7 @@ public class EventHandlerInspector : Editor
 		}
 	}
 
-    private void ExportActionPrefab()
-    {
-		if(EditorApplication.isPlaying)
-		{
-			Debug.LogError("Can not export in play mode");
-			return;
-		}
-
-		EventHandler handler = (EventHandler)target;
-
-        handler.GetGPActionObjectMapperOrCreate().ExportGPActionObjectHolderPrefab(handler);
-    }
-
-	private void ImportActionPrefab()
-	{
-		if(EditorApplication.isPlaying)
-		{
-			Debug.LogError("Can not import in play mode");
-			return;
-		}
-
-		EventHandler handler = (EventHandler)target;
-		
-		handler.GetGPActionObjectMapperOrCreate().ImportGPActionObjectHolderPrefab(handler,m_importPrefab);
-	}
+    
 
 	private void CreateActionInspector(EventHandler handler)
 	{

@@ -61,6 +61,10 @@ namespace Utils.Event
         /// </summary>
         private HandlerState m_currState = HandlerState.NONE;
 
+		[UnityEngine.SerializeField]
+		[UnityEngine.HideInInspector]
+		private UnityEngine.Object m_prefabAction;
+
         #endregion
 
         #region Public Members
@@ -102,6 +106,12 @@ namespace Utils.Event
 				Connect(m_action);
 #endif
 			}
+		}
+
+		public UnityEngine.Object PrefabAction
+		{
+			get{ return m_prefabAction;  }
+			set{ m_prefabAction = value; }
 		}
 
         /// <summary>

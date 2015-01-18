@@ -162,6 +162,7 @@ namespace Utils.Event
             catch (KeyNotFoundException) 
 			{ m_actionObjectMap.Dictionary.Add(handler,instPrefab); }
 
+			handler.PrefabAction = prefab;
 			handler.Action = instPrefab.GetComponent<GPActionExport>()._rootAction;
 
 			InitGPActionHolderObject(instPrefab);
@@ -194,7 +195,9 @@ namespace Utils.Event
 
 			str = "Assets/"+FileUtils.GetRelativePath(str,Application.dataPath);
 
-			return PrefabUtility.CreatePrefab(str, obj, ReplacePrefabOptions.ConnectToPrefab);
+			handler.PrefabAction = PrefabUtility.CreatePrefab(str, obj, ReplacePrefabOptions.ConnectToPrefab);
+
+			return handler.PrefabAction;
         }
 
         /// <summary>
@@ -214,17 +217,16 @@ namespace Utils.Event
 				obj = AddEventHandler(handler); 
 			}
 
-			Object prefab = PrefabUtility.GetPrefabObject(obj);
+			Object prefab = PrefabUtility.GetPrefabParent(obj);
 			
-			PrefabUtility.ReplacePrefab(obj, prefab);
-
+			PrefabUtility.ReplacePrefab(obj, prefab,ReplacePrefabOptions.ConnectToPrefab);
         }
 
         /// <summary>
         /// Resets all GPActionHolderObject modifications to the prefab values
         /// </summary>
         /// <param name="handler"></param>
-        public void ResetGPActionObjectHolderToPrefab(EventHandler handler)
+        public void RevertGPActionObjectHolderToPrefab(EventHandler handler)
         {
 			GameObject obj;
 			
@@ -239,7 +241,7 @@ namespace Utils.Event
 			
 			Object prefab = PrefabUtility.GetPrefabObject(obj);
 			
-			PrefabUtility.ResetToPrefabState(obj);
+			PrefabUtility.RevertPrefabInstance(obj);
         }
 
 		public void ResetGPActionObjectHolder(EventHandler handler)
@@ -256,6 +258,23 @@ namespace Utils.Event
 			AddEventHandler(handler); 
 
 			handler.Action = null;
+		}
+
+		public void BreakGPActionObjectHolderFromPrefab(EventHandler handler)
+		{
+			GameObject obj;
+			
+			try
+			{
+				obj = m_actionObjectMap.Dictionary[handler];
+			}
+			catch (KeyNotFoundException)
+			{ 
+				obj = AddEventHandler(handler); 
+			}
+
+			PrefabUtility.DisconnectPrefabInstance(obj);
+			handler.PrefabAction = null;
 		}
 
 #endif

@@ -69,6 +69,9 @@ namespace Utils.Event
 		private ActionEditorNode m_selectedNode;
 
 		private bool m_createNewAction = false;
+		private UnityEngine.Object m_importPrefab;
+
+		private bool m_displayImportPrefab;
 
 		private int m_actionTypeSelectedIndex;
 
@@ -124,7 +127,7 @@ namespace Utils.Event
 
 		#endregion
 
-		#region EventHandler Management
+		#region EventHandler Managementm_importPrefab
 
 		/// <summary>
 		/// Fetches the Event Handler that should be displayed
@@ -534,7 +537,7 @@ namespace Utils.Event
 
 			float xInspector = position.width-m_inspectorWidth;
 			
-			DrawQuad(new Rect(0           , 0, xInspector      , position.height),m_backgroundBlueprintTex);
+			DrawQuad(new Rect(0, 0, xInspector, position.height),m_backgroundBlueprintTex);
 		}
 
 		#endregion
@@ -619,6 +622,11 @@ namespace Utils.Event
 
 				RemoveSelectedAction();
 			}
+
+			EditorGUILayout.Space();
+
+			DisplayImportField();
+			DisplayExportField();
 		}
 
 		protected virtual void DisplaySidebarInspector()
@@ -633,6 +641,34 @@ namespace Utils.Event
 				name = name.Split('/').Last();
 
 				GUILayout.Label(name, EditorStyles.boldLabel);
+
+				EditorGUILayout.Space();
+
+				if(m_handler.PrefabAction != null)
+				{
+					GUILayout.BeginHorizontal();
+
+					GUILayout.Label("Prefab",EditorStyles.toolbarButton);
+
+					if(GUILayout.Button("Revert",EditorStyles.toolbarButton))
+					{
+						m_handler.GetGPActionObjectMapperOrCreate().RevertGPActionObjectHolderToPrefab(m_handler);
+					}
+
+					if(GUILayout.Button("Apply",EditorStyles.toolbarButton))
+					{
+						m_handler.GetGPActionObjectMapperOrCreate().ApplyGPActionObjectHolderToPrefab(m_handler);
+					}
+
+					if(GUILayout.Button("Break",EditorStyles.toolbarButton))
+					{
+						m_handler.GetGPActionObjectMapperOrCreate().BreakGPActionObjectHolderFromPrefab(m_handler);
+					}
+
+					GUILayout.EndHorizontal();
+				}
+
+				EditorGUILayout.Space();
 			
 				m_actionInspectors[m_selectedBoxID].DrawInspector();
 			}
@@ -824,6 +860,64 @@ namespace Utils.Event
 		private void OnSelectionChange()
 		{
 			Repaint();
+		}
+
+		private void DisplayImportField()
+		{
+			if(!m_displayImportPrefab)
+			{
+				if(GUILayout.Button("Import Action"))
+				{
+					m_displayImportPrefab = true;
+				}
+			}
+			else
+			{
+				m_importPrefab = EditorGUILayout.ObjectField("Prefab",m_importPrefab,typeof(GameObject),false);
+				
+				EditorGUILayout.BeginHorizontal();
+				
+				if(GUILayout.Button("Import"))
+				{
+					ImportActionPrefab();
+					m_displayImportPrefab = false;
+				}
+				else if(GUILayout.Button("Cancel"))
+					m_displayImportPrefab = false;
+				
+				EditorGUILayout.EndHorizontal();
+			}
+		}
+
+		private void DisplayExportField()
+		{
+			if(GUILayout.Button("Export Action"))
+			{
+				ExportActionPrefab();
+			}
+
+		}
+
+		private void ExportActionPrefab()
+		{
+			if(EditorApplication.isPlaying)
+			{
+				Debug.LogError("Can not export in play mode");
+				return;
+			}
+			
+			m_handler.GetGPActionObjectMapperOrCreate().ExportGPActionObjectHolderPrefab(m_handler);
+		}
+		
+		private void ImportActionPrefab()
+		{
+			if(EditorApplication.isPlaying)
+			{
+				Debug.LogError("Can not import in play mode");
+				return;
+			}
+
+			m_handler.GetGPActionObjectMapperOrCreate().ImportGPActionObjectHolderPrefab(m_handler,m_importPrefab);
 		}
 
 		#region Utils
