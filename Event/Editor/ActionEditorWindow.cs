@@ -497,6 +497,9 @@ namespace Utils.Event
 
 		protected virtual void DisplayAction(int id)
 		{
+			if(id >= m_actions.Length || id < 0)
+				return;
+
 			if(m_actionInspectors[id] == null)
 				CreateInspector(id);
 
@@ -532,8 +535,6 @@ namespace Utils.Event
 			float xInspector = position.width-m_inspectorWidth;
 			
 			DrawQuad(new Rect(0           , 0, xInspector      , position.height),m_backgroundBlueprintTex);
-			DrawQuad(new Rect(xInspector-1, 0, 10              , position.height),m_backgroundLineInspectorTex);
-			DrawQuad(new Rect(xInspector  , 0, m_inspectorWidth, position.height),m_backgroundInspectorTex);
 		}
 
 		#endregion
@@ -543,7 +544,10 @@ namespace Utils.Event
 		protected virtual void DisplaySidebar()
 		{	
 			float xInspector = position.width-m_inspectorWidth;
-		
+
+			DrawQuad(new Rect(xInspector-1, 0, 10              , position.height),m_backgroundLineInspectorTex);
+			DrawQuad(new Rect(xInspector  , 0, m_inspectorWidth, position.height),m_backgroundInspectorTex);
+
 			GUILayout.BeginArea(new Rect(position.width-m_inspectorWidth+5,0,
 			                             m_inspectorWidth-10,position.height));
 
@@ -691,12 +695,6 @@ namespace Utils.Event
 			                                                m_blueprintScrollPosition,
 			                                                m_blueprintScrollView);
 
-			/*
-			m_blueprintScrollPosition = GUILayout.BeginScrollView(m_blueprintScrollPosition,
-			                                                      GUILayout.Width(xInspector),
-			                                                      GUILayout.Height(position.height));
-			*/
-
 			BeginWindows();
 
 			GUI.backgroundColor = m_eventHandlerColor;
@@ -724,7 +722,6 @@ namespace Utils.Event
 
 			EndWindows();
 
-			//GUILayout.EndScrollView();
 			GUI.EndScrollView();
 
 			GUILayout.EndArea();
@@ -821,6 +818,11 @@ namespace Utils.Event
 			m_selectedBoxID = -1;
 			m_layoutSelectedBoxID = -1;
 
+			Repaint();
+		}
+
+		private void OnSelectionChange()
+		{
 			Repaint();
 		}
 
