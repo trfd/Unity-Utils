@@ -141,6 +141,11 @@ namespace Utils.Event
 			
 			if(Selection.activeGameObject != null)
 			{
+				if(m_selectedObject != Selection.activeGameObject)
+				{
+					m_handler = null;
+				}
+
 				m_selectedObject = Selection.activeGameObject;
 
 				m_handlersOfSelectedObject = m_selectedObject.GetComponents<EventHandler>();
@@ -597,7 +602,7 @@ namespace Utils.Event
 
 			int newIdx = EditorGUILayout.Popup(idx, m_handlerNamesOfSelectedObject);
 
-			if(newIdx != idx)
+			if(newIdx != idx || m_handler == null)
 				ChangeEventHandler(m_handlersOfSelectedObject[newIdx]);
 		}
 
