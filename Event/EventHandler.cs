@@ -264,8 +264,13 @@ namespace Utils.Event
 			if(action == null)
 				return;
 
-			_eventNode._connection = new ActionEditorConnection(_eventNode,m_action._leftNode);
-			m_action._leftNode._connection = _eventNode._connection;
+			if(action._leftNode._connection != null)
+			{
+				((IActionOwner)action._leftNode._connection._nodeParent._owner).Disconnect(action);
+			}
+
+			_eventNode._connection = new ActionEditorConnection(_eventNode,action._leftNode);
+			action._leftNode._connection = _eventNode._connection;
 		}
 
 		public void Disconnect(GPAction Action)

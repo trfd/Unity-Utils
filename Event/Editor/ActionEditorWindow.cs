@@ -52,6 +52,9 @@ namespace Utils.Event
 		private GPAction[] m_actions;
 		private GPActionInspector[] m_actionInspectors;
 
+		private GameObject m_selectedObject;
+		private EventHandler[] m_handlersOfSelectedObject;
+		private string[] m_handlerNamesOfSelectedObject;
 		private EventHandler m_handler;
 
 		private Vector2 m_blueprintScrollPosition;
@@ -124,29 +127,38 @@ namespace Utils.Event
 		/// <summary>
 		/// Fetches the Event Handler that should be displayed
 		/// </summary>
-		protected virtual bool FetchEventHandler()
+		protected virtual void FetchEventHandler()
 		{
 			EventHandler handler;
 			
 			if(Selection.activeObject == null && Selection.activeGameObject == null)
 			{
 				GUILayout.Label("No Event Handler Selected ");
-				return false;
+				return;
 			}
 			
 			if(Selection.activeGameObject != null)
 			{
-				if((handler = Selection.activeGameObject.GetComponent<EventHandler>()) == null)
+				m_selectedObject = Selection.activeGameObject;
+
+				m_handlersOfSelectedObject = m_selectedObject.GetComponents<EventHandler>();
+
+				if(m_handlersOfSelectedObject.Length == 0)
 				{
 					GUILayout.Label("No Event Handler Selected ");
-					return false;
+					return;
 				}
-				
-				if(m_handler == null || m_handler != handler)
-					ChangeEventHandler(handler);
+
+				m_handlerNamesOfSelectedObject = new string[m_handlersOfSelectedObject.Length];
+
+				for(int i=0 ; i<m_handlersOfSelectedObject.Length ; ++i)
+				{
+					if(m_handlersOfSelectedObject[i]._eventID == null)
+						m_handlerNamesOfSelectedObject[i] = "No Event ("+m_handlersOfSelectedObject[i].GetInstanceID()+")";
+					else
+						m_handlerNamesOfSelectedObject[i] = "Handler:"+m_handlersOfSelectedObject[i]._eventID.Name;
+				}
 			}
-			
-			return (m_handler != null);
 		}
 
 		/// <summary>
@@ -262,6 +274,11 @@ namespace Utils.Event
 		
 		private void ChangeSelectedModule(int currSelectedIndex)
 		{
+			if(m_selectedBoxID != -1)
+			{
+				EditorUtility.SetDirty(m_actions[m_selectedBoxID]);
+			}
+			                                
 			m_layoutSelectedBoxID = currSelectedIndex;
 		}
 
@@ -409,7 +426,8 @@ namespace Utils.Event
 				return;
 			}
 
-			float sign = (m_selectedNode._owner is GPAction && ((GPAction) m_selectedNode._owner)._leftNode == m_selectedNode) ? -1f : 1f;
+			float sign = (m_selectedNode._owner is GPAction && 
+			              ((GPAction) m_selectedNode._owner)._leftNode == m_selectedNode) ? -1f : 1f;
 
 			Vector2 inPos = m_selectedNode._center + m_selectedNode._owner.WindowRect.position;
 
@@ -433,27 +451,31 @@ namespace Utils.Event
 		/// </summary>
 		private void OnGUI() 
 		{ 
-			if(!FetchEventHandler())
-				return;
+			FetchEventHandler();
 
 			EditorGUIUtility.labelWidth = 80;
 
-			FetchActions();
+			if(m_handler != null)
+			{
+				FetchActions();
 
-			CheckSelectedActionBox();
+				CheckSelectedActionBox();
 
-			CheckSelectedNode();
+				CheckSelectedNode();
 
-			DrawBackground();
+				DrawBackground();
 
-			DisplayAllConnections();
+				DisplayAllConnections();
 
-			if(m_selectedNode != null)
-				DisplayDrawingConnection();
+				if(m_selectedNode != null)
+					DisplayDrawingConnection();
+
+			}
 
 			DisplaySidebar();
 
-			DisplayBlueprint();
+			if(m_handler != null)
+				DisplayBlueprint();
 			
 			EditorGUIUtility.labelWidth = 0;
 		}
@@ -469,8 +491,6 @@ namespace Utils.Event
 			{
 				m_actions[id]._rightNodes[i].Draw();
 			}
-
-			EditorUtility.SetDirty(m_actions[id]);
 
 			GUI.DragWindow(new Rect(0,0,10000,20));
 		}
@@ -518,13 +538,9 @@ namespace Utils.Event
 
 			// Header
 			
-			Rect rect = EditorGUILayout.GetControlRect();
-			rect.height = 1f;
-			EditorGUI.DrawRect(rect,new Color(0.282f,0.282f,0.282f));
-			
 			DisplaySidebarHeader();
 
-			rect = EditorGUILayout.GetControlRect();
+			Rect rect = EditorGUILayout.GetControlRect();
 			rect.height = 1f;
 			EditorGUI.DrawRect(rect,new Color(0.282f,0.282f,0.282f));
 
@@ -548,9 +564,31 @@ namespace Utils.Event
 
 		protected virtual void DisplaySidebarHeader()
 		{
-			EditorGUILayout.Space();
+			DisplayEventHandlerPopup();
+
+			Rect rect = EditorGUILayout.GetControlRect();
+			rect.height = 1f;
+			EditorGUI.DrawRect(rect,new Color(0.282f,0.282f,0.282f));
 
 			DisplayActionCreationField();
+		}
+
+		protected virtual void DisplayEventHandlerPopup()
+		{
+			if(m_handlersOfSelectedObject == null)
+				return;
+
+			int idx = 0;
+
+			if(m_handler != null)
+				idx = System.Array.IndexOf(m_handlersOfSelectedObject,m_handler);
+
+			EditorGUILayout.LabelField("Event Handler", EditorStyles.boldLabel);
+
+			int newIdx = EditorGUILayout.Popup(idx, m_handlerNamesOfSelectedObject);
+
+			if(newIdx != idx)
+				ChangeEventHandler(m_handlersOfSelectedObject[newIdx]);
 		}
 
 		protected virtual void DisplaySidebarFooter()
@@ -571,7 +609,11 @@ namespace Utils.Event
 
 			try
 			{
-				GUILayout.Label(m_actions[m_selectedBoxID].GetType().Name);
+				string name = GPActionManager.s_gpactionNameMap[m_actions[m_selectedBoxID].GetType()];
+				
+				name = name.Split('/').Last();
+
+				GUILayout.Label(name, EditorStyles.boldLabel);
 			
 				m_actionInspectors[m_selectedBoxID].DrawInspector();
 			}
@@ -644,7 +686,17 @@ namespace Utils.Event
 
 				SetBoxColor(box);
 
-				box._windowRect = GUI.Window(i, box._windowRect, DisplayAction, box.GetType().Name);
+				string name = GPActionManager.s_gpactionNameMap[box.GetType()];
+
+				name = name.Split('/').Last();
+
+				Rect newRect = GUI.Window(i, box._windowRect, DisplayAction, name);
+
+				if(box._windowRect != newRect)
+				{
+					box._windowRect = newRect;
+					EditorUtility.SetDirty(box);
+				}
 			}
 
 			EndWindows();
@@ -705,7 +757,8 @@ namespace Utils.Event
 					m_actions[m_selectedBoxID]._leftNode._connection = null;
 				}
 				else if(m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._owner != null)
-					((IActionOwner)m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._owner).Disconnect(m_actions[m_selectedBoxID]);
+					((IActionOwner)m_actions[m_selectedBoxID]._leftNode._connection._nodeParent._owner)
+						.Disconnect(m_actions[m_selectedBoxID]);
 			}
 
 			if(action is IActionOwner)
@@ -745,7 +798,6 @@ namespace Utils.Event
 				}
 			}
 
-
 			m_backgroundBlueprintTex.Apply();
 		}
 
@@ -760,7 +812,8 @@ namespace Utils.Event
 
 			//GUI.Box(position, GUIContent.none);
 
-			GUI.DrawTextureWithTexCoords(position, tex, new Rect(0, 0, position.width / tex.width, position.height / tex.height));
+			GUI.DrawTextureWithTexCoords(position, tex, 
+			                             new Rect(0, 0, position.width / tex.width, position.height / tex.height));
 		}
 		
 		private bool IsMouseIn(Rect rect)

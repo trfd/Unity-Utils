@@ -47,26 +47,6 @@ public class EventHandlerInspector : Editor
 
         EditorGUILayout.LabelField("State: "+handler.State.ToString());
 
-        EditorGUILayout.Space();
-
-        // Display Change Action 
-
-        EditorGUILayout.Space();
-
-        if (m_actionInspector == null && handler.Action != null)
-        {
-			CreateActionInspector(handler);
-        }
-        else if (m_actionInspector != null && handler.Action == null)
-            m_actionInspector = null;
-
-        if(handler.Action != null)
-            m_actionInspector.DrawInspector();
-
-		EditorGUILayout.Space();
-
-		DisplayActionManagementField();
-
 		EditorGUILayout.Space();
 
 		DisplayImportField();

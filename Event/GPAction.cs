@@ -302,7 +302,7 @@ namespace Utils.Event
 			_rightNodes.Last()._connection = null;
 			_rightNodes.Last()._center = new Vector2(92,25+16*(_rightNodes.Count-1));
 
-			_windowRect.height = 35+16*(_rightNodes.Count-1);
+			_windowRect.height = Mathf.Max(40,35+16*(_rightNodes.Count-1));
 
 			return _rightNodes.Last();
 		}
