@@ -148,6 +148,25 @@ namespace Utils.Event
 
 #if UNITY_EDITOR
 
+		public void CheckPrefabConnection(EventHandler handler)
+		{
+			GameObject obj;
+			
+			try
+			{
+				obj = m_actionObjectMap.Dictionary[handler];
+			}
+			catch (KeyNotFoundException)
+			{ 
+				obj = AddEventHandler(handler); 
+			}
+
+			Object prefab = PrefabUtility.GetPrefabParent(obj);
+			
+			if(prefab == null)
+				handler.PrefabAction = null;
+		}
+
         /// <summary>
         /// Imports an action prefab for the specified EventHandler
         /// </summary>
@@ -218,7 +237,13 @@ namespace Utils.Event
 			}
 
 			Object prefab = PrefabUtility.GetPrefabParent(obj);
-			
+
+			if(prefab == null)
+			{
+				handler.PrefabAction = null;
+				return;
+			}
+
 			PrefabUtility.ReplacePrefab(obj, prefab,ReplacePrefabOptions.ConnectToPrefab);
         }
 

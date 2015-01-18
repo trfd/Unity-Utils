@@ -172,7 +172,8 @@ public class GPActionDefaultInspector : GPActionInspector
 			remainingProperties = property.NextVisible(true);
         }
 
-       	m_serialObject.ApplyModifiedProperties();
+		if(m_serialObject.targetObject != null)
+       		m_serialObject.ApplyModifiedProperties();
     }
 
 }

@@ -644,6 +644,8 @@ namespace Utils.Event
 
 				EditorGUILayout.Space();
 
+				m_handler.GetGPActionObjectMapperOrCreate().CheckPrefabConnection(m_handler);
+
 				if(m_handler.PrefabAction != null)
 				{
 					GUILayout.BeginHorizontal();
