@@ -60,6 +60,8 @@ namespace Utils.Event
 		private Vector2 m_blueprintScrollPosition;
 		private Vector2 m_sidebarScrollPosition;
 
+		private Rect m_blueprintScrollView;
+
 		private int m_selectedBoxID = -1;
 		private int m_layoutSelectedBoxID = -1;
 
@@ -146,6 +148,8 @@ namespace Utils.Event
 				if(m_handlersOfSelectedObject.Length == 0)
 				{
 					GUILayout.Label("No Event Handler Selected ");
+					m_handlerNamesOfSelectedObject = null;
+					m_handlersOfSelectedObject = null;
 					return;
 				}
 
@@ -406,8 +410,11 @@ namespace Utils.Event
 
 		protected virtual void DisplayConnection(ActionEditorConnection connection)
 		{
-			Vector2 inPos  = connection._nodeParent._center + connection._nodeParent._owner.WindowRect.position;
-			Vector2 outPos = connection._nodeChild._center  + connection._nodeChild._owner.WindowRect.position;
+			Vector2 scrollOffset = new Vector2(m_blueprintScrollPosition.x + m_blueprintScrollView.position.x,
+			                                   m_blueprintScrollPosition.y + m_blueprintScrollView.position.y);
+
+			Vector2 inPos  = connection._nodeParent._center + connection._nodeParent._owner.WindowRect.position - scrollOffset;
+			Vector2 outPos = connection._nodeChild._center  + connection._nodeChild._owner.WindowRect.position  - scrollOffset;
 			
 			Handles.DrawBezier(inPos, outPos,
 			                   inPos  + 30 * Vector2.right,
@@ -426,10 +433,13 @@ namespace Utils.Event
 				return;
 			}
 
+			Vector2 scrollOffset = new Vector2(m_blueprintScrollPosition.x + m_blueprintScrollView.position.x,
+			                                   m_blueprintScrollPosition.y + m_blueprintScrollView.position.y);
+
 			float sign = (m_selectedNode._owner is GPAction && 
 			              ((GPAction) m_selectedNode._owner)._leftNode == m_selectedNode) ? -1f : 1f;
 
-			Vector2 inPos = m_selectedNode._center + m_selectedNode._owner.WindowRect.position;
+			Vector2 inPos = m_selectedNode._center + m_selectedNode._owner.WindowRect.position - scrollOffset;
 
 			Vector2 outPos = UnityEngine.Event.current.mousePosition;
 
@@ -662,6 +672,8 @@ namespace Utils.Event
 
 		protected virtual void DisplayBlueprint()
 		{
+			ComputeScrollView();
+
 			m_windowStyle = GUI.skin.window;
 
 			float xInspector = position.width-m_inspectorWidth;
@@ -670,9 +682,15 @@ namespace Utils.Event
 
 			GUILayout.BeginArea(new Rect(0,0,xInspector,position.height));
 
+			m_blueprintScrollPosition = GUI.BeginScrollView(new Rect(0,0,xInspector,position.height),
+			                                                m_blueprintScrollPosition,
+			                                                m_blueprintScrollView);
+
+			/*
 			m_blueprintScrollPosition = GUILayout.BeginScrollView(m_blueprintScrollPosition,
 			                                                      GUILayout.Width(xInspector),
 			                                                      GUILayout.Height(position.height));
+			*/
 
 			BeginWindows();
 
@@ -701,13 +719,42 @@ namespace Utils.Event
 
 			EndWindows();
 
-			GUILayout.EndScrollView();
+			//GUILayout.EndScrollView();
+			GUI.EndScrollView();
+
 			GUILayout.EndArea();
 
 			Handles.EndGUI();
 		}
 
-		public void SetBoxColor(GPAction box)
+		protected virtual void ComputeScrollView()
+		{
+			float minX, minY;
+			float maxX, maxY;
+
+			minX = minY = 0;
+			maxX = position.width-m_inspectorWidth;
+			maxY = position.height;
+
+			for(int i=0 ; i<m_actions.Length ; i++)
+			{
+				minX = Mathf.Min(minX, m_actions[i]._windowRect.xMin);
+				minY = Mathf.Min(minY, m_actions[i]._windowRect.yMin);
+
+				maxX = Mathf.Max(maxX, m_actions[i]._windowRect.xMax);
+				maxY = Mathf.Max(maxY, m_actions[i]._windowRect.yMax);
+			}
+
+			minX = Mathf.Min(minX, m_handler._windowRect.xMin);
+			minY = Mathf.Min(minY, m_handler._windowRect.yMin);
+			
+			maxX = Mathf.Max(maxX, m_handler._windowRect.xMax);
+			maxY = Mathf.Max(maxY, m_handler._windowRect.yMax);
+
+			m_blueprintScrollView = new Rect(minX, minY, maxX - minX, maxY - minY);
+		}
+
+		protected virtual void SetBoxColor(GPAction box)
 		{
 			Color c;
 
@@ -817,8 +864,11 @@ namespace Utils.Event
 		}
 		
 		private bool IsMouseIn(Rect rect)
-		{		
-			Vector2 screenPos = UnityEngine.Event.current.mousePosition;
+		{	
+			Vector2 scrollOffset = new Vector2(m_blueprintScrollPosition.x + m_blueprintScrollView.position.x,
+			                                   m_blueprintScrollPosition.y + m_blueprintScrollView.position.y);
+
+			Vector2 screenPos = UnityEngine.Event.current.mousePosition + scrollOffset;
 			
 			return rect.Contains(screenPos);
 		}
