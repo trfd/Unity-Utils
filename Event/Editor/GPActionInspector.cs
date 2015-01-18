@@ -96,16 +96,8 @@ public class GPActionInspector
 			return;
 		}
 
-		string displayFoldout = TargetAction.EditionName+" ("+GPActionManager.s_gpactionNameMap[TargetAction.GetType()]+")";
 
-		//if((m_inspectorFoldout = EditorGUILayout.Foldout(m_inspectorFoldout, displayFoldout)))
-		{
-		//	EditorGUI.indentLevel++;
-
-			OnInspectorGUI();
-
-			EditorGUI.indentLevel--;
-		}
+		OnInspectorGUI();
 	}
 
     /// <summary>

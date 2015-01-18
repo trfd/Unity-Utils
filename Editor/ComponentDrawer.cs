@@ -71,7 +71,7 @@ namespace Utils.Event
 					newObject = m_thisComponent.gameObject;
 			}
 
-			newObject = (GameObject) EditorGUI.ObjectField(position,"Object",newObject,typeof(GameObject));
+			newObject = (GameObject) EditorGUI.ObjectField(position,"Object",newObject,typeof(GameObject),true);
 			position.y += EditorGUIUtility.singleLineHeight;
 
 			if(m_currGameObject != newObject)

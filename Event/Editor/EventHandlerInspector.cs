@@ -25,10 +25,6 @@ public class EventHandlerInspector : Editor
 
 	private GPActionInspector m_actionInspector;
 
-	private UnityEngine.Object m_importPrefab;
-
-	private bool m_displayImportPrefab = false;
-
     #endregion
 
     #region Inspector 

@@ -127,7 +127,7 @@ namespace Utils.Event
 				DestroyImmediate(m_actionObjectMap.Dictionary[handler]);
 				m_actionObjectMap.Dictionary.Remove(handler);
 			}
-			catch(KeyNotFoundException e)
+			catch(KeyNotFoundException)
 			{
 				Debug.LogWarning("Try to remove unexisting handler");
 			}
@@ -343,9 +343,6 @@ namespace Utils.Event
 
 		public void OnAfterDeserialize()
 		{
-			foreach(var kvp in m_actionObjectMap.Dictionary)
-			{
-			}
 		}
 
 		#endregion

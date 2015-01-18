@@ -268,9 +268,9 @@ namespace Utils.Event
 		/// <summary>
 		/// Should be called by subclass to terminate action.
 		/// </summary>
-        protected virtual void End()
+        protected virtual void End(ActionState state = ActionState.TERMINATED)
         {
-            m_currState = ActionState.TERMINATED;
+			m_currState = state;
 			OnTerminate();
         }
 

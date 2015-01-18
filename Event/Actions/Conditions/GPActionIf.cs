@@ -1,5 +1,5 @@
 ﻿//
-// GameObjectManagerEditor.cs
+// GPActionIf.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -24,44 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-[CustomEditor(typeof(Utils.GameObjectManager))]
-public class GameObjectManagerEditor : Editor
+namespace Utils.Event
 {
-	#region Private Member
-
-	private bool m_displayObjectMap;
-
-	#endregion
-
-	public override void OnInspectorGUI()
+	public class GPActionIf : GPAction
 	{
-		if(m_displayObjectMap)
+		protected override void OnTrigger()
 		{
-			if(GUILayout.Button("Hide Map"))
-			{
-				m_displayObjectMap = false;
-			}
-			else
-			{
-				Dictionary<Utils.UID,GameObject> dict = Utils.GameObjectManager.Instance.ObjectMap;
-
-				foreach(KeyValuePair<Utils.UID,GameObject> kvp in dict)
-				{
-					EditorGUILayout.ObjectField(kvp.Key.Stamp.ToString("X"),kvp.Value,typeof(GameObject),true);
-				}
-			}
-		}
-		else
-		{
-			if(GUILayout.Button("Show Map"))
-			{
-				m_displayObjectMap = true;
-			}
+			End();
 		}
 	}
 }
+

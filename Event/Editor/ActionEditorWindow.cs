@@ -75,7 +75,6 @@ namespace Utils.Event
 
 		private int m_actionTypeSelectedIndex;
 
-		private GUIStyle m_windowStyle;
 
 		private Texture2D m_backgroundBlueprintTex;
 		private Texture2D m_backgroundLineInspectorTex;
@@ -134,8 +133,6 @@ namespace Utils.Event
 		/// </summary>
 		protected virtual void FetchEventHandler()
 		{
-			EventHandler handler;
-			
 			if(Selection.activeObject == null && Selection.activeGameObject == null)
 			{
 				GUILayout.Label("No Event Handler Selected ");
@@ -720,8 +717,6 @@ namespace Utils.Event
 		protected virtual void DisplayBlueprint()
 		{
 			ComputeScrollView();
-
-			m_windowStyle = GUI.skin.window;
 
 			float xInspector = position.width-m_inspectorWidth;
 
