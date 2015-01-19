@@ -543,6 +543,11 @@ namespace Utils.Event
 
 		protected virtual void DisplaySidebar()
 		{	
+			if(m_backgroundBlueprintTex 	 == null ||
+			   m_backgroundLineInspectorTex  == null ||
+			   m_backgroundInspectorTex 	 == null)
+				CreateTextures();
+
 			float xInspector = position.width-m_inspectorWidth;
 
 			DrawQuad(new Rect(xInspector-1, 0, 10              , position.height),m_backgroundLineInspectorTex);
@@ -605,6 +610,9 @@ namespace Utils.Event
 			EditorGUILayout.LabelField("Event Handler", EditorStyles.boldLabel);
 
 			int newIdx = EditorGUILayout.Popup(idx, m_handlerNamesOfSelectedObject);
+
+			if(newIdx >= m_handlersOfSelectedObject.Length)
+				return;
 
 			if(newIdx != idx || m_handler == null)
 				ChangeEventHandler(m_handlersOfSelectedObject[newIdx]);
