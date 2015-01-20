@@ -213,6 +213,7 @@ namespace Utils.Event
 
 				m_actions[i] = actions[i];
 				CreateInspector(i);
+
 			}
 
 			if(m_selectedBoxID >= m_actions.Length)
@@ -286,6 +287,7 @@ namespace Utils.Event
 			if(m_selectedBoxID != -1)
 			{
 				EditorUtility.SetDirty(m_actions[m_selectedBoxID]);
+				m_actionInspectors[m_selectedBoxID].SerialObject.ApplyModifiedProperties();
 			}
 			                                
 			m_layoutSelectedBoxID = currSelectedIndex;
@@ -757,8 +759,9 @@ namespace Utils.Event
 				if(box._windowRect != newRect)
 				{
 					box._windowRect = newRect;
-					EditorUtility.SetDirty(box);
+					m_actionInspectors[i].SerialObject.FindProperty("_windowRect").rectValue = newRect;
 				}
+
 			}
 
 			EndWindows();
