@@ -263,6 +263,13 @@ namespace Utils.Event
 				m_layoutSelectedBoxID = -1;
 			}
 
+            if(UnityEngine.Event.current.isMouse && UnityEngine.Event.current.type == EventType.MouseUp && m_selectedBoxID != -1)
+            {
+                EditorUtility.SetDirty(m_actions[m_selectedBoxID]);
+                m_actionInspectors[m_selectedBoxID].SerialObject.ApplyModifiedProperties();
+            }
+               
+
 			if(!UnityEngine.Event.current.isMouse || UnityEngine.Event.current.type != EventType.MouseDown)
 				return;
 
@@ -286,11 +293,13 @@ namespace Utils.Event
 		{
 			if(m_selectedBoxID != -1)
 			{
-				EditorUtility.SetDirty(m_actions[m_selectedBoxID]);
-				m_actionInspectors[m_selectedBoxID].SerialObject.ApplyModifiedProperties();
+
 			}
 			                                
 			m_layoutSelectedBoxID = currSelectedIndex;
+
+            if(m_layoutSelectedBoxID != -1)
+                CreateInspector(m_layoutSelectedBoxID);
 		}
 
 		private void CheckSelectedNode()
@@ -903,7 +912,6 @@ namespace Utils.Event
 			{
 				ExportActionPrefab();
 			}
-
 		}
 
 		private void ExportActionPrefab()
