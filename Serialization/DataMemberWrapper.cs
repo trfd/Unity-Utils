@@ -5,7 +5,7 @@ using System.Reflection;
 namespace Utils
 {
 	[System.Serializable]
-	public class DataMemberWrapper : ISerializationCallbackReceiver
+	public class DataMemberWrapper 
 	{
 		#region Private Members
 
@@ -56,7 +56,7 @@ namespace Utils
 
 		#region Accessor
 		
-		public MemberInfo GetMember()
+		public virtual MemberInfo GetMember()
 		{
 			if(m_field.FieldInfo != null)
 				return m_field.FieldInfo;
@@ -65,18 +65,18 @@ namespace Utils
 
 			return null;
 		}
-		
-		public FieldInfo GetField()
+
+        public virtual FieldInfo GetField()
 		{
 			return m_field.FieldInfo;
 		}
-		
-		public PropertyInfo GetProperty()
+
+        public virtual PropertyInfo GetProperty()
 		{
 			return m_property.PropertyInfo;
 		}
 
-		public void SetMember(MemberInfo member)
+        public virtual void SetMember(MemberInfo member)
 		{
 			if(member is PropertyInfo)
 			{
@@ -92,19 +92,19 @@ namespace Utils
 				Debug.Log("DataMember can not use member of type "+member.GetType().FullName);
 		}
 
-		public void SetField(FieldInfo field)
+        public virtual void SetField(FieldInfo field)
 		{
 			m_field.FieldInfo = field;
 			m_property.PropertyInfo = null;
 		}
 
-		public void SetProperty(PropertyInfo prop)
+        public virtual void SetProperty(PropertyInfo prop)
 		{
 			m_field.FieldInfo = null;
 			m_property.PropertyInfo = prop;
 		}
 
-		public System.Object GetValue(System.Object instance)
+        public virtual System.Object GetValue(System.Object instance)
 		{
 			if(m_field.FieldInfo != null)
 				m_field.FieldInfo.GetValue(instance);
@@ -114,7 +114,7 @@ namespace Utils
 			return null;
 		}
 
-		public void SetValue(System.Object instance, System.Object value)
+        public virtual void SetValue(System.Object instance, System.Object value)
 		{
 			if(m_field.FieldInfo != null)
 				m_field.FieldInfo.SetValue (instance,value);
@@ -124,12 +124,5 @@ namespace Utils
 
 		#endregion
 
-		public void OnBeforeSerialize()
-		{
-		}
-
-		public void OnAfterDeserialize()
-		{
-		}
 	}
 }
