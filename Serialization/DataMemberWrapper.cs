@@ -54,6 +54,17 @@ namespace Utils
 
 		#endregion
 
+#if UNITY_EDITOR
+		
+		public static void SetSerializedPropertyValue(UnityEditor.SerializedProperty property, 
+		                                              DataMemberWrapper member)
+		{
+			FieldInfoWrapper.SetSerializedPropertyValue(property.FindPropertyRelative("m_field"),member.m_field);
+			PropertyInfoWrapper.SetSerializedPropertyValue(property.FindPropertyRelative("m_property"),member.m_property);
+		}
+		
+#endif
+
 		#region Accessor
 		
 		public virtual MemberInfo GetMember()
@@ -63,6 +74,20 @@ namespace Utils
 			else if(m_property.PropertyInfo != null)
 				return m_property.PropertyInfo;
 
+			return null;
+		}
+
+		/// <summary>
+		/// Return the type of data member (either the FieldType or the PropertyType)
+		/// </summary>
+		/// <returns>The member type.</returns>
+		public virtual System.Type GetMemberType()
+		{
+			if(m_field.FieldInfo != null)
+				return m_field.FieldInfo.FieldType;
+			else if(m_property.PropertyInfo != null)
+				return m_property.PropertyInfo.PropertyType;
+			
 			return null;
 		}
 
@@ -122,6 +147,46 @@ namespace Utils
 				m_property.PropertyInfo.SetValue(instance,value,null);
 		}
 
+		#endregion
+
+		
+		#region System.Object
+		
+		public override bool Equals(System.Object obj)
+		{
+			if (obj == null)
+			{
+				return false;
+			}
+			
+			DataMemberWrapper p 
+				= obj as DataMemberWrapper;
+			if ((System.Object)p == null)
+			{
+				return false;
+			}
+			
+			return (p.m_field.FieldInfo.Equals(this.m_field.FieldInfo) && 
+			        p.m_property.PropertyInfo.Equals(this.m_property.PropertyInfo));
+		}
+		
+		public bool Equals(DataMemberWrapper p)
+		{
+			// If parameter is null return false:
+			if ((object)p == null)
+			{
+				return false;
+			}
+			
+			return (p.m_field.FieldInfo.Equals(this.m_field.FieldInfo) && 
+			        p.m_property.PropertyInfo.Equals(this.m_property.PropertyInfo));
+		}
+		
+		public override int GetHashCode()
+		{
+			return this.m_field.FieldInfo.GetHashCode() ^ this.m_property.PropertyInfo.GetHashCode();
+		}
+		
 		#endregion
 
 	}

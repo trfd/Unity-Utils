@@ -31,8 +31,19 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
+	[GPActionAlias("Conditionnal/If")]
 	public class GPActionIf : GPAction
 	{
+		#region Public Members
+
+		public bool _useThisObject;
+
+		public GameObject _targetObject;
+
+		public ComponentNestedDataMemberWrapper _nestedDataMember;
+
+		#endregion
+
 		protected override void OnTrigger()
 		{
 			End();

@@ -44,31 +44,34 @@ namespace Utils.Reflection
 			return (info.GetCustomAttributes(type,inherit).Length != 0);
 		}
 
-		public static FieldInfo[] GetAllFields(System.Type type)
+		public static FieldInfo[] GetAllFields(System.Type type, bool addPrivate = false)
 		{
 			System.Type currType = type;
 			
 			List<FieldInfo> fields = new List<FieldInfo>();
-			
+
 			// Adds public fields
 			
-			fields.AddRange(currType.GetFields(BindingFlags.Public | BindingFlags.Instance));
-			
-			// Adds private fields of all parent classes
-			
-			BindingFlags bindFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-			
-			while(currType != null && currType != typeof(System.Object))
+			fields.AddRange(currType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+
+			if(addPrivate)
 			{
-				fields.AddRange(currType.GetFields(bindFlags));
+				// Adds private fields of all parent classes
 				
-				currType = currType.BaseType;
+				BindingFlags bindFlags = BindingFlags.Public | BindingFlags.Instance;
+				
+				while(currType != null && currType != typeof(System.Object))
+				{
+					fields.AddRange(currType.GetFields(bindFlags));
+					
+					currType = currType.BaseType;
+				}
 			}
-			
+
 			return fields.ToArray();
 		}
 		
-		public static PropertyInfo[] GetAllProperties(System.Type type)
+		public static PropertyInfo[] GetAllProperties(System.Type type, bool addPrivate = false)
 		{
 			System.Type currType = type;
 			
@@ -77,16 +80,19 @@ namespace Utils.Reflection
 			// Adds public fields
 			
 			properties.AddRange(currType.GetProperties(BindingFlags.Public | BindingFlags.Instance));
-			
-			// Adds private fields of all parent classes
-			
-			BindingFlags bindFlags = BindingFlags.NonPublic | BindingFlags.Instance;
-			
-			while(currType != null && currType != typeof(System.Object))
+
+			if(addPrivate)
 			{
-				properties.AddRange(currType.GetProperties(bindFlags));
+				// Adds private fields of all parent classes
 				
-				currType = currType.BaseType;
+				BindingFlags bindFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+				
+				while(currType != null && currType != typeof(System.Object))
+				{
+					properties.AddRange(currType.GetProperties(bindFlags));
+					
+					currType = currType.BaseType;
+				}
 			}
 			
 			return properties.ToArray();

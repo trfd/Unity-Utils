@@ -136,6 +136,7 @@ namespace Utils
 		/// Dirty flag for myType.
 		/// Used only via reflection.
 		/// </summary>
+		[UnityEngine.SerializeField]
 		private  bool m_dirty;
 
 		#endregion
@@ -223,6 +224,17 @@ namespace Utils
 		}
 	
 		#endregion
+
+#if UNITY_EDITOR
+		
+		public static void SetSerializedPropertyValue(UnityEditor.SerializedProperty property, 
+		                                              TypeWrapper type)
+		{
+			property.FindPropertyRelative("m_name").stringValue = (type==null) ? "Utils.InvalidType" : type.m_name;
+			property.FindPropertyRelative("m_dirty").boolValue = true;
+		}
+		
+#endif
 
 		#region Private Methods
 

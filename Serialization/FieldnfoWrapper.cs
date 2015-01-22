@@ -84,6 +84,18 @@ namespace Utils
 
 		#endregion
 
+#if UNITY_EDITOR
+		
+		public static void SetSerializedPropertyValue(UnityEditor.SerializedProperty property, 
+		                                              FieldInfoWrapper field)
+		{
+			TypeWrapper.SetSerializedPropertyValue(property.FindPropertyRelative("m_type"),field.m_type);
+
+			property.FindPropertyRelative("m_fieldName").stringValue = field.m_fieldName;
+		}
+		
+#endif
+
 		#region Serialization / Deserialization
 
 		/// <summary>

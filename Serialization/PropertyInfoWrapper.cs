@@ -51,6 +51,18 @@ namespace Utils
 		}
 		
 		#endregion
+
+#if UNITY_EDITOR
+		
+		public static void SetSerializedPropertyValue(UnityEditor.SerializedProperty property, 
+		                                              PropertyInfoWrapper prop)
+		{
+			TypeWrapper.SetSerializedPropertyValue(property.FindPropertyRelative("m_type"),prop.m_type);
+			
+			property.FindPropertyRelative("m_propertyName").stringValue = prop.m_propertyName;
+		}
+		
+#endif
 		
 		#region Serialization / Deserialization
 		

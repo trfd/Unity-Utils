@@ -27,9 +27,12 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace Utils
 {
+	[System.Serializable]
     public class NestedDataMemberWrapper
     {
         #region Private Members
@@ -50,8 +53,32 @@ namespace Utils
 
         #endregion
 
+#if UNITY_EDITOR
+		
+		public static void SetSerializedPropertyValue(UnityEditor.SerializedProperty property, 
+		                                              NestedDataMemberWrapper member)
+		{
+			UnityEditor.SerializedProperty dataMemberProp = property.FindPropertyRelative("m_dataMembers");
+
+			dataMemberProp.ClearArray();
+
+			for(int i=0 ; i<member.m_dataMembers.Length ; i++)
+			{
+				dataMemberProp.InsertArrayElementAtIndex(i);
+				DataMemberWrapper.SetSerializedPropertyValue(dataMemberProp.GetArrayElementAtIndex(i),
+				                                             member.m_dataMembers[i]);
+			}
+		}
+
+#endif
+
         #region Interface
 
+		/// <summary>
+		/// Gets the value.
+		/// </summary>
+		/// <returns>The value.</returns>
+		/// <param name="instance">Instance.</param>
         public System.Object GetValue(System.Object instance)
         {
             System.Object currObj = instance;
@@ -64,6 +91,11 @@ namespace Utils
             return currObj;
         }
 
+		/// <summary>
+		/// Sets the value.
+		/// </summary>
+		/// <param name="instance">Instance.</param>
+		/// <param name="value">Value.</param>
         public void SetValue(System.Object instance, System.Object value)
         {
             System.Object currObj = instance;
@@ -76,9 +108,129 @@ namespace Utils
             m_dataMembers[m_dataMembers.Length - 1].SetValue(currObj, value);
         }
 
+		/// <summary>
+		/// Append the specified field.
+		/// </summary>
+		/// <param name="field">Field.</param>
+		public NestedDataMemberWrapper Append(FieldInfo field)
+		{
+			if(field == null)
+				return this;
+
+			List<DataMemberWrapper> members;
+			
+			if(this.m_dataMembers == null)
+				members = new List<DataMemberWrapper>();
+			else
+				members = new List<DataMemberWrapper>(this.m_dataMembers);
+
+			if(members.Count >0 && !field.DeclaringType.IsAssignableFrom( members.Last().GetMemberType() ))
+				throw new System.ArgumentException("NestedDataMember append fail: new member declaring type ("+
+				                                   field.DeclaringType+") not assignable from last member type ("+
+				                                   members.Last().GetMemberType()+
+				                                   ")");
+
+			members.Add(new DataMemberWrapper(field));
+
+			NestedDataMemberWrapper newMember = new NestedDataMemberWrapper();
+			newMember.m_dataMembers = members.ToArray();
+			
+			return newMember;
+		}
+
+		/// <summary>
+		/// Append the specified property.
+		/// </summary>
+		/// <param name="property">Property.</param>
+		public NestedDataMemberWrapper Append(PropertyInfo property)
+		{
+			if(property == null)
+				return this;
+			
+			List<DataMemberWrapper> members;
+
+			if(this.m_dataMembers == null)
+				members = new List<DataMemberWrapper>();
+			else
+				members = new List<DataMemberWrapper>(this.m_dataMembers);
+			
+			if(members.Count >0 && !property.DeclaringType.IsAssignableFrom( members.Last().GetMemberType() ))
+				throw new System.ArgumentException("NestedDataMember append fail: new member declaring type ("+
+				                                   property.DeclaringType+") not assignable from last member type ("+
+				                                   members.Last().GetMemberType()+
+				                                   ")");
+			
+			members.Add(new DataMemberWrapper(property));
+			
+			NestedDataMemberWrapper newMember = new NestedDataMemberWrapper();
+			newMember.m_dataMembers = members.ToArray();
+			
+			return newMember;
+		}
+
+		public string EditorDisplayName()
+		{
+			string str = "";
+			for(int i=0 ; i<m_dataMembers.Length-1 ; i++)
+				str += m_dataMembers[i].GetMember().Name+"/";
+
+			str += m_dataMembers[m_dataMembers.Length-1].GetMember().Name;
+
+			return str;
+		}
+
+		public bool HasIntermediateMemberOfType(System.Type type)
+		{
+			if(m_dataMembers == null)
+				return false;
+
+			foreach(DataMemberWrapper member in m_dataMembers)
+				if(member.GetMemberType() == type)
+					return true;
+			return false;
+		}
+
         #endregion
+
+		#region System.Object
+		
+		public override bool Equals(System.Object obj)
+		{
+			if (obj == null)
+			{
+				return false;
+			}
+			
+			NestedDataMemberWrapper p 
+				= obj as NestedDataMemberWrapper;
+			if ((System.Object)p == null)
+			{
+				return false;
+			}
+			
+			return ( Enumerable.SequenceEqual( p.m_dataMembers, this.m_dataMembers) );
+		}
+		
+		public bool Equals(NestedDataMemberWrapper p)
+		{
+			// If parameter is null return false:
+			if ((object)p == null)
+			{
+				return false;
+			}
+			
+			return ( Enumerable.SequenceEqual( p.m_dataMembers, this.m_dataMembers) );
+		}
+		
+		public override int GetHashCode()
+		{
+			return this.m_dataMembers.GetHashCode();
+		}
+		
+		#endregion
     }
 
+	[System.Serializable]
     public class ComponentNestedDataMemberWrapper
     {
         #region Private Members
@@ -108,5 +260,103 @@ namespace Utils
         }
 
         #endregion
-    }
+
+		#region Constructor
+
+		public ComponentNestedDataMemberWrapper()
+		{
+			m_nestedDataMember = new NestedDataMemberWrapper();
+		}
+
+		public ComponentNestedDataMemberWrapper(Component c)
+		{
+			m_component = c;
+
+			m_nestedDataMember = new NestedDataMemberWrapper();
+		}
+	
+		#endregion
+
+#if UNITY_EDITOR
+
+		public static void SetSerializedPropertyValue(UnityEditor.SerializedProperty property, 
+		                                              ComponentNestedDataMemberWrapper member)
+		{
+			property.FindPropertyRelative("m_component").objectReferenceValue = member.m_component;
+
+			NestedDataMemberWrapper.SetSerializedPropertyValue(property.FindPropertyRelative("m_nestedDataMember"),
+			                                                   member.m_nestedDataMember);
+		}
+
+#endif
+
+		public ComponentNestedDataMemberWrapper Append(FieldInfo field)
+		{
+			ComponentNestedDataMemberWrapper newMember = 
+				new ComponentNestedDataMemberWrapper(this.m_component);
+
+			newMember.m_nestedDataMember = this.m_nestedDataMember.Append(field);
+
+			return newMember;
+		}
+
+		public ComponentNestedDataMemberWrapper Append(PropertyInfo property)
+		{
+			ComponentNestedDataMemberWrapper newMember = 
+				new ComponentNestedDataMemberWrapper(this.m_component);
+
+			newMember.m_nestedDataMember = this.m_nestedDataMember.Append(property);
+			
+			return newMember;
+		}
+
+		public string EditorDisplayName()
+		{
+			return m_component.GetType().Name+"/"+m_nestedDataMember.EditorDisplayName();
+		}
+
+		public bool HasIntermediateMemberOfType(System.Type type)
+		{
+			return m_nestedDataMember.HasIntermediateMemberOfType(type);
+		}
+	
+		#region System.Object
+
+		public override bool Equals(System.Object obj)
+		{
+			if (obj == null)
+			{
+				return false;
+			}
+
+			ComponentNestedDataMemberWrapper p 
+				= obj as ComponentNestedDataMemberWrapper;
+			if ((System.Object)p == null)
+			{
+				return false;
+			}
+
+			return (p.m_component == this.m_component && 
+			        p.m_nestedDataMember == this.m_nestedDataMember);
+		}
+		
+		public bool Equals(ComponentNestedDataMemberWrapper p)
+		{
+			// If parameter is null return false:
+			if ((object)p == null)
+			{
+				return false;
+			}
+
+			return (p.m_component == this.m_component && 
+			        p.m_nestedDataMember == this.m_nestedDataMember);
+		}
+		
+		public override int GetHashCode()
+		{
+			return this.m_component.GetHashCode() ^ this.m_nestedDataMember.GetHashCode();
+		}
+		
+		#endregion
+	}
 }

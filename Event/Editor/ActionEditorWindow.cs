@@ -650,8 +650,8 @@ namespace Utils.Event
 			if(m_selectedBoxID == -1)
 				return;
 
-			try
-			{
+			//try
+			//{
 				string name = GPActionManager.s_gpactionNameMap[m_actions[m_selectedBoxID].GetType()];
 				
 				name = name.Split('/').Last();
@@ -689,9 +689,11 @@ namespace Utils.Event
 				EditorGUILayout.Space();
 			
 				m_actionInspectors[m_selectedBoxID].DrawInspector();
-			}
-			catch(System.Exception)
-			{}
+			//}
+			//catch(System.Exception e)
+			//{
+		//		Debug.Log("Exception in Action Inspector: "+e.Message);
+		//		}
 		}
 
 		private void DisplayActionCreationField()
