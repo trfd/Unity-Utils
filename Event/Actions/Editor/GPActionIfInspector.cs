@@ -82,7 +82,9 @@ namespace Utils.Event
 			int idx = System.Array.IndexOf(m_members,ifAction._nestedDataMember);
 
 			if(idx == -1)
+			{
 				Debug.Log("Member not found: "+ifAction._nestedDataMember.EditorDisplayName() );
+			}
 
 			idx = Mathf.Max(0,idx);
 

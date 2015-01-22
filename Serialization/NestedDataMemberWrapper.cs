@@ -171,8 +171,12 @@ namespace Utils
 		public string EditorDisplayName()
 		{
 			string str = "";
+
 			for(int i=0 ; i<m_dataMembers.Length-1 ; i++)
 				str += m_dataMembers[i].GetMember().Name+"/";
+
+			if(m_dataMembers[m_dataMembers.Length-1].GetMember() == null)
+				return str;
 
 			str += m_dataMembers[m_dataMembers.Length-1].GetMember().Name;
 
@@ -207,7 +211,7 @@ namespace Utils
 			{
 				return false;
 			}
-			
+
 			return ( Enumerable.SequenceEqual( p.m_dataMembers, this.m_dataMembers) );
 		}
 		
@@ -218,13 +222,8 @@ namespace Utils
 			{
 				return false;
 			}
-			
+
 			return ( Enumerable.SequenceEqual( p.m_dataMembers, this.m_dataMembers) );
-		}
-		
-		public override int GetHashCode()
-		{
-			return this.m_dataMembers.GetHashCode();
 		}
 		
 		#endregion
@@ -324,37 +323,32 @@ namespace Utils
 
 		public override bool Equals(System.Object obj)
 		{
-			if (obj == null)
+			if(obj == null)
 			{
 				return false;
 			}
 
 			ComponentNestedDataMemberWrapper p 
 				= obj as ComponentNestedDataMemberWrapper;
-			if ((System.Object)p == null)
+			if((System.Object)p == null)
 			{
 				return false;
 			}
 
 			return (p.m_component == this.m_component && 
-			        p.m_nestedDataMember == this.m_nestedDataMember);
+			        p.m_nestedDataMember.Equals(this.m_nestedDataMember));
 		}
 		
 		public bool Equals(ComponentNestedDataMemberWrapper p)
 		{
-			// If parameter is null return false:
-			if ((object)p == null)
+			if((object)p == null)
 			{
 				return false;
 			}
 
+
 			return (p.m_component == this.m_component && 
 			        p.m_nestedDataMember == this.m_nestedDataMember);
-		}
-		
-		public override int GetHashCode()
-		{
-			return this.m_component.GetHashCode() ^ this.m_nestedDataMember.GetHashCode();
 		}
 		
 		#endregion

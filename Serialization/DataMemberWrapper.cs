@@ -165,26 +165,20 @@ namespace Utils
 			{
 				return false;
 			}
-			
-			return (p.m_field.FieldInfo.Equals(this.m_field.FieldInfo) && 
-			        p.m_property.PropertyInfo.Equals(this.m_property.PropertyInfo));
+
+			return ( FieldInfo.Equals(p.m_field.FieldInfo,this.m_field.FieldInfo) && 
+			         PropertyInfo.Equals(p.m_property.PropertyInfo, this.m_property.PropertyInfo));
 		}
 		
 		public bool Equals(DataMemberWrapper p)
 		{
-			// If parameter is null return false:
 			if ((object)p == null)
 			{
 				return false;
 			}
-			
-			return (p.m_field.FieldInfo.Equals(this.m_field.FieldInfo) && 
-			        p.m_property.PropertyInfo.Equals(this.m_property.PropertyInfo));
-		}
-		
-		public override int GetHashCode()
-		{
-			return this.m_field.FieldInfo.GetHashCode() ^ this.m_property.PropertyInfo.GetHashCode();
+
+			return ( FieldInfo.Equals(p.m_field.FieldInfo,this.m_field.FieldInfo) && 
+			        PropertyInfo.Equals(p.m_property.PropertyInfo, this.m_property.PropertyInfo));
 		}
 		
 		#endregion
