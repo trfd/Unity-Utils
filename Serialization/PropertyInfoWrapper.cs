@@ -87,6 +87,11 @@ namespace Utils
 		public void OnAfterDeserialize()
 		{
 			m_info = m_type.Type.GetProperty(m_propertyName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+			if(m_info == null)
+			{
+				Debug.LogWarning("Property '"+m_propertyName+"' not found in type "+m_type.TypeName);
+			}
 		}
 		
 		#endregion

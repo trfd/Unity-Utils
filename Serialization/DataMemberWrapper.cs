@@ -73,7 +73,7 @@ namespace Utils
 				return m_field.FieldInfo;
 			else if(m_property.PropertyInfo != null)
 				return m_property.PropertyInfo;
-
+	
 			return null;
 		}
 
@@ -165,9 +165,9 @@ namespace Utils
 			{
 				return false;
 			}
-
-			return ( FieldInfo.Equals(p.m_field.FieldInfo,this.m_field.FieldInfo) && 
-			         PropertyInfo.Equals(p.m_property.PropertyInfo, this.m_property.PropertyInfo));
+		
+			return (FieldEquals(p.m_field.FieldInfo,this.m_field.FieldInfo) &&
+			        PropertyEquals(p.m_property.PropertyInfo, this.m_property.PropertyInfo));
 		}
 		
 		public bool Equals(DataMemberWrapper p)
@@ -177,11 +177,34 @@ namespace Utils
 				return false;
 			}
 
-			return ( FieldInfo.Equals(p.m_field.FieldInfo,this.m_field.FieldInfo) && 
-			        PropertyInfo.Equals(p.m_property.PropertyInfo, this.m_property.PropertyInfo));
+			return (FieldEquals(p.m_field.FieldInfo,this.m_field.FieldInfo) &&
+			        PropertyEquals(p.m_property.PropertyInfo, this.m_property.PropertyInfo));
 		}
 		
 		#endregion
 
+		public static bool FieldEquals(FieldInfo f1, FieldInfo f2)
+		{
+			if(f1 == null && f2 == null)
+				return true;
+
+			if((f1 == null && f2 != null) ||
+			   (f1 != null && f2 == null))
+				return false;
+
+			return (f1.DeclaringType == f2.DeclaringType) && (f1.Name == f2.Name);
+		}
+
+		public static bool PropertyEquals(PropertyInfo f1, PropertyInfo f2)
+		{
+			if(f1 == null && f2 == null)
+				return true;
+			
+			if((f1 == null && f2 != null) ||
+			   (f1 != null && f2 == null))
+				return false;
+			
+			return (f1.DeclaringType == f2.DeclaringType) && (f1.Name == f2.Name);
+		}
 	}
 }

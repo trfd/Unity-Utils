@@ -170,15 +170,29 @@ namespace Utils
 
 		public string EditorDisplayName()
 		{
+			if(m_dataMembers.Length == 0)
+				return "";
+
 			string str = "";
+			MemberInfo info;
 
 			for(int i=0 ; i<m_dataMembers.Length-1 ; i++)
-				str += m_dataMembers[i].GetMember().Name+"/";
+			{
+				info = m_dataMembers[i].GetMember();
 
-			if(m_dataMembers[m_dataMembers.Length-1].GetMember() == null)
-				return str;
+				if(info != null)
+					str += info.Name+"/";
+				else
+					str += "(ERROR: null member)";
+			}
 
-			str += m_dataMembers[m_dataMembers.Length-1].GetMember().Name;
+			info = m_dataMembers[m_dataMembers.Length-1].GetMember();
+			
+			if(info != null)
+				str += info.Name;
+			else
+				str += "(ERROR: null member)";
+
 
 			return str;
 		}

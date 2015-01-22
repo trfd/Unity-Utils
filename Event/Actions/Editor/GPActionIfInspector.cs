@@ -83,7 +83,7 @@ namespace Utils.Event
 
 			if(idx == -1)
 			{
-				Debug.Log("Member not found: "+ifAction._nestedDataMember.EditorDisplayName() );
+				Debug.LogWarning("Member not found: "+ifAction._nestedDataMember.EditorDisplayName());
 			}
 
 			idx = Mathf.Max(0,idx);
