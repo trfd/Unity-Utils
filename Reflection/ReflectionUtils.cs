@@ -52,13 +52,13 @@ namespace Utils.Reflection
 
 			// Adds public fields
 			
-			fields.AddRange(currType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+			fields.AddRange(currType.GetFields(BindingFlags.Public | BindingFlags.Instance));
 
 			if(addPrivate)
 			{
 				// Adds private fields of all parent classes
 				
-				BindingFlags bindFlags = BindingFlags.Public | BindingFlags.Instance;
+				BindingFlags bindFlags = BindingFlags.NonPublic | BindingFlags.Instance;
 				
 				while(currType != null && currType != typeof(System.Object))
 				{

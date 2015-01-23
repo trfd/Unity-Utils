@@ -203,8 +203,10 @@ namespace Utils
 				return false;
 
 			foreach(DataMemberWrapper member in m_dataMembers)
-				if(member.GetMemberType() == type)
+				if(member.GetMember().DeclaringType.IsAssignableFrom(type) || 
+				   type.IsAssignableFrom(member.GetMember().DeclaringType))
 					return true;
+
 			return false;
 		}
 
@@ -359,7 +361,6 @@ namespace Utils
 			{
 				return false;
 			}
-
 
 			return (p.m_component == this.m_component && 
 			        p.m_nestedDataMember == this.m_nestedDataMember);

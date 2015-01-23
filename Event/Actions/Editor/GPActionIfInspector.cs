@@ -45,6 +45,8 @@ namespace Utils.Event
 		/// </summary>
 		private string[] m_memberNames;
 
+		public Vector3 _ggg;
+
 		/// <summary>
 		/// The m_members.
 		/// </summary>
@@ -142,7 +144,7 @@ namespace Utils.Event
 		/// <param name="comp">Comp.</param>
 		protected ComponentNestedDataMemberWrapper[] CreateComponentMemberList(Component comp)
 		{
-			return CreateTypeMemberList(comp.GetType(), new ComponentNestedDataMemberWrapper(comp));
+			return CreateTypeMemberList(comp.GetType(), new ComponentNestedDataMemberWrapper(comp), 3);
 		}
 
 		/// <summary>
@@ -152,30 +154,41 @@ namespace Utils.Event
 		/// <param name="type">Type.</param>
 		/// <param name="parentMember">Parent member.</param>
 		protected ComponentNestedDataMemberWrapper[] CreateTypeMemberList(System.Type type, 
-		                                                                  ComponentNestedDataMemberWrapper parentMember)
+		                                                                  ComponentNestedDataMemberWrapper parentMember,
+		                                                                  int level)
 		{
+
 			List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
 
+			if(level < 0 )
+				return members.ToArray();
+
 			FieldInfo[] fields = ReflectionUtils.GetAllFields(type);
-			
+
 			foreach(FieldInfo field in fields)
 			{
-				if(parentMember.HasIntermediateMemberOfType(field.FieldType))
-				   continue;
+				if(field.DeclaringType == typeof(Component))
+					continue;
 
-				members.Add(parentMember.Append(field));
-				//members.AddRange(CreateTypeMemberList(field.FieldType,members.Last()));
+				ComponentNestedDataMemberWrapper fieldMember = parentMember.Append(field);
+
+				members.Add(fieldMember);
+
+				members.AddRange(CreateTypeMemberList(field.FieldType,fieldMember,level-1));
 			}
 			
 			PropertyInfo[] properties = ReflectionUtils.GetAllProperties(type);
 
 			foreach(PropertyInfo property in properties)
 			{
-				if(parentMember.HasIntermediateMemberOfType(property.PropertyType))
-					   continue;
+				if(property.DeclaringType == typeof(Component))
+					continue;
 
-				members.Add(parentMember.Append(property));
-				//members.AddRange(CreateTypeMemberList(property.PropertyType,members.Last()));
+				ComponentNestedDataMemberWrapper propertyMember = parentMember.Append(property);
+
+				members.Add(propertyMember);
+
+				members.AddRange(CreateTypeMemberList(property.PropertyType,propertyMember,level-1));
 			}
 
 			return members.ToArray();
