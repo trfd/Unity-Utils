@@ -233,6 +233,26 @@ namespace Utils.Event
 			m_isEventIDMapDirty = true;
 		}
 
+        public void AddEventName( string eventName )
+        {
+            if (this.NameExist(eventName)) return;
+
+            int maxID = 0;
+
+            foreach (GPEventID evtID in m_eventIDList)
+            {
+                int id = evtID.ID;
+
+                if (maxID <= id)
+                    maxID = id;
+            }
+
+            m_eventIDList.Add(new GPEventID { ID = maxID + 1, Name = eventName });
+
+            m_isEventIDMapDirty = true;
+        }
+
+
 		public void RemoveEventName(GPEventID id)
 		{
 			m_eventIDList.Remove(id);
@@ -253,6 +273,17 @@ namespace Utils.Event
 				}
 			}
 		}
+        public bool NameExist (string name){
+
+            foreach (GPEventID eventId in m_eventIDList)
+            {
+                if (eventId.Name == name)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
 		private void CreateEventIDMap()
 		{
