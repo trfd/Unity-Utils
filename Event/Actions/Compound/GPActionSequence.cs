@@ -77,7 +77,6 @@ namespace Utils.Event
 		/// Raised each frame while action is running.
 		/// Calling GPAction.End or GPAction.Stop will stop updates.
 		/// </summary>
-		/// <param name="dt">Dt.</param>
 		protected override void OnUpdate()
 		{
 			if(this.HasEnded || m_currActionIndex >= ActionCount())
@@ -85,11 +84,19 @@ namespace Utils.Event
 
 			if(ActionAtIndex(m_currActionIndex).HasEnded)
 			{
+                if (ActionAtIndex(m_currActionIndex).State == ActionState.FAILURE)
+                {
+                    End(ActionState.FAILURE);
+                    return;
+                }
+
+                // Else Terminated
+
 				m_currActionIndex++;
 
 				if(m_currActionIndex >= ActionCount())
 				{ 
-					End(); 
+					End(ActionState.TERMINATED); 
 					return;
 				}
 				else

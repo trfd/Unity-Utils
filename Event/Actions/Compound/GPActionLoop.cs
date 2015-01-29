@@ -134,6 +134,14 @@ namespace Utils.Event
 
 			if(ActionAtIndex(m_currActionIndex).HasEnded)
 			{
+                if (ActionAtIndex(m_currActionIndex).State == ActionState.FAILURE)
+                {
+                    End(ActionState.FAILURE);
+                    return;
+                }
+
+                // Else Terminated
+
 				m_currActionIndex++;
 				
 				if(m_currActionIndex >= ActionCount())
