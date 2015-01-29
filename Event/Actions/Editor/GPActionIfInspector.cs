@@ -43,15 +43,16 @@ namespace Utils.Event
 		/// <summary>
 		/// The m_member names.
 		/// </summary>
-		private string[] m_memberNames;
-
-		public Vector3 _ggg;
+		private string[] m_targetMemberNames;
+		private string[] m_compareMemberNames;
 
 		/// <summary>
 		/// The m_members.
 		/// </summary>
-		private ComponentNestedDataMemberWrapper[] m_members;
+		private ComponentNestedDataMemberWrapper[] m_targetMembers;
+		private ComponentNestedDataMemberWrapper[] m_compareMembers;
 	
+		private SerializedProperty m_compareValueProperty;
 
 		#endregion
 
@@ -70,44 +71,44 @@ namespace Utils.Event
 
 			if(useThisObj != ifAction._useThisObject || 
 			   newObj != ifAction._targetObject || 
-			   m_members == null || m_memberNames == null)
+			   m_targetMembers == null || m_targetMemberNames == null)
 			{
 				ifAction._useThisObject = useThisObj;
 				ifAction._targetObject = newObj;
 
-				CreateMemberList();
+				CreateTargetMemberList();
 			}
 
-			if(m_memberNames == null || m_members == null)
-				return;
+			DisplayTargetMemberPopups();
 
-			int idx = System.Array.IndexOf(m_members,ifAction._nestedDataMember);
+			ifAction._compareMethod = (GPActionIf.CompareMethod) EditorGUILayout.EnumPopup("Compare", ifAction._compareMethod);
 
-			if(idx == -1)
+			if(ifAction._compareMethod == GPActionIf.CompareMethod.OBJECT_MEMBER)
 			{
-				Debug.LogWarning("Member not found: "+ifAction._nestedDataMember.EditorDisplayName());
+				GameObject obj = (GameObject) EditorGUILayout.ObjectField(ifAction._compareObject,
+				                                                          typeof(GameObject),true);
+
+				if(obj != ifAction._compareObject)
+				{
+					ifAction._compareObject = obj;
+					CreateCompareMemberList();
+				}
+
+				DisplayCompareMemberPopups();
 			}
-
-			idx = Mathf.Max(0,idx);
-
-			int newIdx = EditorGUILayout.Popup(idx,m_memberNames);
-
-			if(newIdx != idx)
+			else if(ifAction._compareMethod == GPActionIf.CompareMethod.CONSTANT_VALUE)
 			{
-				ifAction._nestedDataMember = m_members[newIdx];
-	/*
-				ComponentNestedDataMemberWrapper.SetSerializedPropertyValue(SerialObject.FindProperty("_nestedDataMember"),
-				                                                            m_members[newIdx]);
+				if(m_compareValueProperty == null)
+					m_compareValueProperty = SerialObject.FindProperty("_compareValue");
 
-	*/
-				EditorUtility.SetDirty(ifAction);
+				EditorGUILayout.PropertyField(m_compareValueProperty);
 			}
 		}
 
 		/// <summary>
 		/// Creates the member list.
 		/// </summary>
-		protected void CreateMemberList()
+		protected void CreateTargetMemberList()
 		{
 			GPActionIf ifAction = (GPActionIf) TargetAction;
 
@@ -128,12 +129,85 @@ namespace Utils.Event
 				members.AddRange(CreateComponentMemberList(comp));
 			}
 
-			m_members = members.ToArray();
-			m_memberNames = new string[members.Count];
+			m_targetMembers = members.ToArray();
+			m_targetMemberNames = new string[members.Count];
 
-			for(int i=0 ; i<m_members.Length ; i++)
+			for(int i=0 ; i<m_targetMembers.Length ; i++)
 			{
-				m_memberNames[i] = m_members[i].EditorDisplayName();
+				m_targetMemberNames[i] = m_targetMembers[i].EditorDisplayName();
+			}
+		}
+
+		protected void CreateCompareMemberList()
+		{
+			GPActionIf ifAction = (GPActionIf) TargetAction;
+			
+			List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
+			
+			if(ifAction._compareObject == null)
+				return;
+			
+			foreach(Component comp in ifAction._compareObject.GetComponents<Component>())
+			{
+				members.AddRange(CreateComponentMemberList(comp));
+			}
+			
+			m_compareMembers = members.ToArray();
+			m_compareMemberNames = new string[members.Count];
+			
+			for(int i=0 ; i<m_compareMembers.Length ; i++)
+			{
+				m_compareMemberNames[i] = m_compareMembers[i].EditorDisplayName();
+			}
+		}
+
+		protected void DisplayTargetMemberPopups()
+		{
+			GPActionIf ifAction = (GPActionIf) TargetAction;
+
+			if(m_targetMemberNames == null || m_targetMembers == null)
+				return;
+			
+			int idx = System.Array.IndexOf(m_targetMembers,ifAction._nestedDataMember);
+			
+			idx = Mathf.Max(0,idx);
+			
+			int newIdx = EditorGUILayout.Popup(idx,m_targetMemberNames);
+			
+			if(newIdx != idx)
+			{
+				ifAction._nestedDataMember = m_targetMembers[newIdx];
+				/*
+				ComponentNestedDataMemberWrapper.SetSerializedPropertyValue(SerialObject.FindProperty("_nestedDataMember"),
+				                                                            m_members[newIdx]);
+
+				*/
+				EditorUtility.SetDirty(ifAction);
+			}
+		}
+
+		protected void DisplayCompareMemberPopups()
+		{
+			GPActionIf ifAction = (GPActionIf) TargetAction;
+			
+			if(m_compareMemberNames == null || m_compareMembers == null)
+				return;
+			
+			int idx = System.Array.IndexOf(m_compareMembers,ifAction._compareMember);
+			
+			idx = Mathf.Max(0,idx);
+			
+			int newIdx = EditorGUILayout.Popup(idx,m_compareMemberNames);
+			
+			if(newIdx != idx)
+			{
+				ifAction._compareMember = m_compareMembers[newIdx];
+				/*
+				ComponentNestedDataMemberWrapper.SetSerializedPropertyValue(SerialObject.FindProperty("_nestedDataMember"),
+				                                                            m_members[newIdx]);
+
+				*/
+				EditorUtility.SetDirty(ifAction);
 			}
 		}
 
@@ -157,7 +231,6 @@ namespace Utils.Event
 		                                                                  ComponentNestedDataMemberWrapper parentMember,
 		                                                                  int level)
 		{
-
 			List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
 
 			if(level < 0 )

@@ -34,13 +34,25 @@ namespace Utils.Event
 	[GPActionAlias("Conditionnal/If")]
 	public class GPActionIf : GPAction
 	{
+		public enum CompareMethod
+		{
+			OBJECT_MEMBER,
+			CONSTANT_VALUE
+		}
+
 		#region Public Members
+
+		public CompareMethod _compareMethod;
 
 		public bool _useThisObject;
 
 		public GameObject _targetObject;
 
 		public ComponentNestedDataMemberWrapper _nestedDataMember;
+
+		public GameObject _compareObject;
+		public ComponentNestedDataMemberWrapper _compareMember;
+		public GenericObject _compareValue;
 
 		#endregion
 

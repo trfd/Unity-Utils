@@ -647,7 +647,7 @@ namespace Utils.Event
 
 		protected virtual void DisplaySidebarInspector()
 		{	
-			if(m_selectedBoxID == -1)
+			if(m_selectedBoxID == -1 || m_handler == null)
 				return;
 
 			//try
@@ -689,6 +689,7 @@ namespace Utils.Event
 				EditorGUILayout.Space();
 			
 				m_actionInspectors[m_selectedBoxID].DrawInspector();
+		
 			//}
 			//catch(System.Exception e)
 			//{

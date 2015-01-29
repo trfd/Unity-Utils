@@ -130,13 +130,16 @@ namespace Utils
 		{
 			m_value = value;
 
+			if(m_value == null)
+				return;
+
 			switch(m_type)
 			{
 			case Type.UNDEFINED : return;
 			case Type.BOOL:       _boolValue       = (bool) m_value; break;
 			case Type.INT:        _intValue        = (int) m_value; break;
 			case Type.FLOAT:      _floatValue      = (float) m_value; break;
-			case Type.ENUM:       _enumIndex = (int) m_value; _enumType = new TypeWrapper(m_value.GetType()); break;
+			case Type.ENUM:       _enumIndex 	   = (int) m_value; _enumType = new TypeWrapper(m_value.GetType()); break;
 			case Type.VECTOR2:    _vector2Value    = (Vector2) m_value; break;
 			case Type.VECTOR3:    _vector3Value    = (Vector3) m_value; break;
 			case Type.VECTOR4:    _vector4Value    = (Vector4) m_value; break;
