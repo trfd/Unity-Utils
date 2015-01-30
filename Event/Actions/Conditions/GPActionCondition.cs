@@ -48,10 +48,14 @@ namespace Utils.Event
 
         void OnDestroy()
         {
-            if (Application.isPlaying)
-                Destroy(_condition);
-            else
-                DestroyImmediate(_condition);
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if (_condition) GameObject.DestroyImmediate(_condition);
+            };
+#else
+            if(_condition) GameObject.Destroy(_condition);
+#endif
         }
 	}
 }

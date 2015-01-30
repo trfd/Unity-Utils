@@ -36,6 +36,7 @@ namespace Utils.Event
     {
         #region Private Members
 
+        [SerializeField]
         private GPCondition m_a;
 
         #endregion
@@ -54,7 +55,7 @@ namespace Utils.Event
         }
         #endregion
 
-        public override bool Evaluate() { return !m_a; }
+        public override bool Evaluate() { return !m_a.Evaluate(); }
 
         public override void SetHandler(EventHandler handler)
         {
@@ -66,10 +67,14 @@ namespace Utils.Event
 
         void OnDestroy()
         {
-            if (Application.isPlaying)
-                Destroy(m_a);
-            else
-                DestroyImmediate(m_a);
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if (m_a) GameObject.DestroyImmediate(m_a);
+            };
+#else
+            if(m_a) GameObject.Destroy(m_a);
+#endif
         }
     }
 }
