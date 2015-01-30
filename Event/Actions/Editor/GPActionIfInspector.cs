@@ -126,11 +126,11 @@ namespace Utils.Event
 
 			foreach(Component comp in obj.GetComponents<Component>())
 			{
-				members.AddRange(CreateComponentMemberList(comp));
+                members.AddRange(ComponentNestedDataMemberWrapper.CreateComponentMemberList(comp));
 			}
 
-			m_targetMembers = members.ToArray();
-			m_targetMemberNames = new string[members.Count];
+            m_targetMembers = ComponentNestedDataMemberWrapper.CreateGameObjectMemberList(ifAction._compareObject);
+            m_targetMemberNames = new string[m_targetMembers.Length];
 
 			for(int i=0 ; i<m_targetMembers.Length ; i++)
 			{
@@ -142,18 +142,11 @@ namespace Utils.Event
 		{
 			GPActionIf ifAction = (GPActionIf) TargetAction;
 			
-			List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
-			
 			if(ifAction._compareObject == null)
 				return;
-			
-			foreach(Component comp in ifAction._compareObject.GetComponents<Component>())
-			{
-				members.AddRange(CreateComponentMemberList(comp));
-			}
-			
-			m_compareMembers = members.ToArray();
-			m_compareMemberNames = new string[members.Count];
+
+            m_compareMembers = ComponentNestedDataMemberWrapper.CreateGameObjectMemberList(ifAction._compareObject);
+            m_compareMemberNames = new string[m_compareMembers.Length];
 			
 			for(int i=0 ; i<m_compareMembers.Length ; i++)
 			{
@@ -209,62 +202,6 @@ namespace Utils.Event
 				*/
 				EditorUtility.SetDirty(ifAction);
 			}
-		}
-
-		/// <summary>
-		/// Creates the component member list.
-		/// </summary>
-		/// <returns>The component member list.</returns>
-		/// <param name="comp">Comp.</param>
-		protected ComponentNestedDataMemberWrapper[] CreateComponentMemberList(Component comp)
-		{
-			return CreateTypeMemberList(comp.GetType(), new ComponentNestedDataMemberWrapper(comp), 3);
-		}
-
-		/// <summary>
-		/// Creates the type member list.
-		/// </summary>
-		/// <returns>The type member list.</returns>
-		/// <param name="type">Type.</param>
-		/// <param name="parentMember">Parent member.</param>
-		protected ComponentNestedDataMemberWrapper[] CreateTypeMemberList(System.Type type, 
-		                                                                  ComponentNestedDataMemberWrapper parentMember,
-		                                                                  int level)
-		{
-			List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
-
-			if(level < 0 )
-				return members.ToArray();
-
-			FieldInfo[] fields = ReflectionUtils.GetAllFields(type);
-
-			foreach(FieldInfo field in fields)
-			{
-				if(field.DeclaringType == typeof(Component))
-					continue;
-
-				ComponentNestedDataMemberWrapper fieldMember = parentMember.Append(field);
-
-				members.Add(fieldMember);
-
-				members.AddRange(CreateTypeMemberList(field.FieldType,fieldMember,level-1));
-			}
-			
-			PropertyInfo[] properties = ReflectionUtils.GetAllProperties(type);
-
-			foreach(PropertyInfo property in properties)
-			{
-				if(property.DeclaringType == typeof(Component))
-					continue;
-
-				ComponentNestedDataMemberWrapper propertyMember = parentMember.Append(property);
-
-				members.Add(propertyMember);
-
-				members.AddRange(CreateTypeMemberList(property.PropertyType,propertyMember,level-1));
-			}
-
-			return members.ToArray();
 		}
 	}
 }

@@ -36,6 +36,25 @@ public class EditorUtils
 {
 	public const float defaultTextHeight = 16f;
 
+    public static System.Object DrawField(GUIContent label, System.Object value)
+    {
+        System.Type type = value.GetType();
+
+             if (type == typeof(int))     return EditorGUILayout.IntField(label, (int)value);
+        else if (type == typeof(float))   return EditorGUILayout.FloatField(label, (float)value);
+        else if (type == typeof(bool))    return EditorGUILayout.Toggle(label, (bool)value);
+        else if (type == typeof(string))  return EditorGUILayout.TextField(label, (string)value);
+        else if (type == typeof(Vector2)) return EditorGUILayout.Vector2Field(label, (Vector2)value);
+        else if (type == typeof(Vector3)) return EditorGUILayout.Vector3Field(label, (Vector3)value);
+        else if (type == typeof(Vector4)) return EditorGUILayout.Vector4Field(label.text, (Vector4)value);
+        else if (type == typeof(AnimationCurve)) return EditorGUILayout.CurveField(label, (AnimationCurve)value);
+        else if (typeof(UnityEngine.Component).IsAssignableFrom(type))  return EditorGUILayout.ObjectField(label, (Component)value, typeof(Component));
+        else if (typeof(UnityEngine.GameObject).IsAssignableFrom(type)) return EditorGUILayout.ObjectField(label, (GameObject)value, typeof(GameObject));
+        else if (typeof(UnityEngine.Object).IsAssignableFrom(type))     return EditorGUILayout.ObjectField(label, (UnityEngine.Object)value, typeof(UnityEngine.Object));
+
+        return null;
+    }
+
 	/// <summary>
 	/// Draw in the inspector a button for every method
 	/// in the target object that has an attribute GUIButton.

@@ -30,6 +30,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 
+using Utils.Reflection;
+
 namespace Utils
 {
 	[System.Serializable]
@@ -367,5 +369,85 @@ namespace Utils
 		}
 		
 		#endregion
-	}
+
+        #region Static Interface
+
+        /// <summary>
+        /// Creates the member list for all components of the specified GameObject.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static ComponentNestedDataMemberWrapper[] CreateGameObjectMemberList(GameObject obj)
+        {
+            List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
+
+            if (obj == null)
+                return members.ToArray();
+
+            foreach (Component comp in obj.GetComponents<Component>())
+            {
+                members.AddRange(CreateComponentMemberList(comp));
+            }
+
+            return members.ToArray();
+        }
+
+        /// <summary>
+        /// Creates the component member list.
+        /// </summary>
+        /// <returns>The component member list.</returns>
+        /// <param name="comp">Comp.</param>
+        public static ComponentNestedDataMemberWrapper[] CreateComponentMemberList(Component comp)
+        {
+            return CreateTypeMemberList(comp.GetType(), new ComponentNestedDataMemberWrapper(comp), 3);
+        }
+
+        /// <summary>
+        /// Creates the type member list.
+        /// </summary>
+        /// <returns>The type member list.</returns>
+        /// <param name="type">Type.</param>
+        /// <param name="parentMember">Parent member.</param>
+        private static ComponentNestedDataMemberWrapper[] CreateTypeMemberList(System.Type type,
+                                                                                 ComponentNestedDataMemberWrapper parentMember,
+                                                                                 int level)
+        {
+            List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
+
+            if (level < 0)
+                return members.ToArray();
+
+            FieldInfo[] fields = ReflectionUtils.GetAllFields(type);
+
+            foreach (FieldInfo field in fields)
+            {
+                if (field.DeclaringType == typeof(Component))
+                    continue;
+
+                ComponentNestedDataMemberWrapper fieldMember = parentMember.Append(field);
+
+                members.Add(fieldMember);
+
+                members.AddRange(CreateTypeMemberList(field.FieldType, fieldMember, level - 1));
+            }
+
+            PropertyInfo[] properties = ReflectionUtils.GetAllProperties(type);
+
+            foreach (PropertyInfo property in properties)
+            {
+                if (property.DeclaringType == typeof(Component))
+                    continue;
+
+                ComponentNestedDataMemberWrapper propertyMember = parentMember.Append(property);
+
+                members.Add(propertyMember);
+
+                members.AddRange(CreateTypeMemberList(property.PropertyType, propertyMember, level - 1));
+            }
+
+            return members.ToArray();
+        }
+
+        #endregion 
+    }
 }
