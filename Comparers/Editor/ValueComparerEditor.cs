@@ -45,17 +45,35 @@ namespace Utils
             if(m_types == null)
                 UpdateList();
 
-            m_selectedIndex = System.Array.IndexOf(m_types, c.GetType());
+			if(c != null)
+            	m_selectedIndex = Mathf.Max(0,System.Array.IndexOf(m_types, c.GetType()));
+			else 
+				m_selectedIndex = 0;
 
             if (m_types.Length == 0)
                 return null;
+
+			EditorGUILayout.LabelField("Comparer");
+			m_selectedIndex = EditorGUILayout.Popup(m_selectedIndex,m_typeNames);
 
             return m_types[m_selectedIndex];
         }
 
         protected void UpdateList()
         {
-            m_types = TypeManager.Instance.ListChildrenTypesOf(typeof(ValueComparer<T>));
+            List<System.Type> types = new List<System.Type>( TypeManager.Instance.ListChildrenTypesOf(typeof(ValueComparer<T>)));
+
+			// Remove hidden 
+
+			for(int i=0 ; i<types.Count ; )
+			{
+				if(types[i].GetCustomAttributes(typeof(ValueComparerHideAttribute),false).Length > 0)
+					types.RemoveAt(i);
+				else 
+					++i;
+			}
+
+			m_types = types.ToArray();
 
             m_typeNames = new string[m_types.Length];
 

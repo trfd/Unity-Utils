@@ -388,7 +388,7 @@ namespace Utils
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static ComponentNestedDataMemberWrapper[] CreateGameObjectMemberList(GameObject obj)
+        public static ComponentNestedDataMemberWrapper[] CreateGameObjectMemberList(GameObject obj, System.Type restrictedType)
         {
             List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
 
@@ -397,7 +397,7 @@ namespace Utils
 
             foreach (Component comp in obj.GetComponents<Component>())
             {
-                members.AddRange(CreateComponentMemberList(comp));
+				members.AddRange(CreateComponentMemberList(comp,restrictedType));
             }
 
             return members.ToArray();
@@ -408,9 +408,9 @@ namespace Utils
         /// </summary>
         /// <returns>The component member list.</returns>
         /// <param name="comp">Comp.</param>
-        public static ComponentNestedDataMemberWrapper[] CreateComponentMemberList(Component comp)
+		public static ComponentNestedDataMemberWrapper[] CreateComponentMemberList(Component comp, System.Type restrictedType)
         {
-            return CreateTypeMemberList(comp.GetType(), new ComponentNestedDataMemberWrapper(comp), 3);
+			return CreateTypeMemberList(comp.GetType(), new ComponentNestedDataMemberWrapper(comp),restrictedType, 3);
         }
 
         /// <summary>
@@ -420,8 +420,9 @@ namespace Utils
         /// <param name="type">Type.</param>
         /// <param name="parentMember">Parent member.</param>
         private static ComponentNestedDataMemberWrapper[] CreateTypeMemberList(System.Type type,
-                                                                                 ComponentNestedDataMemberWrapper parentMember,
-                                                                                 int level)
+                                                                               ComponentNestedDataMemberWrapper parentMember,
+                                                                               System.Type restrictedType,
+		                                                                       int level)
         {
             List<ComponentNestedDataMemberWrapper> members = new List<ComponentNestedDataMemberWrapper>();
 
@@ -437,9 +438,10 @@ namespace Utils
 
                 ComponentNestedDataMemberWrapper fieldMember = parentMember.Append(field);
 
-                members.Add(fieldMember);
+				if(restrictedType.IsAssignableFrom(field.FieldType))
+                	members.Add(fieldMember);
 
-                members.AddRange(CreateTypeMemberList(field.FieldType, fieldMember, level - 1));
+                members.AddRange(CreateTypeMemberList(field.FieldType, fieldMember, restrictedType, level - 1));
             }
 
             PropertyInfo[] properties = ReflectionUtils.GetAllProperties(type);
@@ -451,9 +453,10 @@ namespace Utils
 
                 ComponentNestedDataMemberWrapper propertyMember = parentMember.Append(property);
 
-                members.Add(propertyMember);
+				if(restrictedType.IsAssignableFrom(property.PropertyType))
+                	members.Add(propertyMember);
 
-                members.AddRange(CreateTypeMemberList(property.PropertyType, propertyMember, level - 1));
+				members.AddRange(CreateTypeMemberList(property.PropertyType, propertyMember,restrictedType, level - 1));
             }
 
             return members.ToArray();

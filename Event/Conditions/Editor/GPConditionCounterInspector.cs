@@ -30,6 +30,7 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
+	[GPConditionInspector(typeof(GPConditionCounter))]
     public class GPConditionCounterInspector : GPConditionInspector
     {
         ValueProviderEditor<int> m_provideEditor;

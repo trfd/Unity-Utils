@@ -65,15 +65,18 @@ namespace Utils
             if(Provider == null)
                 return;
 
-            ProviderKind kind = (ProviderKind)EditorGUILayout.EnumPopup("Kind", Provider._kind);
+			ProviderKind kind = (ProviderKind)EditorGUILayout.EnumPopup("Kind", Provider._kind);
 
             if (kind != Provider._kind)
                 ChangeKind(kind);
 
-            GameObject obj = (GameObject)EditorGUILayout.ObjectField(Provider._object, typeof(GameObject));
+			if(Provider._kind == ProviderKind.ACTION_VARIABLE || Provider._kind == ProviderKind.OBJECT_MEMBER)
+			{
+				GameObject obj = (GameObject)EditorGUILayout.ObjectField(Provider._object, typeof(GameObject));
 
-            if (obj != Provider._object)
-                ChangeObject(obj);
+            	if (obj != Provider._object)
+                	ChangeObject(obj);
+			}
 
             DisplaySpecificFields();
         }
@@ -90,23 +93,32 @@ namespace Utils
 
         protected void DisplayDataMemberSelection()
         {
+			if(Provider._object == null)
+				return;
+
             m_selectedDataMember = System.Array.IndexOf(m_dataMembers, Provider._nestedDataMember);
 
             m_selectedDataMember = Mathf.Max(0, m_selectedDataMember);
 
             m_selectedDataMember = EditorGUILayout.Popup(m_selectedDataMember, m_dataMembersName);
-
+		
             Provider._nestedDataMember = m_dataMembers[m_selectedDataMember];
         }
         protected void DisplayActionVariableSelection()
         {
+			if(m_actionVars == null)
+				UpdateActionVariables();
+
             m_selectedActionVariable = System.Array.IndexOf(m_actionVars, Provider._actionVariable);
 
             m_selectedActionVariable = Mathf.Max(0, m_selectedActionVariable);
 
             m_selectedActionVariable = EditorGUILayout.Popup(m_selectedActionVariable, m_actionVarsName);
 
-            Provider._actionVariable = m_actionVars[m_selectedActionVariable];
+			if(m_actionVars.Length > 0)
+            	Provider._actionVariable = m_actionVars[m_selectedActionVariable];
+			else
+				Provider._actionVariable = null;
         }
 
         protected void DisplayConstantValueField()
@@ -130,7 +142,9 @@ namespace Utils
         }
 
         private void ChangeObject(GameObject obj)
-        {
+		{
+			Provider._object = obj;
+
             switch (Provider._kind)
             {
                 case ProviderKind.OBJECT_MEMBER: UpdateDataMembers();
@@ -138,13 +152,11 @@ namespace Utils
                 case ProviderKind.ACTION_VARIABLE: UpdateActionVariables();
                     break;
             }
-
-            Provider._object = obj;
         }
 
         private void UpdateDataMembers()
         {
-            m_dataMembers = ComponentNestedDataMemberWrapper.CreateGameObjectMemberList(Provider._object);
+            m_dataMembers = ComponentNestedDataMemberWrapper.CreateGameObjectMemberList(Provider._object, typeof(T));
 
             m_dataMembersName = new string[m_dataMembers.Length];
 

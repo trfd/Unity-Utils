@@ -35,6 +35,7 @@ using System.Linq;
 
 namespace Utils.Event
 {
+	/*
 	[GPActionInspector(typeof(GPActionIf))]
 	public class GPActionIfInspector : GPActionDefaultInspector
 	{
@@ -170,11 +171,7 @@ namespace Utils.Event
 			if(newIdx != idx)
 			{
 				ifAction._nestedDataMember = m_targetMembers[newIdx];
-				/*
-				ComponentNestedDataMemberWrapper.SetSerializedPropertyValue(SerialObject.FindProperty("_nestedDataMember"),
-				                                                            m_members[newIdx]);
 
-				*/
 				EditorUtility.SetDirty(ifAction);
 			}
 		}
@@ -195,13 +192,10 @@ namespace Utils.Event
 			if(newIdx != idx)
 			{
 				ifAction._compareMember = m_compareMembers[newIdx];
-				/*
-				ComponentNestedDataMemberWrapper.SetSerializedPropertyValue(SerialObject.FindProperty("_nestedDataMember"),
-				                                                            m_members[newIdx]);
 
-				*/
 				EditorUtility.SetDirty(ifAction);
 			}
 		}
 	}
+	*/
 }
