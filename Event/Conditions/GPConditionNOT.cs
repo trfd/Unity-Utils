@@ -1,10 +1,10 @@
 ﻿//
-// GPActionCondition.cs
+// GPConditionNOT.cs
 //
-// Author(s):
+// Author:
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014
+// Copyright (c) 2014 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,35 +24,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Utils.Event
 {
-	[GPActionAlias("Conditions/Condition")]
+    [GPConditionAlias("Logic/NOT")]
     [ExecuteInEditMode]
-    public class GPActionCondition : GPAction
-	{
-		#region Public Members
+    public class GPConditionNOT : GPCondition
+    {
+        #region Private Members
 
-		public GPCondition _condition;
-		
-		#endregion
-		
-		protected override void OnTrigger()
-		{
-			End(_condition.Evaluate() ? ActionState.TERMINATED : ActionState.FAILURE);
-		}
+        private GPCondition m_a;
+
+        #endregion
+
+        #region Properties
+        public GPCondition A
+        {
+            get { return m_a; }
+            set
+            {
+                m_a = value;
+
+                if (m_a != null)
+                    m_a.SetHandler(this.Handler);
+            }
+        }
+        #endregion
+
+        public override bool Evaluate() { return !m_a; }
+
+        public override void SetHandler(EventHandler handler)
+        {
+            base.SetHandler(handler);
+
+            if (m_a != null)
+                m_a.SetHandler(handler);
+        }
 
         void OnDestroy()
         {
             if (Application.isPlaying)
-                Destroy(_condition);
+                Destroy(m_a);
             else
-                DestroyImmediate(_condition);
+                DestroyImmediate(m_a);
         }
-	}
+    }
 }
-

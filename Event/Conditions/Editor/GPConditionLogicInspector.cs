@@ -47,20 +47,24 @@ namespace Utils.Event
 
 			EditorGUI.indentLevel++;
 
-			m_selectedAIndex = GPConditionInspector.CreateConditionField(ref condition._a,m_selectedAIndex,condition.Handler);
-			m_selectedBIndex = GPConditionInspector.CreateConditionField(ref condition._b,m_selectedBIndex,condition.Handler);
+            GPCondition cA = condition.A;
+			m_selectedAIndex = GPConditionInspector.CreateConditionField(ref cA ,m_selectedAIndex,condition.Handler);
+            condition.A = cA;
 
-			if(m_aInspector == null && condition._a != null)
-				m_aInspector = GPConditionInspector.CreateInspector(condition._a);
+			if(m_aInspector == null && condition.A != null)
+				m_aInspector = GPConditionInspector.CreateInspector(condition.A);
 
-			if(m_bInspector == null && condition._b != null)
-				m_bInspector = GPConditionInspector.CreateInspector(condition._b);
+            if (m_aInspector != null)
+                m_aInspector.DrawInspector();
 
-			if(m_aInspector != null)
-				m_aInspector.DrawInspector();
+            EditorGUILayout.LabelField("AND");
 
-			if(m_aInspector != null && m_bInspector != null)
-				EditorGUILayout.LabelField("AND");
+            GPCondition cB = condition.B;
+            m_selectedBIndex = GPConditionInspector.CreateConditionField(ref cB, m_selectedBIndex, condition.Handler);
+            condition.B = cB;
+
+			if(m_bInspector == null && condition.B != null)
+				m_bInspector = GPConditionInspector.CreateInspector(condition.B);
 
 			if(m_bInspector != null)
 				m_bInspector.DrawInspector();
@@ -83,22 +87,26 @@ namespace Utils.Event
 			GPConditionOR condition = (GPConditionOR) Condition;
 			
 			EditorGUI.indentLevel++;
+
+            GPCondition cA = condition.A;
+			m_selectedAIndex = GPConditionInspector.CreateConditionField(ref cA,m_selectedAIndex,condition.Handler);
+            condition.A = cA;
 			
-			m_selectedAIndex = GPConditionInspector.CreateConditionField(ref condition._a,m_selectedAIndex,condition.Handler);
-			m_selectedBIndex = GPConditionInspector.CreateConditionField(ref condition._b,m_selectedBIndex,condition.Handler);
-			
-			if(m_aInspector == null && condition._a != null)
-				m_aInspector = GPConditionInspector.CreateInspector(condition._a);
-			
-			if(m_bInspector == null && condition._b != null)
-				m_bInspector = GPConditionInspector.CreateInspector(condition._b);
-			
-			if(m_aInspector != null)
-				m_aInspector.DrawInspector();
-			
-			if(m_aInspector != null && m_bInspector != null)
-				EditorGUILayout.LabelField("OR");
-			
+			if(m_aInspector == null && condition.A != null)
+				m_aInspector = GPConditionInspector.CreateInspector(condition.A);
+
+            if (m_aInspector != null)
+                m_aInspector.DrawInspector();
+
+            EditorGUILayout.LabelField("OR");
+
+            GPCondition cB = condition.B;
+            m_selectedBIndex = GPConditionInspector.CreateConditionField(ref cB, m_selectedBIndex, condition.Handler);
+            condition.B = cB;
+
+			if(m_bInspector == null && condition.B != null)
+				m_bInspector = GPConditionInspector.CreateInspector(condition.B);
+		
 			if(m_bInspector != null)
 				m_bInspector.DrawInspector();
 			
@@ -118,18 +126,18 @@ namespace Utils.Event
 			GPConditionNOT condition = (GPConditionNOT) Condition;
 			
 			EditorGUI.indentLevel++;
-			
-			m_selectedAIndex = GPConditionInspector.CreateConditionField(ref condition._a,m_selectedAIndex,condition.Handler);
-			
-			if(m_aInspector == null && condition._a != null)
-				m_aInspector = GPConditionInspector.CreateInspector(condition._a);
-			
-			if(m_aInspector != null)
-			{
-				EditorGUILayout.LabelField("NOT");
 
-				m_aInspector.DrawInspector();
-			}
+            EditorGUILayout.LabelField("NOT");
+
+            GPCondition cA = condition.A; 
+			m_selectedAIndex = GPConditionInspector.CreateConditionField(ref cA ,m_selectedAIndex,condition.Handler);
+            condition.A = cA;
+
+			if(m_aInspector == null && condition.A != null)
+				m_aInspector = GPConditionInspector.CreateInspector(condition.A);
+
+			if(m_aInspector != null)
+			    m_aInspector.DrawInspector();
 
 			EditorGUI.indentLevel--;
 		}

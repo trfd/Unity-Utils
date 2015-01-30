@@ -38,6 +38,8 @@ namespace Utils.Event
 
 		private GPCondition m_condition;
 
+        protected SerializedObject m_serialObject;
+
 		#endregion
 
 		#region Properties
@@ -45,8 +47,18 @@ namespace Utils.Event
 		public GPCondition Condition
 		{
 			get{ return m_condition;  } 
-			set{ m_condition = value; }
+			set
+            {
+                if (m_condition != value)
+                    m_serialObject = new SerializedObject(value);
+                m_condition = value; 
+            }
 		}
+
+        public SerializedObject SerialObject
+        {
+            get { return m_serialObject; }
+        }
 
 		#endregion
 
@@ -79,7 +91,7 @@ namespace Utils.Event
 
 		public static GPCondition AddCondition(System.Type type, EventHandler handler)
 		{
-			GPCondition condition = (GPCondition) handler.GetGPActionObjectOrCreate().AddComponent(type);		
+            GPCondition condition = (GPCondition)handler.GetGPActionObjectMapperOrCreate().AddCondition(type, handler);
 
 			condition.SetHandler(handler);
 
@@ -97,4 +109,60 @@ namespace Utils.Event
 
 		#endregion
 	}
+
+    public class GPConditionDefaultInspector : GPConditionInspector
+    {
+        protected override void OnInspectorGUI()
+        {
+            SerializedProperty property = m_serialObject.GetIterator();
+
+            bool remainingProperties = property.NextVisible(true);
+
+            // Hide Script
+            if (remainingProperties)
+                remainingProperties = property.NextVisible(true);
+
+            Stack<SerializedProperty> endParentStack = new Stack<SerializedProperty>();
+
+            while (remainingProperties)
+            {
+                while (endParentStack.Count > 0 && SerializedProperty.EqualContents(endParentStack.Peek(), property))
+                {
+                    endParentStack.Pop();
+                    EditorGUI.indentLevel--;
+                }
+
+                EditorGUILayout.PropertyField(property);
+
+                if (property.hasVisibleChildren)
+                {
+                    SerializedProperty endProperty = property.GetEndProperty();
+
+                    if (!property.isExpanded)
+                    {
+                        if (endProperty.propertyPath == "")
+                        {
+                            remainingProperties = false;
+                        }
+
+                        property = endProperty;
+
+                        continue;
+                    }
+                    else
+                    {
+                        endParentStack.Push(endProperty);
+                        EditorGUI.indentLevel++;
+                    }
+                }
+
+                remainingProperties = property.NextVisible(true);
+            }
+
+            if (m_serialObject.targetObject != null)
+                m_serialObject.ApplyModifiedProperties();
+        }
+
+    }
+
 }

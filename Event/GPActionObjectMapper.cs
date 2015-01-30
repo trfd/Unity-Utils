@@ -306,6 +306,30 @@ namespace Utils.Event
 
         #endregion
 
+        #region Conditions
+
+        public GPCondition AddCondition(System.Type type, EventHandler handler)
+        {
+            if (handler == null)
+                throw new System.ArgumentNullException();
+
+            if (!typeof(GPCondition).IsAssignableFrom(type))
+                throw new System.ArgumentException("Type "+type.FullName+" must inherit from GPCondition");
+
+            GameObject holder;
+
+            if (!m_actionObjectMap.Dictionary.TryGetValue(handler, out holder))
+                holder = AddEventHandler(handler);
+
+            GPCondition condition = (GPCondition)holder.AddComponent(type);
+
+            condition.SetHandler(handler);
+
+            return condition;
+        }
+
+        #endregion
+
         #region Protected Interface
 
         /// <summary>

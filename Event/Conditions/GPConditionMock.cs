@@ -1,10 +1,10 @@
 ﻿//
-// GPConditionLogic.cs
+// GPConditionMock.cs
 //
-// Author(s):
+// Author:
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014
+// Copyright (c) 2014 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,66 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Utils.Event
 {
-	[GPConditionAlias("Logic/AND")]
-	public class GPConditionAND : GPCondition
-	{
-		public GPCondition _a;
-		public GPCondition _b;
-		
-		public override bool Evaluate() { return _a && _b; }
+    [GPConditionAlias("Mock")]
+    public class GPConditionMock : GPCondition
+    {
+        public bool _value;
 
-		public override void SetHandler (EventHandler handler)
-		{
-			base.SetHandler(handler);
-
-			if(_a != null)
-				_a.SetHandler(handler);
-
-			if(_b != null)
-				_b.SetHandler(handler);
-		}
-	}
-	
-	[GPConditionAlias("Logic/OR")]
-	public class GPConditionOR : GPCondition
-	{
-		public GPCondition _a;
-		public GPCondition _b;
-		
-		public override bool Evaluate() { return _a || _b; }
-
-		public override void SetHandler (EventHandler handler)
-		{
-			base.SetHandler(handler);
-			
-			if(_a != null)
-				_a.SetHandler(handler);
-			
-			if(_b != null)
-				_b.SetHandler(handler);
-		}
-	}
-	
-	[GPConditionAlias("Logic/NOT")]
-	public class GPConditionNOT : GPCondition
-	{
-		public GPCondition _a;
-		
-		public override bool Evaluate() { return !_a; }
-
-		public override void SetHandler (EventHandler handler)
-		{
-			base.SetHandler(handler);
-
-			if(_a != null)
-				_a.SetHandler(handler);
-		}
-	}
+        public override bool Evaluate()
+        {
+            return _value;
+        }
+    }
 }

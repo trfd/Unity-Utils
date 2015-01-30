@@ -78,8 +78,8 @@ namespace Utils.Event
 				
 				conditionType = conditionType.BaseType;
 			}
-			
-			return typeof(GPConditionInspector);
+
+            return typeof(GPConditionDefaultInspector);
 		}
 		
 		#endregion
