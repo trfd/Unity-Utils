@@ -212,6 +212,11 @@ namespace Utils
 			return false;
 		}
 
+        public virtual System.Object Invoke()
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
 
 		#region System.Object
@@ -336,7 +341,13 @@ namespace Utils
 		{
 			return m_nestedDataMember.HasIntermediateMemberOfType(type);
 		}
-	
+
+        public virtual System.Object Invoke()
+        {
+            throw new System.NotImplementedException();
+        }
+
+
 		#region System.Object
 
 		public override bool Equals(System.Object obj)

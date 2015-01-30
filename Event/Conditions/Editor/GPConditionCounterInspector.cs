@@ -1,5 +1,5 @@
 ﻿//
-// ValueComparerPicker.cs
+// GPConditionCounterInspector.cs
 //
 // Author:
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -25,14 +25,46 @@
 // THE SOFTWARE.
 
 using UnityEngine;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Utils
+namespace Utils.Event
 {
-    public class ValueComparerPicker
+    public class GPConditionCounterInspector : GPConditionInspector
     {
-     
+        ValueProviderEditor<int> m_provideEditor;
+        ValueComparerEditor<int> m_comparerEditor;
+
+
+        protected override void OnInspectorGUI()
+        {
+            GPConditionCounter conditionCounter = (GPConditionCounter) Condition;
+
+            // Provider
+
+            if (m_provideEditor == null)
+            {
+                m_provideEditor = new ValueProviderEditor<int>();
+                m_provideEditor.Provider = conditionCounter._provider;
+            }
+
+            if (m_provideEditor.Provider != conditionCounter._provider)
+                m_provideEditor.Provider = conditionCounter._provider;
+
+
+            m_provideEditor.Display();
+
+
+            // Comparer
+
+            if(m_comparerEditor == null)
+                m_comparerEditor = new ValueComparerEditor<int>();
+
+            System.Type newType = m_comparerEditor.Display(conditionCounter._comparer);
+
+            if (newType != conditionCounter._comparer.GetType())
+                conditionCounter._comparer = (IntComparer) System.Activator.CreateInstance(newType);
+
+        }
     }
 }

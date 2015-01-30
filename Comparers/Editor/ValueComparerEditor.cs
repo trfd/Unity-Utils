@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCounter.cs
+// ValueComparerEditor.cs
 //
 // Author:
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -25,30 +25,50 @@
 // THE SOFTWARE.
 
 using UnityEngine;
+using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Utils.Event
+using Utils.Reflection;
+
+namespace Utils
 {
-    [GPActionAlias("Variables/Counter")]
-    public class GPActionCounter : GPActionVariable
+    public class ValueComparerEditor<T>
     {
-        #region Public Members
+        System.Type[] m_types;
+        string[] m_typeNames;
 
-        public int _count;
+        int m_selectedIndex;
 
-        #endregion
-
-        protected override void OnTrigger()
+        public System.Type Display(ValueComparer<T> c)
         {
-            ++_count;
+            if(m_types == null)
+                UpdateList();
 
-            End(ActionState.TERMINATED);
+            m_selectedIndex = System.Array.IndexOf(m_types, c.GetType());
+
+            if (m_types.Length == 0)
+                return null;
+
+            return m_types[m_selectedIndex];
         }
 
-        public override object GetValue()
+        protected void UpdateList()
         {
-            return _count;
+            m_types = TypeManager.Instance.ListChildrenTypesOf(typeof(ValueComparer<T>));
+
+            m_typeNames = new string[m_types.Length];
+
+            for(int i = 0 ; i<m_typeNames.Length ; i++)
+            {
+                object[] aliases = m_types[i].GetCustomAttributes(typeof(ValueComparerAliasAttribute),false);
+
+                if (aliases.Length == 0)
+                    m_typeNames[i] = m_types[i].Name;
+                else
+                    m_typeNames[i] = ((ValueComparerAliasAttribute)aliases[aliases.Length - 1])._name;
+            }
+
         }
     }
 }

@@ -58,6 +58,18 @@ namespace Utils
         #endregion
 
 
+        public T GetValue()
+        {
+           switch(_kind)
+           {
+               case ProviderKind.ACTION_VARIABLE: return (T) _actionVariable.GetValue();
+               case ProviderKind.OBJECT_MEMBER: return (T) _nestedDataMember.Invoke();
+               case ProviderKind.CONSTANT_VALUE: return _constValue;
+           }
+
+           return default(T);
+        }
+
         #region Static Interface 
 
         #region ActionVariable
@@ -90,4 +102,20 @@ namespace Utils
 
         #endregion
     }
+
+    [System.Serializable]
+    public class IntValueProvider : ValueProvider<int>
+    {}
+
+    [System.Serializable]
+    public class FloatValueProvider : ValueProvider<float>
+    { }
+
+    [System.Serializable]
+    public class StringValueProvider : ValueProvider<string>
+    { }
+
+    [System.Serializable]
+    public class BoolValueProvider : ValueProvider<bool>
+    { }
 }

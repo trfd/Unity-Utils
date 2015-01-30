@@ -38,5 +38,10 @@ namespace Utils.Event
         public string _varName;
 
         #endregion
+
+        public virtual System.Object GetValue()
+        {
+            return null;
+        }
     }
 }

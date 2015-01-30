@@ -38,6 +38,7 @@ namespace Utils.Event
         public GPActionCounter _counterAction;
 
         public IntComparer _comparer;
+        public IntValueProvider _provider;
 
         public int _value;
 

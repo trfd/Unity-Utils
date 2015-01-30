@@ -46,14 +46,16 @@ namespace Utils
         int m_selectedDataMember;
         int m_selectedActionVariable;
 
+        ValueProvider<T> m_provider;
+
         #endregion
 
         #region Properties
 
         public ValueProvider<T> Provider
         {
-            get;
-            set;
+            get{ return m_provider; }
+            set{ m_provider = value; UpdateDataMembers(); UpdateActionVariables(); }
         }
         
         #endregion
@@ -76,7 +78,7 @@ namespace Utils
             DisplaySpecificFields();
         }
 
-        public void DisplaySpecificFields()
+        protected void DisplaySpecificFields()
         {
             switch(Provider._kind)
             {
@@ -88,12 +90,20 @@ namespace Utils
 
         protected void DisplayDataMemberSelection()
         {
+            m_selectedDataMember = System.Array.IndexOf(m_dataMembers, Provider._nestedDataMember);
+
+            m_selectedDataMember = Mathf.Max(0, m_selectedDataMember);
+
             m_selectedDataMember = EditorGUILayout.Popup(m_selectedDataMember, m_dataMembersName);
 
             Provider._nestedDataMember = m_dataMembers[m_selectedDataMember];
         }
         protected void DisplayActionVariableSelection()
         {
+            m_selectedActionVariable = System.Array.IndexOf(m_actionVars, Provider._actionVariable);
+
+            m_selectedActionVariable = Mathf.Max(0, m_selectedActionVariable);
+
             m_selectedActionVariable = EditorGUILayout.Popup(m_selectedActionVariable, m_actionVarsName);
 
             Provider._actionVariable = m_actionVars[m_selectedActionVariable];
