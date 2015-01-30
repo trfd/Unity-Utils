@@ -136,7 +136,7 @@ namespace Utils.Event
         /// </summary>
         public bool HasEnded
         {
-            get { return m_currState == ActionState.TERMINATED; }
+            get { return (this.HasStarted && m_currState != ActionState.RUNNNING); }
         }
 
         /// <summary>
@@ -145,8 +145,7 @@ namespace Utils.Event
         public bool HasStarted
         {
             get 
-            { return (m_currState == ActionState.RUNNNING || 
-                      m_currState == ActionState.TERMINATED) ; 
+            { return (m_currState != ActionState.NONE); 
             }
         }
 

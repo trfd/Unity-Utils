@@ -37,9 +37,20 @@ public class EventManagerInspector : Editor
 			manager.AddEventName();
 		}
 
+        if (GUILayout.Button("Add Default Events"))
+        {
+            manager.AddEventName("EvtInteract");
+            manager.AddEventName("EvtInteractibleEnter");
+            manager.AddEventName("EvtInteractibleStay");
+            manager.AddEventName("EvtInteractibleExit");
+            manager.AddEventName("EvtTrigger");
+        }
+
 		if(GUILayout.Button("Refresh"))
 		{
 			manager.RefreshIDList();
 		}
+
+        
 	}
 }
