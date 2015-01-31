@@ -43,7 +43,5 @@ namespace Utils.Event
         public int _value;
 
         #endregion
-
-        
     }
 }

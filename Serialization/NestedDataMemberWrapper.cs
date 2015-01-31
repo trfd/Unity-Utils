@@ -212,11 +212,6 @@ namespace Utils
 			return false;
 		}
 
-        public virtual System.Object Invoke()
-        {
-            throw new System.NotImplementedException();
-        }
-
         #endregion
 
 		#region System.Object
@@ -342,11 +337,20 @@ namespace Utils
 			return m_nestedDataMember.HasIntermediateMemberOfType(type);
 		}
 
-        public virtual System.Object Invoke()
-        {
-            throw new System.NotImplementedException();
-        }
-
+		public System.Object GetValue()
+		{
+			return m_nestedDataMember.GetValue(m_component);
+		}
+		
+		/// <summary>
+		/// Sets the value.
+		/// </summary>
+		/// <param name="instance">Instance.</param>
+		/// <param name="value">Value.</param>
+		public void SetValue(System.Object value)
+		{
+			m_nestedDataMember.SetValue(m_component,value);
+		}
 
 		#region System.Object
 

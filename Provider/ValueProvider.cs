@@ -63,7 +63,7 @@ namespace Utils
            switch(_kind)
            {
                case ProviderKind.ACTION_VARIABLE: return (T) _actionVariable.GetValue();
-               case ProviderKind.OBJECT_MEMBER: return (T) _nestedDataMember.Invoke();
+               case ProviderKind.OBJECT_MEMBER: return (T) _nestedDataMember.GetValue();
                case ProviderKind.CONSTANT_VALUE: return _constValue;
            }
 

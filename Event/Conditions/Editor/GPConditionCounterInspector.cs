@@ -61,7 +61,7 @@ namespace Utils.Event
             if(m_comparerEditor == null)
                 m_comparerEditor = new ValueComparerEditor<int>();
 
-            System.Type newType = m_comparerEditor.Display(conditionCounter._comparer);
+            System.Type newType = m_comparerEditor.Display(conditionCounter._comparer.GetType());
 
             if (newType != conditionCounter._comparer.GetType())
                 conditionCounter._comparer = (IntComparer) System.Activator.CreateInstance(newType);

@@ -1,10 +1,10 @@
 ﻿//
-// ValueComparer.cs
+// GPConditionCompareInt.cs
 //
-// Author:
+// Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014 
+// Copyright (c) 2014
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,32 +24,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Utils
+namespace Utils.Event
 {
-    [System.Serializable]
-    public class ValueComparer<T>
-    {
-        public virtual bool Compare(T a, T b) 
-		{ throw new System.NotImplementedException(); }
-    }
+	[GPConditionAlias("Compare/Int")]
+	public class GPConditionCompareInt : GPCondition
+	{
+		#region Private Members
 
-    [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class ValueComparerAliasAttribute : System.Attribute
-    {
-        public string _name;
+		private IntComparer m_comparer;
 
-        public ValueComparerAliasAttribute(string name)
-        {
-            _name = name;
-        }
-    }
+		#endregion
 
-    [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class ValueComparerHideAttribute : System.Attribute
-    {
-    }
+		#region Public Members
+		
+		public TypeWrapper _comparerType;
+		public IntValueProvider _providerA;
+		public IntValueProvider _providerB;
+
+		#endregion
+
+		public override bool Evaluate ()
+		{
+			if(m_comparer == null)
+			{
+				if(_comparerType != null && _comparerType.IsValid)
+					m_comparer = (IntComparer) System.Activator.CreateInstance(_comparerType.Type);
+				else
+					throw new System.NullReferenceException("Null comparer");
+			}
+
+			return m_comparer.Compare(_providerA.GetValue(),_providerB.GetValue());
+		}
+	}
 }

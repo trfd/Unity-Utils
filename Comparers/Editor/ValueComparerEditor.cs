@@ -40,13 +40,13 @@ namespace Utils
 
         int m_selectedIndex;
 
-        public System.Type Display(ValueComparer<T> c)
+        public System.Type Display(System.Type comparerType)
         {
             if(m_types == null)
                 UpdateList();
 
-			if(c != null)
-            	m_selectedIndex = Mathf.Max(0,System.Array.IndexOf(m_types, c.GetType()));
+			if(comparerType != null)
+				m_selectedIndex = Mathf.Max(0,System.Array.IndexOf(m_types, comparerType));
 			else 
 				m_selectedIndex = 0;
 
