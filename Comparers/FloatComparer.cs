@@ -45,6 +45,16 @@ namespace Utils
     public class FloatGreaterOrEqual : FloatComparer
     { public override bool Compare(float a, float b) { return a >= b; } }
 
+	[System.Serializable]
+	[ValueComparerAlias("Float/Less")]
+	public class FloatLess : FloatComparer
+	{ public override bool Compare(float a, float b) { return a < b; } }
+	
+	[System.Serializable]
+	[ValueComparerAlias("Float/Less Or Equal")]
+	public class FloatLessOrEqual : FloatComparer
+	{ public override bool Compare(float a, float b) { return a <= b; } }
+
     [System.Serializable]
     [ValueComparerAlias("Float/Equal")]
     public class FloatrEqual : FloatComparer

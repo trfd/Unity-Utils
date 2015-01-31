@@ -1,10 +1,10 @@
 ﻿//
-// GPActionVariable.cs
+// GPConditionHasTag.cs
 //
-// Author:
+// Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014 
+// Copyright (c) 2014
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    [GPActionHide]
-    public class GPActionVariable : GPAction
-    {
-        #region Public Members
+	[GPConditionAlias("Basic/Compare Tag")]
+	public class GPConditionCompareTag : GPCondition 
+	{
+		#region Public Members
 
-        public string _varName;
+		public GameObjectValueProvider _objectProvider;
+		public string _tag;
 
-        #endregion
+		#endregion
 
-        public virtual System.Object GetValue()
-        {
-            return null;
-        }
+		#region Condition
 
-		#if UNITY_EDITOR
-		
-		public override void DrawWindowContent()
+		public override bool Evaluate()
 		{
-			base.DrawWindowContent();
-			GUILayout.Label(_varName);
+			return ((GameObject)_objectProvider.GetValue()).tag == _tag;
 		}
-		
-		#endif
-    }
+
+		#endregion
+	}
 }

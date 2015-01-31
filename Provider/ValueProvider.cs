@@ -109,13 +109,17 @@ namespace Utils
 
     [System.Serializable]
     public class FloatValueProvider : ValueProvider<float>
-    { }
+    {}
 
     [System.Serializable]
     public class StringValueProvider : ValueProvider<string>
-    { }
+    {}
 
     [System.Serializable]
     public class BoolValueProvider : ValueProvider<bool>
-    { }
+    {}
+
+	[System.Serializable]
+	public class GameObjectValueProvider : ValueProvider<GameObject>
+	{}
 }

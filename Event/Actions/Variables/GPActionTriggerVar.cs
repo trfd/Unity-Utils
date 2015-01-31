@@ -1,5 +1,5 @@
 ﻿//
-// GPActionCondition.cs
+// GPActionTriggerVar.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -31,32 +31,43 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
-	[GPActionAlias("Conditions/Condition")]
-    [ExecuteInEditMode]
-    public class GPActionCondition : GPAction
+	[GPActionAlias("Variable/Bool/Trigger")]
+	public class GPActionTriggerVar : GPActionVariable 
 	{
 		#region Public Members
 
-		public GPCondition _condition;
-		
+		public bool _trigger;
+
 		#endregion
-		
+
+		#region GPAction Override
+
 		protected override void OnTrigger()
 		{
-			End(_condition.Evaluate() ? ActionState.TERMINATED : ActionState.FAILURE);
+			_trigger = true;
+
+			End();
 		}
 
-        void OnDestroy()
-        {
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                if (_condition) GameObject.DestroyImmediate(_condition);
-            };
-#else
-            if(_condition) GameObject.Destroy(_condition);
+		
+		public override void DrawWindowContent()
+		{
+			base.DrawWindowContent();
+			GUILayout.Label(_trigger.ToString());
+		}
+		
 #endif
-        }
+
+		#endregion
+
+		#region GPActionVariable Override
+
+		public override object GetValue ()
+		{
+			return _trigger;
+		}
+
+		#endregion
 	}
 }
-

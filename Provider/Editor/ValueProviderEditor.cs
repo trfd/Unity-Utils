@@ -123,7 +123,7 @@ namespace Utils
 
         protected void DisplayConstantValueField()
         {
-            Provider._constValue = (T)EditorUtils.DrawField(new GUIContent(""), Provider._constValue);
+            Provider._constValue = (T) EditorUtils.DrawField(new GUIContent(""), Provider._constValue, typeof(T));
         }
 
         #region Update Methods

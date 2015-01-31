@@ -1,10 +1,10 @@
 ﻿//
-// GPActionVariable.cs
+// GPConditionIsEnable.cs
 //
-// Author:
+// Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014 
+// Copyright (c) 2014
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Utils.Event
+public class GPConditionIsEnable : MonoBehaviour 
 {
-    [GPActionHide]
-    public class GPActionVariable : GPAction
-    {
-        #region Public Members
+	#region Private Members
 
-        public string _varName;
+	#endregion
 
-        #endregion
+	#region Public Members
 
-        public virtual System.Object GetValue()
-        {
-            return null;
-        }
+	#endregion
 
-		#if UNITY_EDITOR
-		
-		public override void DrawWindowContent()
-		{
-			base.DrawWindowContent();
-			GUILayout.Label(_varName);
-		}
-		
-		#endif
-    }
+	#region Properties
+
+	#endregion
+
+	#region MonoBehaviour Overrides
+
+	void Start () 
+	{
+	}
+
+	void Update () 
+	{
+	}
+
+	#endregion
 }

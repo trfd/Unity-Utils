@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    [GPActionAlias("Variables/Counter")]
+    [GPActionAlias("Variable/Int/Counter")]
     public class GPActionCounter : GPActionVariable
     {
         #region Public Members
@@ -45,6 +45,16 @@ namespace Utils.Event
 
             End(ActionState.TERMINATED);
         }
+
+#if UNITY_EDITOR
+		
+		public override void DrawWindowContent()
+		{
+			base.DrawWindowContent();
+			GUILayout.Label(_count.ToString());
+		}
+		
+#endif
 
         public override object GetValue()
         {

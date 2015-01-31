@@ -1,10 +1,10 @@
 ﻿//
-// GPActionVariable.cs
+// GPConditionCompareStringInspector.cs
 //
-// Author:
+// Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014 
+// Copyright (c) 2014
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
+using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    [GPActionHide]
-    public class GPActionVariable : GPAction
-    {
-        #region Public Members
+	[GPConditionInspector(typeof(GPConditionCompareTag))]
+	public class GPConditionCompareTagInspector : GPConditionInspector
+	{
+		#region Private Members
 
-        public string _varName;
+		private ValueProviderEditor<GameObject> m_providerEditor;
 
-        #endregion
-
-        public virtual System.Object GetValue()
-        {
-            return null;
-        }
-
-		#if UNITY_EDITOR
+		#endregion
 		
-		public override void DrawWindowContent()
+		protected override void OnInspectorGUI()
 		{
-			base.DrawWindowContent();
-			GUILayout.Label(_varName);
+			GPConditionCompareTag compare = (GPConditionCompareTag) Condition;
+
+			// Provider
+
+			EditorGUILayout.LabelField("Object");
+
+			EditorGUI.indentLevel++;
+
+			if (m_providerEditor == null)
+			{
+				m_providerEditor = new ValueProviderEditor<GameObject>();
+				m_providerEditor.Provider = compare._objectProvider;
+			}
+			
+			if (m_providerEditor.Provider != compare._objectProvider)
+				m_providerEditor.Provider = compare._objectProvider;
+			
+			
+			m_providerEditor.Display();
+
+			EditorGUI.indentLevel--;
+
+			EditorGUILayout.LabelField("Object");
+
+			EditorGUI.indentLevel++;
+
+			compare._tag = EditorGUILayout.TagField("Tag",compare._tag);
+
+			EditorGUI.indentLevel--;
 		}
-		
-		#endif
-    }
+	}
 }

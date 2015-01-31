@@ -1,10 +1,10 @@
 ﻿//
-// GPActionVariable.cs
+// GPConditionCompareInt.cs
 //
-// Author:
+// Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014 
+// Copyright (c) 2014
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    [GPActionHide]
-    public class GPActionVariable : GPAction
-    {
-        #region Public Members
+	[GPConditionAlias("Compare/Bool")]
+	public class GPConditionCompareBool : GPCondition
+	{
+		#region Private Members
 
-        public string _varName;
+		private BoolComparer m_comparer;
 
-        #endregion
+		#endregion
 
-        public virtual System.Object GetValue()
-        {
-            return null;
-        }
-
-		#if UNITY_EDITOR
+		#region Public Members
 		
-		public override void DrawWindowContent()
+		public TypeWrapper _comparerType;
+		public BoolValueProvider _providerA;
+		public BoolValueProvider _providerB;
+
+		#endregion
+
+		public override bool Evaluate ()
 		{
-			base.DrawWindowContent();
-			GUILayout.Label(_varName);
+			if(m_comparer == null)
+			{
+				if(_comparerType != null && _comparerType.IsValid)
+					m_comparer = (BoolComparer) System.Activator.CreateInstance(_comparerType.Type);
+				else
+					throw new System.NullReferenceException("Null comparer");
+			}
+
+			return m_comparer.Compare(_providerA.GetValue(),_providerB.GetValue());
 		}
-		
-		#endif
-    }
+	}
 }

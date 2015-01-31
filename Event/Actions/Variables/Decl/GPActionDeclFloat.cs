@@ -1,10 +1,10 @@
 ﻿//
-// GPConditionCounter.cs
+// GPActionDeclFloat.cs
 //
-// Author:
+// Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014 
+// Copyright (c) 2014
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,24 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    [GPConditionAlias("Variables/Counter")]
-    public class GPConditionCounter : GPCondition
-    {
-        #region Public Members
+	[GPActionAlias("Variable/Float/Declaration")]
+	public class GPActionDeclFloat : GPActionVariable 
+	{
+		#region Public Members
+		
+		public float _value;
+		
+		#endregion
+		
+		#region GPActionVariable Override
+		
+		public override object GetValue ()
+		{
+			return _value;
+		}
 
-        public GPActionCounter _counterAction;
+#if UNITY_EDITOR
+		
+		public override void DrawWindowContent()
+		{
+			base.DrawWindowContent();
+			GUILayout.Label(_value.ToString());
+		}
+		
+#endif
 
-        public IntComparer _comparer;
-        public IntValueProvider _provider;
-
-        public int _value;
-
-        #endregion
-    }
+		#endregion
+	}
 }

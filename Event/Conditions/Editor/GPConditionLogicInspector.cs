@@ -57,7 +57,8 @@ namespace Utils.Event
             if (m_aInspector != null)
                 m_aInspector.DrawInspector();
 
-            EditorGUILayout.LabelField("AND");
+
+			EditorGUILayout.LabelField("AND",EditorStyles.toolbarButton,GUILayout.Width(200),GUILayout.Height(30));
 
             GPCondition cB = condition.B;
             m_selectedBIndex = GPConditionInspector.CreateConditionField(ref cB, m_selectedBIndex, condition.Handler);
@@ -98,7 +99,7 @@ namespace Utils.Event
             if (m_aInspector != null)
                 m_aInspector.DrawInspector();
 
-            EditorGUILayout.LabelField("OR");
+			EditorGUILayout.LabelField("OR",EditorStyles.toolbarButton,GUILayout.Width(200),GUILayout.Height(30));
 
             GPCondition cB = condition.B;
             m_selectedBIndex = GPConditionInspector.CreateConditionField(ref cB, m_selectedBIndex, condition.Handler);
@@ -127,7 +128,7 @@ namespace Utils.Event
 			
 			EditorGUI.indentLevel++;
 
-            EditorGUILayout.LabelField("NOT");
+			EditorGUILayout.LabelField("NOT",EditorStyles.toolbarButton,GUILayout.Width(200),GUILayout.Height(30));
 
             GPCondition cA = condition.A; 
 			m_selectedAIndex = GPConditionInspector.CreateConditionField(ref cA ,m_selectedAIndex,condition.Handler);

@@ -1,4 +1,4 @@
-﻿//
+//
 // GPActionEnableComponent.cs
 //
 // Author(s):
@@ -31,7 +31,7 @@ using System.Collections;
 
 namespace Utils.Event
 {
-	[GPActionInspectorAttribute(typeof(GPActionCondition))]
+	[GPActionInspectorAttribute(typeof(GPActionIf))]
 	public class GPActionConditionInspector : GPActionDefaultInspector
 	{
 		private int m_creationIndex;
@@ -39,7 +39,7 @@ namespace Utils.Event
 
 		protected override void OnInspectorGUI()
 		{
-			GPActionCondition actionCondition = (GPActionCondition) TargetAction;
+			GPActionIf actionCondition = (GPActionIf) TargetAction;
 
 			if(actionCondition._condition == null)
 				m_creationIndex = GPConditionInspector.CreateConditionField(ref actionCondition._condition,

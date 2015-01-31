@@ -65,6 +65,19 @@ namespace Utils.Event
 		[UnityEngine.HideInInspector]
 		private UnityEngine.Object m_prefabAction;
 
+#if UNITY_EDITOR
+		
+		/// <summary>
+		/// Holds whether or not the initialization is due
+		/// </summary>
+		private bool m_dueNodeInit;
+
+		[SerializeField]
+		[HideInInspector]
+		private ActionEditorNode m_eventNode;
+
+#endif
+
         #endregion
 
         #region Public Members
@@ -80,9 +93,6 @@ namespace Utils.Event
         public int _maxTriggerCount;
 
 #if UNITY_EDITOR
-
-		[UnityEngine.HideInInspector]
-		public ActionEditorNode _eventNode;
 
 		[UnityEngine.HideInInspector]
 		public Rect _windowRect = new Rect(0,0,100,50);
@@ -133,6 +143,16 @@ namespace Utils.Event
 		{
 			get{ return _windowRect; }
 			set{ _windowRect = value; }
+		}
+	
+		public ActionEditorNode EventNode
+		{
+			get
+			{
+				if(m_dueNodeInit)
+					CreateEventNode();
+				return m_eventNode;
+			}
 		}
 		
 #endif
@@ -256,15 +276,17 @@ namespace Utils.Event
 
 		public void CreateEventNode()
 		{
-			_eventNode = new ActionEditorNode();
+			m_dueNodeInit = false;
 
-			_eventNode._owner = this;
-			_eventNode._center = new Vector2(92,25);
+			m_eventNode = new ActionEditorNode();
+
+			m_eventNode._owner = this;
+			m_eventNode._center = new Vector2(92,25);
 
 			if(m_action != null)
 				Connect(m_action);
 			else
-				_eventNode._connection = null;
+				m_eventNode._connection = null;
 		}
 
 		#region IActionOwner
@@ -279,8 +301,8 @@ namespace Utils.Event
 				((IActionOwner)action._leftNode._connection._nodeParent._owner).Disconnect(action);
 			}
 
-			_eventNode._connection = new ActionEditorConnection(_eventNode,action._leftNode);
-			action._leftNode._connection = _eventNode._connection;
+			EventNode._connection = new ActionEditorConnection(EventNode,action._leftNode);
+			action._leftNode._connection = EventNode._connection;
 		}
 
 		public void Disconnect(GPAction Action)
@@ -289,7 +311,7 @@ namespace Utils.Event
 				return;
 
 			m_action._leftNode._connection = null;
-			_eventNode._connection = null;
+			EventNode._connection = null;
 		}
 
 		public void DisconnectAll()
@@ -307,7 +329,9 @@ namespace Utils.Event
 
 		public void OnAfterDeserialize()
 		{
-			CreateEventNode();
+#if UNITY_EDITOR
+			m_dueNodeInit = true;
+#endif
 		}
 
 		#endregion

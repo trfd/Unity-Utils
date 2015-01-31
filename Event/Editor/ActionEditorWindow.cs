@@ -100,7 +100,7 @@ namespace Utils.Event
 
 		public ActionEditorWindow()
 		{
-		
+			title = "Action Tool";
 		}
 
 		#endregion
@@ -126,7 +126,7 @@ namespace Utils.Event
 
 		#endregion
 
-		#region EventHandler Managementm_importPrefab
+		#region EventHandler Management
 
 		/// <summary>
 		/// Fetches the Event Handler that should be displayed
@@ -309,9 +309,9 @@ namespace Utils.Event
 
 			ActionEditorNode newNode = null;
 
-			if(IsMouseOverNode(m_handler._eventNode))
+			if(IsMouseOverNode(m_handler.EventNode))
 			{
-				newNode = m_handler._eventNode;
+				newNode = m_handler.EventNode;
 			}
 
 			foreach(GPAction action in m_actions)
@@ -339,9 +339,9 @@ namespace Utils.Event
 			{
 				if(node != null)
 				{
-					if(node == m_handler._eventNode)
+					if(node == m_handler.EventNode)
 						CreateHandlerActionConnection(m_selectedNode);
-					else if(m_selectedNode == m_handler._eventNode)
+					else if(m_selectedNode == m_handler.EventNode)
 						CreateHandlerActionConnection(node);
 					else
 						CreateConnection(node,m_selectedNode);
@@ -479,6 +479,9 @@ namespace Utils.Event
 		{ 
 			FetchEventHandler();
 
+			if(m_handler!= null && m_handler.EventNode == null)
+				m_handler.CreateEventNode();
+
 			EditorGUIUtility.labelWidth = 80;
 
 			if(m_handler != null)
@@ -511,7 +514,9 @@ namespace Utils.Event
 			if(id >= m_actions.Length || id < 0)
 				return;
 
-			if(m_actionInspectors[id] == null)
+			if(m_actionInspectors == null)
+				CreateAllInspectors();
+			else if(m_actionInspectors[id] == null)
 				CreateInspector(id);
 
 			m_actions[id]._leftNode.Draw();
@@ -521,6 +526,12 @@ namespace Utils.Event
 				m_actions[id]._rightNodes[i].Draw();
 			}
 
+			GUILayout.BeginArea(new Rect(20,15,74,44));
+
+			m_actions[id].DrawWindowContent();
+
+			GUILayout.EndArea();
+
 			GUI.DragWindow(new Rect(0,0,10000,20));
 		}
 
@@ -529,7 +540,7 @@ namespace Utils.Event
 			if(m_handler._eventID != null)
 				GUILayout.Label(m_handler._eventID.Name);
 
-			m_handler._eventNode.Draw();
+			m_handler.EventNode.Draw();
 
 			GUI.DragWindow(new Rect(0,0,10000,20));
 		}
@@ -593,7 +604,7 @@ namespace Utils.Event
 			DisplaySidebarFooter();
 
 			GUILayout.EndScrollView();
-
+			
 			GUILayout.EndArea();
 		}
 
@@ -631,13 +642,9 @@ namespace Utils.Event
 
 		protected virtual void DisplaySidebarFooter()
 		{
-			if(GUILayout.Button("Remove Action"))
-			{
-				if(m_selectedBoxID == -1)
-					return;
 
-				RemoveSelectedAction();
-			}
+			if(GUILayout.Button("Remove Action") && m_selectedBoxID != -1)
+					RemoveSelectedAction(); 
 
 			EditorGUILayout.Space();
 
@@ -650,51 +657,44 @@ namespace Utils.Event
 			if(m_selectedBoxID == -1 || m_handler == null)
 				return;
 
-			//try
-			//{
-				string name = GPActionManager.s_gpactionNameMap[m_actions[m_selectedBoxID].GetType()];
-				
-				name = name.Split('/').Last();
+			string name = GPActionManager.s_gpactionNameMap[m_actions[m_selectedBoxID].GetType()];
+			
+			name = name.Split('/').Last();
 
-				GUILayout.Label(name, EditorStyles.boldLabel);
+			GUILayout.Label(name, EditorStyles.boldLabel);
 
-				EditorGUILayout.Space();
+			EditorGUILayout.Space();
 
-				m_handler.GetGPActionObjectMapperOrCreate().CheckPrefabConnection(m_handler);
+			m_handler.GetGPActionObjectMapperOrCreate().CheckPrefabConnection(m_handler);
 
-				if(m_handler.PrefabAction != null)
+			if(m_handler.PrefabAction != null)
+			{
+				GUILayout.BeginHorizontal();
+
+				GUILayout.Label("Prefab",EditorStyles.toolbarButton);
+
+				if(GUILayout.Button("Revert",EditorStyles.toolbarButton))
 				{
-					GUILayout.BeginHorizontal();
-
-					GUILayout.Label("Prefab",EditorStyles.toolbarButton);
-
-					if(GUILayout.Button("Revert",EditorStyles.toolbarButton))
-					{
-						m_handler.GetGPActionObjectMapperOrCreate().RevertGPActionObjectHolderToPrefab(m_handler);
-					}
-
-					if(GUILayout.Button("Apply",EditorStyles.toolbarButton))
-					{
-						m_handler.GetGPActionObjectMapperOrCreate().ApplyGPActionObjectHolderToPrefab(m_handler);
-					}
-
-					if(GUILayout.Button("Break",EditorStyles.toolbarButton))
-					{
-						m_handler.GetGPActionObjectMapperOrCreate().BreakGPActionObjectHolderFromPrefab(m_handler);
-					}
-
-					GUILayout.EndHorizontal();
+					m_handler.GetGPActionObjectMapperOrCreate().RevertGPActionObjectHolderToPrefab(m_handler);
 				}
 
-				EditorGUILayout.Space();
-			
-				m_actionInspectors[m_selectedBoxID].DrawInspector();
+				if(GUILayout.Button("Apply",EditorStyles.toolbarButton))
+				{
+					m_handler.GetGPActionObjectMapperOrCreate().ApplyGPActionObjectHolderToPrefab(m_handler);
+				}
+
+				if(GUILayout.Button("Break",EditorStyles.toolbarButton))
+				{
+					m_handler.GetGPActionObjectMapperOrCreate().BreakGPActionObjectHolderFromPrefab(m_handler);
+				}
+
+				GUILayout.EndHorizontal();
+			}
+
+			EditorGUILayout.Space();
 		
-			//}
-			//catch(System.Exception e)
-			//{
-		//		Debug.Log("Exception in Action Inspector: "+e.Message);
-		//		}
+			m_actionInspectors[m_selectedBoxID].DrawInspector();
+		
 		}
 
 		private void DisplayActionCreationField()

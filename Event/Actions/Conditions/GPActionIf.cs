@@ -1,5 +1,5 @@
 ﻿//
-// GPActionIf.cs
+// GPActionCondition.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -31,35 +31,32 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
-	[GPActionAlias("Conditionnal/If")]
-	public class GPActionIf : GPAction
+	[GPActionAlias("Condition/If")]
+    [ExecuteInEditMode]
+    public class GPActionIf : GPAction
 	{
-		public enum CompareMethod
-		{
-			OBJECT_MEMBER,
-			CONSTANT_VALUE
-		}
-
 		#region Public Members
 
-		public CompareMethod _compareMethod;
-
-		public bool _useThisObject;
-
-		public GameObject _targetObject;
-
-		public ComponentNestedDataMemberWrapper _nestedDataMember;
-
-		public GameObject _compareObject;
-		public ComponentNestedDataMemberWrapper _compareMember;
-		public GenericObject _compareValue;
-
+		public GPCondition _condition;
+		
 		#endregion
-
+		
 		protected override void OnTrigger()
 		{
-			End();
+			End(_condition.Evaluate() ? ActionState.TERMINATED : ActionState.FAILURE);
 		}
+
+        void OnDestroy()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if (_condition) GameObject.DestroyImmediate(_condition);
+            };
+#else
+            if(_condition) GameObject.Destroy(_condition);
+#endif
+        }
 	}
 }
 

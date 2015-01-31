@@ -32,37 +32,11 @@ namespace Utils
 {
     [System.Serializable]
     [ValueComparerHide]
-    public class IntComparer : ValueComparer<int>
+    public class StringComparer : ValueComparer<string>
     {}
 
     [System.Serializable]
-    [ValueComparerAlias("Int/Greater")]
-    public class IntGreater : IntComparer
-    { public override bool Compare(int a, int b){ return a > b; } }
-
-    [System.Serializable]
-    [ValueComparerAlias("Int/Greater Or Equal")]
-    public class IntGreaterOrEqual : IntComparer
-    { public override bool Compare(int a, int b) { return a >= b; } }
-
-	[System.Serializable]
-	[ValueComparerAlias("Int/Less")]
-	public class IntLess : IntComparer
-	{ public override bool Compare(int a, int b){ return a < b; } }
-	
-	[System.Serializable]
-	[ValueComparerAlias("Int/Less Or Equal")]
-	public class IntLessOrEqual : IntComparer
-	{ public override bool Compare(int a, int b) { return a <= b; } }
-
-
-    [System.Serializable]
-    [ValueComparerAlias("Int/Equal")]
-    public class IntEqual : IntComparer
-    { public override bool Compare(int a, int b) { return a == b; } }
-
-	[System.Serializable]
-	[ValueComparerAlias("Int/Multiple")]
-	public class IntMutiple : IntComparer
-	{ public override bool Compare(int a, int b) { return (a % b) == 0; } }
+    [ValueComparerAlias("String/Equal")]
+	public class StringEqual : StringComparer
+    { public override bool Compare(string a, string b){ return a == b; } }
 }

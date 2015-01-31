@@ -310,9 +310,13 @@ namespace Utils.Event
 
         #endregion
 
-		#region MonoBehaviour
+#if UNITY_EDITOR
 
-		#endregion
+		public virtual void DrawWindowContent()
+		{
+		}
+
+#endif
     }
 
 	public interface IActionOwner 

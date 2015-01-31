@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    [GPActionAlias("Conditions/Mock")]
+    [GPActionAlias("Condition/Mock")]
 	public class GPActionMockIf : GPAction
     {
         #region Public Properties

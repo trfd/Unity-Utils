@@ -1,10 +1,10 @@
 ﻿//
-// GPActionVariable.cs
+// GPActionDeclBool.cs
 //
-// Author:
+// Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
 //
-// Copyright (c) 2014 
+// Copyright (c) 2014
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Utils.Event
 {
-    [GPActionHide]
-    public class GPActionVariable : GPAction
-    {
-        #region Public Members
+	[GPActionAlias("Variable/Bool/Declaration")]
+	public class GPActionDeclBool : GPActionVariable 
+	{
+		#region Public Members
 
-        public string _varName;
+		public bool _value;
 
-        #endregion
+		#endregion
 
-        public virtual System.Object GetValue()
-        {
-            return null;
-        }
+		#region GPActionVariable Override
 
-		#if UNITY_EDITOR
+		public override object GetValue ()
+		{
+			return _value;
+		}
+
+#if UNITY_EDITOR
 		
 		public override void DrawWindowContent()
 		{
 			base.DrawWindowContent();
-			GUILayout.Label(_varName);
+			GUILayout.Label(_value.ToString());
 		}
 		
-		#endif
-    }
+#endif
+
+		#endregion
+	}
 }
