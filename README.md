@@ -9,14 +9,14 @@ The wrappers convert the informations to string to take benefit of Unity’s ser
 
 | Utils Wrapper       | C# Class | 
 | ------------------- |:------------------------------:| 
-| TypeWrapper         | `System.Type`                    | 
-| FieldInfoWrapper    | `System.Reflection.FieldInfo`    | 
-| PropertyInfoWrapper | `System.Reflection.PropertyInfo` | 
-| MethodInfoWrapper   | `System.Reflection.MethodInfo`   |
-| DataMemberWrapper   | Either a `FieldInfo` or `PropertyInfo`   |
-| NestedDataMemberWrapper | Either a `FieldInfo` or `PropertyInfo` nested in class architecture |
-| ComponentNestedDataMemberWrapper | Either a `FieldInfo` or `PropertyInfo` nested in class architecture using a `UnityEngine.Component` subclass as base class |
-| DictionaryWrapper<T> | `System.Collections.Generic.Dictionary<T>`
+| `TypeWrapper `        | `System.Type`                    | 
+| `FieldInfoWrapper`    | `System.Reflection.FieldInfo`    | 
+| `PropertyInfoWrapper` | `System.Reflection.PropertyInfo` | 
+| `MethodInfoWrapper`   | `System.Reflection.MethodInfo`   |
+| `DataMemberWrapper`   | Either a `FieldInfo` or `PropertyInfo`   |
+| `NestedDataMemberWrapper` | Either a `FieldInfo` or `PropertyInfo` nested in class architecture |
+| `ComponentNestedDataMemberWrapper` | Either a `FieldInfo` or `PropertyInfo` nested in class architecture using a `UnityEngine.Component` subclass as base class |
+| `DictionaryWrapper<T>` | `System.Collections.Generic.Dictionary<T>`
 
 
 ### Quick Usage
