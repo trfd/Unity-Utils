@@ -284,6 +284,12 @@ namespace Utils.Event
 
 		protected virtual ActionEditorNode CreateLeftNode()
 		{
+			if(this.GetType().GetCustomAttributes(typeof(GPActionNoInputAttribute),false).Length > 0)
+			{
+				_leftNode = null;
+				return _leftNode;
+			}
+
 			_leftNode = new ActionEditorNode();
 			
 			_leftNode._owner = this;

@@ -1,5 +1,5 @@
 ﻿//
-// GPActionDeclFloat.cs
+// GPActionRelativeObject.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -31,23 +31,25 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
+	[GPActionHide]
+	[GPActionAlias("Related Object")]
 	[GPActionNoInput]
-	[GPActionAlias("Variable/Float/Declaration")]
-	public class GPActionDeclFloat : GPActionVariable 
+	public class GPActionRelatedObject : GPActionVariable 
 	{
 		#region Public Members
-		
-		public float _value;
-		
-		#endregion
-		
-		#region GPActionVariable Override
-		
-		public override object GetValue ()
-		{
-			return _value;
-		}
+
+		public UnityEngine.Object _relatedObject;
 
 		#endregion
+	
+		public GPActionRelatedObject()
+		{
+			_varName = "Related Object";
+		}
+
+		public override object GetValue()
+		{
+			return _relatedObject;
+		}
 	}
 }

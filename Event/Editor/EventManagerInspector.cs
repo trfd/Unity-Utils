@@ -11,9 +11,17 @@ public class EventManagerInspector : Editor
 	{
 		Utils.Event.EventManager manager = (Utils.Event.EventManager) target;
 
+		if(!manager.ReservedEventsAdded)
+			manager.AddReservedEvents();
+
+		EditorGUI.BeginChangeCheck();
+
 		for(int i = 0 ; i <  manager.EventIDs.Length ; i++)
 		{
 			GPEventID id = manager.EventIDs[i];
+
+			if(id.ID < 0)
+				continue;
 
 			EditorGUILayout.BeginHorizontal();
 
@@ -37,20 +45,18 @@ public class EventManagerInspector : Editor
 			manager.AddEventName();
 		}
 
+		/*
         if (GUILayout.Button("Add Default Events"))
         {
-            manager.AddEventName("EvtInteract");
-            manager.AddEventName("EvtInteractibleEnter");
-            manager.AddEventName("EvtInteractibleStay");
-            manager.AddEventName("EvtInteractibleExit");
-            manager.AddEventName("EvtTrigger");
+			manager.AddReservedEvents();
         }
+        */
 
 		if(GUILayout.Button("Refresh"))
 		{
 			manager.RefreshIDList();
 		}
 
-        
+		EditorGUI.EndChangeCheck();
 	}
 }

@@ -91,11 +91,7 @@ public class GPActionInspector
 		string name;
 
 		if(!GPActionManager.s_gpactionNameMap.TryGetValue(TargetAction.GetType(),out name))
-		{
-            Debug.LogError("GPAction type " + TargetAction.GetType() + " not registered");
 			return;
-		}
-
 
 		OnInspectorGUI();
 	}

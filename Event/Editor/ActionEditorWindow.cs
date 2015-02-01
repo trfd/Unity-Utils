@@ -519,13 +519,14 @@ namespace Utils.Event
 			else if(m_actionInspectors[id] == null)
 				CreateInspector(id);
 
-			m_actions[id]._leftNode.Draw();
+			if(m_actions[id]._leftNode._owner != null)
+				m_actions[id]._leftNode.Draw();
 
 			for(int i =0 ; i< m_actions[id]._rightNodes.Count ; i++)
 			{
 				m_actions[id]._rightNodes[i].Draw();
 			}
-
+		
 			GUILayout.BeginArea(new Rect(20,15,74,44));
 
 			m_actions[id].DrawWindowContent();
@@ -657,7 +658,7 @@ namespace Utils.Event
 			if(m_selectedBoxID == -1 || m_handler == null)
 				return;
 
-			string name = GPActionManager.s_gpactionNameMap[m_actions[m_selectedBoxID].GetType()];
+			string name = GetDisplayName(m_actions[m_selectedBoxID].GetType());
 			
 			name = name.Split('/').Last();
 
@@ -762,9 +763,7 @@ namespace Utils.Event
 
 				SetBoxColor(box);
 
-				string name = GPActionManager.s_gpactionNameMap[box.GetType()];
-
-				name = name.Split('/').Last();
+				string name = GetDisplayName(box.GetType());
 
 				Rect newRect = GUI.Window(i, box._windowRect, DisplayAction, name);
 
@@ -940,6 +939,25 @@ namespace Utils.Event
 		}
 
 		#region Utils
+
+		private string GetDisplayName(System.Type type)
+		{
+			// Get display name
+			
+			string name;
+			
+			if(!GPActionManager.s_gpactionNameMap.TryGetValue(type,out name))
+			{
+				object[] attr = type.GetCustomAttributes(typeof(GPActionAliasAttribute),false);
+				
+				if(attr.Length > 0)
+					name = ((GPActionAliasAttribute) attr[attr.Length-1])._aliasName;
+				else
+					name = type.Name;
+			}
+			
+			return name.Split('/').Last();
+		}
 
 		private void CreateTextures()
 		{

@@ -339,7 +339,7 @@ namespace Utils.Event
         /// <returns></returns>
         protected GameObject CreateGPActionHolderObject(EventHandler handler)
         {
-            GameObject holder = new GameObject(handler._eventID.Name);
+            GameObject holder = new GameObject();
 
             InitGPActionHolderObject(holder);
 

@@ -49,7 +49,13 @@ namespace Utils.Event
 		public override void DrawWindowContent()
 		{
 			base.DrawWindowContent();
-			GUILayout.Label(_varName);
+
+#if UNITY_EDITOR
+
+			GUILayout.Label(_varName, UnityEditor.EditorStyles.miniLabel);
+			object value = GetValue();
+			GUILayout.Label((value == null) ? "Null" : value.ToString(), UnityEditor.EditorStyles.miniLabel);
+#endif
 		}
 		
 		#endif

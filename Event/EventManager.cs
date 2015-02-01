@@ -57,6 +57,8 @@ namespace Utils.Event
 
         #region Private Members
 
+		private bool m_reservedEventsAdded;
+
 		/// <summary>
 		/// Whether or not the list of GPEventID is dirty.
 		/// </summary>
@@ -120,12 +122,23 @@ namespace Utils.Event
 			}
 		}
 
+		public bool ReservedEventsAdded
+		{
+			get{ return m_reservedEventsAdded; }
+		}
+
 		#endregion
 
 	    private void Init()
 	    {
 	        m_eventMap = new Dictionary<int, EventDelegate>();
 	    }
+
+		void OnValidate()
+		{
+			if(!m_reservedEventsAdded)
+				AddReservedEvents();
+		}
 
         #region Registration
 
@@ -199,7 +212,7 @@ namespace Utils.Event
 
 		#region EventID Management
 
-		public GPEventID EventNameToID (string evtName)
+		public GPEventID EventNameToID(string evtName)
 		{
             if(m_isEventIDMapDirty)
                 CreateEventIDMap();
@@ -214,7 +227,7 @@ namespace Utils.Event
 			}
 		}
 
-		public void AddEventName ()
+		public void AddEventName()
 		{
 			int maxID = 0;
 
@@ -252,6 +265,35 @@ namespace Utils.Event
             m_isEventIDMapDirty = true;
         }
 
+		private void AddEventName(int id, string eventName )
+		{
+			if (this.NameExist(eventName)) return;
+
+			if(m_eventIDList == null)
+				m_eventIDList = new List<Utils.Event.GPEventID>();
+
+			m_eventIDList.Add(new GPEventID { ID = id, Name = eventName });
+			
+			m_isEventIDMapDirty = true;
+		}
+
+		public void AddReservedEvents()
+		{
+			AddEventName(-1, "Start");
+			AddEventName(-2, "OnCollisionEnter");
+			AddEventName(-3, "OnCollisionExit");
+			AddEventName(-4, "OnTriggerEnter");
+			AddEventName(-5, "OnTriggerExit");
+			AddEventName(-6, "OnEnable");
+			AddEventName(-7, "OnDisable");
+			AddEventName(-8, "EvtInteract");
+			AddEventName(-9, "EvtInteractibleEnter");
+			AddEventName(-10,"EvtInteractibleStay");
+			AddEventName(-11,"EvtInteractibleExit");
+			AddEventName(-12,"EvtTrigger");
+
+			m_reservedEventsAdded = true;
+		}
 
 		public void RemoveEventName(GPEventID id)
 		{
@@ -273,7 +315,11 @@ namespace Utils.Event
 				}
 			}
 		}
-        public bool NameExist (string name){
+
+        public bool NameExist (string name)
+		{
+			if(m_eventIDList == null)
+				return false;
 
             foreach (GPEventID eventId in m_eventIDList)
             {
@@ -341,7 +387,7 @@ namespace Utils.Event
 
         #region Post Events
 
-		public void PostEvent (string evtName, GameObject obj = null)
+		public void PostEvent(string evtName, GameObject obj = null)
 		{
 			EventDelegate value;
 

@@ -65,6 +65,10 @@ namespace Utils.Event
 		[UnityEngine.HideInInspector]
 		private UnityEngine.Object m_prefabAction;
 
+		[UnityEngine.SerializeField]
+		[UnityEngine.HideInInspector]
+		private GPActionRelatedObject m_relativeObjectAction;
+
 #if UNITY_EDITOR
 		
 		/// <summary>
@@ -192,10 +196,17 @@ namespace Utils.Event
 
         void Start()
         {
+			if(m_relativeObjectAction == null)
+				m_relativeObjectAction = (GPActionRelatedObject) GetGPActionObjectMapperOrCreate()
+					.AddAction(this,typeof(GPActionRelatedObject));
+
 			if(!Application.isPlaying)
 				return;
 
             Init();
+
+			if(_eventID.Name == "Start")
+				this.EventTrigger(_eventID);
         }
 
         void Update()
@@ -221,6 +232,42 @@ namespace Utils.Event
 			if(Action.IsRunning)
 				Action.Update();
         }
+
+		void OnEnable()
+		{
+			if(Application.isPlaying && _eventID.Name == "OnEnable")
+				this.EventTrigger(_eventID);
+		}
+
+		void OnDisable()
+		{
+			if(Application.isPlaying && _eventID.Name == "OnDisable")
+				this.EventTrigger(_eventID);
+		}
+
+		void OnCollisionEnter(Collision collision)
+		{
+			if(_eventID.Name == "OnCollisionEnter")
+				this.EventTrigger(_eventID,collision.gameObject);
+		}
+
+		void OnCollisionExit(Collision collision)
+		{
+			if(_eventID.Name == "OnCollisionExit")
+				this.EventTrigger(_eventID,collision.gameObject);
+		}
+
+		void OnTriggerEnter(Collider other)
+		{
+			if(_eventID.Name == "OnCollisionEnter")
+				this.EventTrigger(_eventID,other.gameObject);
+		}
+		
+		void OnTriggerExit(Collider other)
+		{
+			if(_eventID.Name == "OnCollisionExit")
+				this.EventTrigger(_eventID,other.gameObject);
+		}
 
 		void OnDrawGizmos()
 		{
@@ -266,9 +313,21 @@ namespace Utils.Event
 
 			CurrentEvent = evt;
 
+			m_relativeObjectAction._relatedObject = evt.RelatedObject;
+
             if(CanTriggerAction())
                TriggerAction();
         }
+
+		private void EventTrigger(GPEventID id, GameObject relatedObj = null)
+		{
+			GPEvent evt = new GPEvent();
+			
+			evt.EventID = id;
+			evt.RelatedObject = relatedObj;
+			
+			this.EventTrigger(evt);
+		}
 
         #endregion
 
@@ -360,7 +419,7 @@ namespace Utils.Event
         private void TriggerAction()
         {
             m_currState = HandlerState.RUNNING;
-       
+       	
             m_triggerCount++;
             Action.Trigger();
         }

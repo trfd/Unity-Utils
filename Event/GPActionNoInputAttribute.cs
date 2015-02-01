@@ -1,5 +1,5 @@
 ﻿//
-// GPActionDeclFloat.cs
+// GPActionNoInputAttribute.cs
 //
 // Author(s):
 //       Baptiste Dupy <baptiste.dupy@gmail.com>
@@ -31,23 +31,8 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
-	[GPActionNoInput]
-	[GPActionAlias("Variable/Float/Declaration")]
-	public class GPActionDeclFloat : GPActionVariable 
+	[System.AttributeUsage(System.AttributeTargets.Class)]
+	public class GPActionNoInputAttribute : System.Attribute 
 	{
-		#region Public Members
-		
-		public float _value;
-		
-		#endregion
-		
-		#region GPActionVariable Override
-		
-		public override object GetValue ()
-		{
-			return _value;
-		}
-
-		#endregion
 	}
 }

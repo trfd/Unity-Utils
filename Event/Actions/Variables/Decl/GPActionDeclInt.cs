@@ -31,6 +31,7 @@ using System.Collections.Generic;
 
 namespace Utils.Event
 {
+	[GPActionNoInput]
 	[GPActionAlias("Variable/Int/Declaration")]
 	public class GPActionDeclInt : GPActionVariable 
 	{
@@ -47,16 +48,6 @@ namespace Utils.Event
 			return _value;
 		}
 
-#if UNITY_EDITOR
-		
-		public override void DrawWindowContent()
-		{
-			base.DrawWindowContent();
-			GUILayout.Label(_value.ToString());
-		}
-		
-#endif
-		
 		#endregion
 	}
 }
