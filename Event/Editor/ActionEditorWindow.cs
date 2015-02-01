@@ -643,9 +643,13 @@ namespace Utils.Event
 
 		protected virtual void DisplaySidebarFooter()
 		{
+			if(m_selectedBoxID != -1 && m_actions[m_selectedBoxID] is GPActionRelatedObject)
+				GUI.color = Color.gray;
 
 			if(GUILayout.Button("Remove Action") && m_selectedBoxID != -1)
 					RemoveSelectedAction(); 
+
+			GUI.color = Color.white;
 
 			EditorGUILayout.Space();
 
@@ -852,6 +856,9 @@ namespace Utils.Event
 				return;
 
 			GPAction action = m_actions[m_selectedBoxID];
+
+			if(action is GPActionRelatedObject)
+				return;
 
 			if(action._leftNode._connection != null)
 			{
