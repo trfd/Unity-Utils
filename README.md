@@ -1,5 +1,4 @@
 # Unity-Utils
-===========
 
 Set useful classes for Unity.
 
@@ -58,8 +57,9 @@ When the `MonoBehaviour` starts the saved type is instantiated.
 				
 			Debug.Log(« Type : » +_myA.GetType());
 		}
+	}
 
-The output should be
+The output should be: 
 
 	Type : TestClassB
 
