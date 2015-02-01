@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections;
 
-namespace Utils.Event
+namespace ActionTool
 {
 	[CustomPropertyDrawer(typeof(Component))]
 	public class ComponentDrawer : PropertyDrawer

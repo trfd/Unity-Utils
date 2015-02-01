@@ -243,7 +243,12 @@ namespace Utils
 
 			return ( Enumerable.SequenceEqual( p.m_dataMembers, this.m_dataMembers) );
 		}
-		
+
+		public override int GetHashCode ()
+		{
+			return base.GetHashCode ();
+		}
+
 		#endregion
     }
 
@@ -381,6 +386,11 @@ namespace Utils
 
 			return (p.m_component == this.m_component && 
 			        p.m_nestedDataMember == this.m_nestedDataMember);
+		}
+
+		public override int GetHashCode ()
+		{
+			return base.GetHashCode ();
 		}
 		
 		#endregion

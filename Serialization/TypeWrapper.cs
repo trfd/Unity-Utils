@@ -82,7 +82,7 @@ namespace Utils
 				if(t != null)
 					return t;
 			}
-			catch(System.Exception excpt)
+			catch(System.Exception)
 			{}
 			
 			return typeof(InvalidType);
@@ -109,12 +109,10 @@ namespace Utils
 					}
 				}
 			}
-			catch(System.SystemException excpt)
+			catch(System.SystemException)
 			{}
 
 			throw new System.Exception();
-
-			return sInvalid;
 		}
 
 		#endregion

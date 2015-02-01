@@ -178,12 +178,10 @@ namespace Utils.Reflection
 					}
 				}
 			}
-			catch(System.SystemException excpt)
+			catch(System.SystemException)
 			{}
 			
 			throw new System.Exception();
-			
-			return typeof(InvalidType);
 		}
 
 		#endregion

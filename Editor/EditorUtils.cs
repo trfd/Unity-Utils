@@ -46,9 +46,9 @@ public class EditorUtils
         else if (fieldType == typeof(Vector3)) return EditorGUILayout.Vector3Field(label,      (Vector3)value);
         else if (fieldType == typeof(Vector4)) return EditorGUILayout.Vector4Field(label.text, (Vector4)value);
         else if (fieldType == typeof(AnimationCurve)) return EditorGUILayout.CurveField(label, (AnimationCurve)value);
-		else if (typeof(UnityEngine.Component).IsAssignableFrom(fieldType))  return EditorGUILayout.ObjectField(label, (Component)value, typeof(Component));
-		else if (typeof(UnityEngine.GameObject).IsAssignableFrom(fieldType)) return EditorGUILayout.ObjectField(label, (GameObject)value, typeof(GameObject));
-		else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldType))     return EditorGUILayout.ObjectField(label, (UnityEngine.Object)value, typeof(UnityEngine.Object));
+		else if (typeof(UnityEngine.Component).IsAssignableFrom(fieldType))  return EditorGUILayout.ObjectField(label, (Component)value, typeof(Component),true);
+		else if (typeof(UnityEngine.GameObject).IsAssignableFrom(fieldType)) return EditorGUILayout.ObjectField(label, (GameObject)value, typeof(GameObject),true);
+		else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldType))     return EditorGUILayout.ObjectField(label, (UnityEngine.Object)value, typeof(UnityEngine.Object),true);
 
         return null;
     }

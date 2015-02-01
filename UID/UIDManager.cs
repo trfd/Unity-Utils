@@ -94,7 +94,7 @@ namespace Utils
 
 		private void UpdateStamp()
 		{
-			m_stamp = ((Int64) m_timeStamp) | (((Int64)m_uniqueStamp)<<32);
+			m_stamp = (long)(((ulong) m_timeStamp) | (((ulong)m_uniqueStamp)<<32));
 		}
 
 		public void OnBeforeSerialize()

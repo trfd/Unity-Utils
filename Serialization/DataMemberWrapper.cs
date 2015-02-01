@@ -180,7 +180,12 @@ namespace Utils
 			return (FieldEquals(p.m_field.FieldInfo,this.m_field.FieldInfo) &&
 			        PropertyEquals(p.m_property.PropertyInfo, this.m_property.PropertyInfo));
 		}
-		
+
+		public override int GetHashCode ()
+		{
+			return base.GetHashCode ();
+		}
+
 		#endregion
 
 		public static bool FieldEquals(FieldInfo f1, FieldInfo f2)
