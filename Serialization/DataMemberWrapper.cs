@@ -132,9 +132,9 @@ namespace Utils
         public virtual System.Object GetValue(System.Object instance)
 		{
 			if(m_field.FieldInfo != null)
-				m_field.FieldInfo.GetValue(instance);
+				return m_field.FieldInfo.GetValue(instance);
 			else if(m_property.PropertyInfo != null)
-				m_property.PropertyInfo.GetValue(instance,null);
+				return m_property.PropertyInfo.GetValue(instance,null);
 
 			return null;
 		}
