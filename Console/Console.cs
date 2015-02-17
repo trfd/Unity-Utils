@@ -64,7 +64,7 @@ namespace Utils
 
         private string m_consoleInput = "";
         private float m_consoleScrollValue;
-        private float m_consoleScrollSize;
+		private float m_consoleScrollSize;
         private int m_currentLine = 0;
 
         Dictionary<string, string> m_errorStack;
@@ -220,8 +220,7 @@ namespace Utils
             m_consoleScrollSize = Mathf.Min(1f, (float)_displaySize / (float)m_ctext.lineCount);
             m_consoleScrollSize = Mathf.Max(0.01f, m_consoleScrollSize);
 
-
-            GUILayout.TextArea(GetConsoleDisplay(m_consoleScrollValue), s_textAreaStyle,
+			GUILayout.TextArea(GetConsoleDisplay(m_consoleScrollValue/(1f-m_consoleScrollSize)), s_textAreaStyle,
                                GUILayout.Height(110), GUILayout.MaxWidth(Camera.main.pixelWidth - 20));
 
             m_consoleScrollValue = GUILayout.VerticalScrollbar(m_consoleScrollValue, m_consoleScrollSize, 0f, 1f,
@@ -232,7 +231,6 @@ namespace Utils
             GUILayout.EndArea();
 
             GUI.FocusControl("ConsoleInput");
-
 
             if (GUI.GetNameOfFocusedControl() == "ConsoleInput")
             {
@@ -270,7 +268,7 @@ namespace Utils
             int startLine = Mathf.RoundToInt((m_ctext.lineCount - _displaySize) * displayStart);
 
             m_currentLine = Mathf.Max(0, startLine);
-            //m_currentLine = Mathf.Max(0, m_ctext.lineCount - _displaySize);
+			m_currentLine = Mathf.Min(m_currentLine,m_ctext.lineCount - _displaySize);
 
             return m_ctext.GetString(m_currentLine, _displaySize);
         }
@@ -285,13 +283,6 @@ namespace Utils
             int lines = m_ctext.AppendLine(msg,"#ffffff");
 
             SetScrollToLine(m_currentLine + lines);
-        }
-
-
-        [InspectorButton("Test")]
-        void Test()
-        {
-            Debug.Log(m_ctext.GetString(Mathf.Max(0, m_ctext.lineCount -_displaySize), _displaySize));
         }
     }
 }
