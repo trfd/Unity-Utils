@@ -29,56 +29,71 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-public class ConsoleText 
+namespace Utils
 {
-	StringBuilder m_stringBuilder;
+    public class ConsoleText
+    {
+        StringBuilder m_stringBuilder;
 
-	List<int> m_lineIndex;
+        List<int> m_lineIndex;
 
-	public int lineCount
-	{get{return m_lineIndex.Count;}}
+        public int lineCount
+        { get { return m_lineIndex.Count; } }
 
-	public ConsoleText()
-	{
-		m_stringBuilder = new StringBuilder();
-		m_lineIndex = new List<int>();
-	}
+        public ConsoleText()
+        {
+            m_stringBuilder = new StringBuilder();
+            m_lineIndex = new List<int>();
+        }
 
-	public void AppendLine(string str)
-	{
-		string[] lines = str.Split('\n');
+        // Returns the number of lines
+        public int AppendLine(string str,string color)
+        {
+            string[] lines = str.Split('\n');
 
-		for(int i=0 ; i<lines.Length ; i++)
-		{
-			m_stringBuilder.AppendLine(lines[i]);
-			m_lineIndex.Add(m_stringBuilder.Length);
-		}
-	}
+            for (int i = 0; i < lines.Length; i++)
+            {
+                m_stringBuilder.AppendLine("<color="+color+">"+lines[i]+"</color>");
+                m_lineIndex.Add(m_stringBuilder.Length);
+            }
 
-	public void Clear()
-	{
-		m_lineIndex.Clear();
-		// Clear not implemented in Unity's .NET
-		//m_stringBuilder.Clear();
-		m_stringBuilder = new StringBuilder();
-	}
+            return lines.Length;
+        }
 
-	public string GetString(int startLine, int lineCnt)
-	{
-		startLine = Mathf.Max(0,startLine);
+        public void Clear()
+        {
+            m_lineIndex.Clear();
+            // Clear not implemented in Unity's .NET
+            //m_stringBuilder.Clear();
+            m_stringBuilder = new StringBuilder();
+        }
 
-		if(startLine >= m_lineIndex.Count)
-		{
-			Debug.LogError("ConsoleText out of bound request line in GetString");
-			return "";
-		}
+        public string GetString(int startLine, int lineCnt)
+        {
+            startLine = Mathf.Max(0, startLine);
 
-		if(startLine+lineCnt >= m_lineIndex.Count)
-			lineCnt = m_lineIndex.Count-startLine;
+            if (startLine >= m_lineIndex.Count)
+            {
+                Debug.LogError("ConsoleText out of bound request line in GetString");
+                return "";
+            }
+            
+            int endIdx;
 
-		int charLength = m_lineIndex[startLine+lineCnt-1] - m_lineIndex[startLine];
+            if (startLine + lineCnt > m_lineIndex.Count)
+            {
+                lineCnt = m_lineIndex.Count - startLine;
 
-		return m_stringBuilder.ToString(m_lineIndex[startLine], charLength);
-	}
+                endIdx = m_stringBuilder.Length;
+            }
+            else
+            {
+                endIdx = m_lineIndex[startLine + lineCnt - 1];
+            }
 
+            int charLength = endIdx - m_lineIndex[startLine];
+
+            return m_stringBuilder.ToString(m_lineIndex[startLine], charLength);
+        }
+    }
 }
