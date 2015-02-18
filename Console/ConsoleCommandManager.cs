@@ -93,11 +93,14 @@ namespace Utils
 	    private void Input_impl(string str)
 	    {
 		    string[] bits = str.Split(' ');
+            string[] args = new string[bits.Length - 1];
+
+            System.Array.Copy(bits, 1, args, 0, args.Length);
 
 		    MethodInfo cmd;
 
             if (m_cmd.TryGetValue(bits[0].ToLower(), out cmd))
-                Console.DisplayMessage((string)cmd.Invoke(null, new object[]{bits}));
+                Console.DisplayMessage((string)cmd.Invoke(null, new object[]{args}));
             else
                 Debug.Log("Unknown command: "+str);
 	    }
