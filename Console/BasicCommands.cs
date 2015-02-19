@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Utils
 {
@@ -13,6 +14,42 @@ namespace Utils
             return "Hello";
         }
 
+        [ConsoleCommand("list")]
+        public static string List(string[] args)
+        {
+            if (args.Length != 2)
+                return "list: argument of the form 'list components gameObject' or 'list children gameObject'";
+
+            GameObject obj = GetGameObjectFromExpression(args[1]);
+
+            if (obj == null)
+                return "list: object with expression " + args[1] + " not found";
+
+            if(args[0] == "components")
+            {
+                Component[] comps = obj.GetComponents<Component>();
+
+                string list = "";
+
+                foreach (Component comp in comps)
+                    list += comp.GetType().FullName + "\n";
+
+                return list;
+            } 
+            else if(args[0] == "children")
+            {
+                string list = "";
+
+                for(int i=0 ; i<obj.transform.childCount ; i++)
+                {
+                    list += obj.transform.GetChild(i).name + "\n";
+                }
+                
+                return list;
+            }
+
+            return "list: unsupported argument " + args[0];
+        }
 
         // Log the value of a member
         // argument is of the form:
@@ -27,13 +64,114 @@ namespace Utils
 
             string[] bits = args[0].Split('.');
 
-            if(bits.Length <= 3)
-                return "'log' requires a single argument of the form gameObjectName.ComponentType/[i]/.member";
+            if(bits.Length < 3)
+                return "'log' requires an argument of the form gameObjectName.ComponentType/[i]/.member";
 
-            GameObject obj 
+            GameObject obj = GetGameObjectFromExpression(bits[0]);
 
+            if(obj == null)
+                return "log: object with expression "+bits[0]+" not found";
+
+            Component comp = obj.GetComponent(bits[1]);
+
+            if (comp == null)
+                return "log: component of type " + bits[1] + " not found in object " + obj.name;
+
+            ComponentNestedDataMemberWrapper dataMemberWrapper = new ComponentNestedDataMemberWrapper(comp);
+            dataMemberWrapper.NestedDataMember.DataMembers = new DataMemberWrapper[0];
+
+            System.Type type = comp.GetType();
+
+            for(int i=2 ; i<bits.Length ; i++)
+            {
+                FieldInfo field = type.GetField(bits[i]);
+                PropertyInfo property = type.GetProperty(bits[i]);
+
+                if (field != null)
+                {
+                    dataMemberWrapper = dataMemberWrapper.Append(field);
+                    type = field.FieldType;
+                }
+                else if (property != null)
+                {
+                    dataMemberWrapper = dataMemberWrapper.Append(property);
+                    type = property.PropertyType;
+                }
+                else
+                    return "log: field or property " + bits[i] + " not found in " + bits[i - 1];
+                    
+            }
+
+            return dataMemberWrapper.GetValue().ToString();
         }
 
+        [ConsoleCommand("disable")]
+        public static string Disable(string[] args)
+        {
+            if (args.Length != 1)
+                return "'disable' requires a single argument of the form gameObjectName.ComponentType/[i]";
+
+            string[] bits = args[0].Split('.');
+
+            if (bits.Length > 2)
+                return "'disable' requires an argument of the form gameObjectName.ComponentType/[i]/";
+
+            GameObject gobj = GetGameObjectFromExpression(bits[0]);
+
+            if(bits.Length == 2)
+            {
+                Component comp = gobj.GetComponent(bits[1]);
+
+                if (comp == null)
+                    return "disable: component of type " + bits[1] + " not found in object " + gobj.name;
+
+                if(!(comp is MonoBehaviour))
+                    return "disable: can not disable component "+bits[1]+". Not a MonoBehaviour";
+
+                ((MonoBehaviour)comp).enabled = false;
+
+                return "Disable "+bits[1]+" in "+ gobj.name;
+            }
+            else
+            {
+                gobj.SetActive(false);
+                return "Disable " + gobj.name;
+            }
+        }
+
+        [ConsoleCommand("enable")]
+        public static string Enable(string[] args)
+        {
+            if (args.Length != 1)
+                return "'disable' requires a single argument of the form gameObjectName.ComponentType/[i]";
+
+            string[] bits = args[0].Split('.');
+
+            if (bits.Length > 2)
+                return "'disable' requires an argument of the form gameObjectName.ComponentType/[i]/";
+
+            GameObject gobj = GetGameObjectFromExpression(bits[0]);
+
+            if (bits.Length == 2)
+            {
+                Component comp = gobj.GetComponent(bits[1]);
+
+                if (comp == null)
+                    return "disable: component of type " + bits[1] + " not found in object " + gobj.name;
+
+                if (!(comp is MonoBehaviour))
+                    return "disable: can not disable component " + bits[1] + ". Not a MonoBehaviour";
+
+                ((MonoBehaviour)comp).enabled = false;
+
+                return "Disable " + bits[1] + " in " + gobj.name;
+            }
+            else
+            {
+                gobj.SetActive(false);
+                return "Disable " + gobj.name;
+            }
+        }
 
         /// <summary>
         /// Returns a gameobject access via a console syntax string
@@ -50,6 +188,15 @@ namespace Utils
         public static GameObject GetGameObjectFromExpression(string exp)
         {
             string[] singleExp = exp.Split('>');
+
+            GameObject obj = null;
+
+            foreach(string sExp in singleExp)
+            {
+                obj = GetGameObjectFromSingleExpression(sExp , obj);
+            }
+
+            return obj;
         }
 
         /// <summary>
@@ -84,9 +231,9 @@ namespace Utils
             }
 
             if (parent == null)
-                GetRootGameObjectFromSingleExpression(name, tagSearch, arrayIndex);
-            else
-                GetChildGameObjectFromSingleExpression(parent,name, tagSearch, arrayIndex);
+                return GetRootGameObjectFromSingleExpression(name, tagSearch, arrayIndex);
+            
+            return GetChildGameObjectFromSingleExpression(parent,name, tagSearch, arrayIndex);
         }
 
         private static GameObject GetRootGameObjectFromSingleExpression(string name, bool tagSearch, int arrayIndex)
@@ -97,6 +244,7 @@ namespace Utils
 
                 if (arrayIndex >= obj.Length && arrayIndex < 0)
                     return null;
+
                 return obj[arrayIndex];
             }
             else
