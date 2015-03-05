@@ -37,8 +37,16 @@ public class BehaviourEditor : UnityEditor.Editor
 	{
 		base.OnInspectorGUI();
 
-	    foreach(MonoBehaviour beh in targets)
+	    foreach(UnityEngine.Object obj in targets)
 	    {
+            if (!(obj is MonoBehaviour))
+            {
+                Debug.LogWarning("Object "+obj.name +" of type " + obj.GetType().FullName+" found in BehaviourEditor's targets");
+                continue;
+            }
+
+            MonoBehaviour beh = (MonoBehaviour)obj;
+
             EditorUtils.DrawMethodGUIButton(beh);
             EditorUtils.DrawMemberValue(beh);
 	    }
