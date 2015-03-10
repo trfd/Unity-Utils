@@ -192,13 +192,8 @@ namespace Utils
 
         void Update()
         {
-            if (Input.GetKey(KeyCode.F1) && !m_ignoreInputs)
-            {
+            if (Input.GetKeyUp(KeyCode.F1))
                 m_active = !m_active;
-                m_ignoreInputs = true;
-            }
-            else if (Input.GetKeyUp(KeyCode.F1))
-                m_ignoreInputs = false;
         }
 
         void OnGUI()
@@ -209,6 +204,8 @@ namespace Utils
             if (s_textAreaStyle == null || s_textFieldStyle == null)
                 InitGUI();
 
+            if (Event.current.isKey && Event.current.keyCode == KeyCode.F1)
+                m_active = false;
 
             GUILayout.BeginArea(new Rect(0, 0, Camera.main.pixelWidth, 200));
 
